@@ -6,12 +6,40 @@ import numpy as np
 
 class Camera:
     class ImageProcessor:
-        def __init__(self, resolution):
+        def __init__(self,
+                resolution: tuple = (640, 480),
+                N_beams: int = 12):
+
             self.resolution = resolution
+            self.N_beams = N_beams
+
+            self.beam_start = np.zeros((N_beams, 2), dtype=np.int32)
+            self.beam_end = np.zeros((N_beams, 2), dtype=np.int32)
+
+            self.status = np.full(N_beams, np.nan, dtype=np.float32)
 
             self.frame = None
             self.frame_lock = threading.Lock()
             self.frame_event = threading.Event()
+
+            # initial calibration
+            w, h = self.resolution
+            xs = np.linspace(0, w - 1, N_beams, endpoint=True, dtype=np.int32)
+            beam_start = np.stack((xs, np.zeros_like(xs)), axis=1)
+            beam_end = np.stack((xs, np.full_like(xs, h - 1)), axis=1)
+            self.calibrate(beam_start, beam_end)
+
+        def calibrate(self, beam_start, beam_end):
+            # assert x in ascending order for both arrays
+            assert(np.all(np.diff(beam_start[:, 0]) > 0))
+            assert(np.all(np.diff(beam_end[:, 0]) > 0))
+
+            # assert end y > start y for each beam
+            assert(np.all(beam_end[:, 1] > beam_start[:, 1]))
+
+            # store the calibration points
+            np.copyto(self.beam_start, beam_start)
+            np.copyto(self.beam_end, beam_end)
 
         def write(self, buf):
             w, h = self.resolution
@@ -24,13 +52,31 @@ class Camera:
 
                 self.frame_event.set()
 
-            # TODO: image processing
+            # TODO: vectorize this?
+            new_status = np.full_like(self.status, np.nan)
+            for i in range(self.N_beams):
+                N_samples = self.beam_end[i, 1] - self.beam_start[i, 1] + 1
+                xs = np.linspace(self.beam_start[i, 0], self.beam_end[i, 0], N_samples, endpoint=True, dtype=np.int32)
+                ys = np.linspace(self.beam_start[i, 1], self.beam_end[i, 1], N_samples, endpoint=True, dtype=np.int32)
+                vs = np.linspace(0, 1, N_samples, endpoint=True, dtype=np.float32)
+
+                b_max = 0
+                for x, y, v in zip(xs, ys, vs):
+                    b = self.frame[y, x]
+                    if b > b_max:
+                        b_max = b
+                        new_status[i] = v
+
+            status_changed = np.any(self.status != new_status)
+            self.status = new_status
+            if status_changed:
+                print(self.status[0])
 
         def flush(self):
             # clear the event
             self.frame_event.clear()
 
-        def get_frame_safe(self):
+        def get_frame(self):
             # wait for a frame to be available
             self.frame_event.wait()
 
@@ -72,7 +118,7 @@ class Camera:
             self.camera.stop_recording()
 
     def capture(self) -> np.ndarray:
-        return self.image_processor.get_frame_safe()
+        return self.image_processor.get_frame()
 
     def close(self):
         self.camera.close()

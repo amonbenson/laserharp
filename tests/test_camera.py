@@ -19,6 +19,8 @@ class Test_Camera(unittest.TestCase):
         while not self.camera.running:
             time.sleep(0.1)
 
+        time.sleep(5)
+
     def test_capture(self):
         # capture a frame
         frame = self.camera.capture()
