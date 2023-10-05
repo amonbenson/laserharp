@@ -1,6 +1,6 @@
 import unittest
 import time
-from PIL import Image
+import cv2
 from ..camera import Camera
 from . import OUTPUT_DIRECTORY
 
@@ -19,21 +19,20 @@ class Test_Camera(unittest.TestCase):
         while not self.camera.running:
             time.sleep(0.1)
 
-        time.sleep(5)
-
     def test_capture(self):
         # capture a frame
         frame = self.camera.capture()
 
-        # check the frame size
+        # check the frame size and make sure it's not empty
         self.assertEqual(frame.shape, (480, 640))
-
-        # make sure the frame is not empty
         self.assertTrue(frame.any())
 
         # save the frame to a file
-        image = Image.fromarray(frame)
-        image.save(OUTPUT_DIRECTORY / 'test_camera_capture.jpg')
+        cv2.imwrite(OUTPUT_DIRECTORY / 'camera_capture.jpg', frame)
+
+    def test_calibration(self):
+        frame = self.camera.capture(draw_calibration=True)
+        cv2.imwrite(OUTPUT_DIRECTORY / 'camera_calibration.jpg', frame)
 
 if __name__ == '__main__':
     unittest.main()

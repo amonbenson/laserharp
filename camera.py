@@ -2,14 +2,12 @@ import time
 import threading
 import picamera
 import numpy as np
+import cv2
 
 
 class Camera:
     class ImageProcessor:
-        def __init__(self,
-                resolution: tuple = (640, 480),
-                N_beams: int = 12):
-
+        def __init__(self, resolution: tuple, N_beams):
             self.resolution = resolution
             self.N_beams = N_beams
 
@@ -76,13 +74,23 @@ class Camera:
             # clear the event
             self.frame_event.clear()
 
-        def get_frame(self):
+        def get_frame(self, *, draw_calibration: bool = False):
             # wait for a frame to be available
             self.frame_event.wait()
 
             # return a copy of the current frame
             with self.frame_lock:
-                return self.frame.copy()
+                frame = self.frame.copy()
+
+            # convert grayscale to bgr
+            frame = cv2.cvtColor(frame, cv2.COLOR_GRAY2BGR)
+
+            # draw a line for each beam span
+            if draw_calibration:
+                for i in range(self.N_beams):
+                    cv2.line(frame, tuple(self.beam_start[i]), tuple(self.beam_end[i]), (0, 0, 255), 1)
+
+            return frame
 
     def __init__(self):
         self.camera = picamera.PiCamera()
@@ -92,7 +100,10 @@ class Camera:
         self.thread = None
         self.running = False
 
-        self.image_processor = self.ImageProcessor(resolution=self.camera.resolution)
+        self.image_processor = self.ImageProcessor(
+            resolution=self.camera.resolution,
+            N_beams=1
+        )
 
     def start(self):
         if self.running: return
@@ -117,8 +128,8 @@ class Camera:
         finally:
             self.camera.stop_recording()
 
-    def capture(self) -> np.ndarray:
-        return self.image_processor.get_frame()
+    def capture(self, *kargs, **kwargs) -> np.ndarray:
+        return self.image_processor.get_frame(*kargs, **kwargs)
 
     def close(self):
         self.camera.close()
