@@ -2,8 +2,9 @@ import threading
 from queue import Queue
 import mido
 import time
+import numpy as np
 from .ipc import IPCController, IPCPacket
-from .camera import Camera
+from .camera import Camera, InterceptionEvent
 from .midi import MidiEvent, MidiInterface
 
 
@@ -21,14 +22,17 @@ class LaserHarpApp:
         self.ipc_thread.daemon = True
 
         # setup camera interface
-        self.camera = Camera(framerate=CAMERA_FRAMERATE)
+        self.camera = Camera(framerate=CAMERA_FRAMERATE, N_beams=NUM_LASERS)
         self.interception_thread = threading.Thread(target=self._interception_loop)
         self.interception_thread.daemon = True
 
+        # setup main event loop
         self.running = False
         self.event_queue = Queue()
         self.event_thread = threading.Thread(target=self._event_loop)
         self.event_thread.daemon = True
+
+        self.note_status = np.zeros(NUM_LASERS, dtype=np.uint8)
 
     def start(self):
         if self.running: return
@@ -76,4 +80,40 @@ class LaserHarpApp:
     def _event_loop(self):
         while self.running:
             event = self.event_queue.get()
-            print(event)
+
+            if isinstance(event, MidiEvent):
+
+                # set laser brightness from midi note
+                if event.message.type == 'note_on':
+                    index = event.message.note
+                    brightness = min(LASER_MAX, event.message.velocity)
+                elif event.message.type == 'note_off':
+                    index = event.message.note
+                    brightness = 0
+                else:
+                    print(f"Unhandled midi message: {event.message}")
+
+                if index <= NUM_LASERS:
+                    self.ipc.set_laser(index, brightness)
+                else:
+                    print(f"Received midi note out of range: {index}")
+
+            elif isinstance(event, InterceptionEvent):
+                #print(event.beamlength)
+
+                # set note status to 127 if the beamlength is not nan/inf
+                new_note_status = np.where(np.isfinite(event.beamlength), 127, 0).astype(np.uint8)
+
+                # send midi note on/off messages for each laser
+                for i in range(NUM_LASERS):
+                    if new_note_status[i] != self.note_status[i]:
+                        cmd = 'note_on' if new_note_status[i] else 'note_off'
+                        note = i
+                        velocity = new_note_status[i]
+                        self.ipc.send_midi(MidiEvent(MidiInterface.USB, mido.Message(cmd, note=note, velocity=velocity)))
+
+                # update note status
+                np.copyto(self.note_status, new_note_status)
+
+            else:
+                print(f"Received unknown event: {event}")

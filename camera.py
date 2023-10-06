@@ -12,7 +12,7 @@ class InterceptionEvent:
 
 class Camera:
     class ImageProcessor:
-        def __init__(self, resolution: tuple, N_beams):
+        def __init__(self, resolution: tuple, N_beams: int):
             self.resolution = resolution
             self.N_beams = N_beams
 
@@ -45,6 +45,7 @@ class Camera:
             # store the calibration points
             np.copyto(self.beam_start, beam_start)
             np.copyto(self.beam_end, beam_end)
+            self.beam_threshold = 128
 
         def write(self, buf):
             w, h = self.resolution
@@ -57,7 +58,7 @@ class Camera:
 
                 self.frame_event.set()
 
-            # TODO: vectorize this?
+            # calculate the beam intercepts
             new_beamlength = np.full_like(self.beamlength, np.nan)
             for i in range(self.N_beams):
                 N_samples = self.beam_end[i, 1] - self.beam_start[i, 1] + 1
@@ -65,17 +66,19 @@ class Camera:
                 ys = np.linspace(self.beam_start[i, 1], self.beam_end[i, 1], N_samples, endpoint=True, dtype=np.int32)
                 vs = np.linspace(0, 1, N_samples, endpoint=True, dtype=np.float32)
 
-                b_max = 0
+                # check if any pixel is brightner than the specified threshold
+                b_max = self.beam_threshold
                 for x, y, v in zip(xs, ys, vs):
                     b = self.frame[y, x]
                     if b > b_max:
                         b_max = b
                         new_beamlength[i] = v
 
+            # notify the reading thread
             changed = np.any(self.beamlength != new_beamlength)
 
             with self.beamlength_lock:
-                self.beamlength = new_beamlength
+                np.copyto(self.beamlength, new_beamlength)
 
                 if changed:
                     self.beamlength_event.set()
@@ -113,7 +116,7 @@ class Camera:
 
             return frame
 
-    def __init__(self, framerate: int = 60):
+    def __init__(self, framerate: int = 60, N_beams: int = 24):
         self.camera = picamera.PiCamera()
         self.camera.resolution = (640, 480) # VGA resolution
         self.camera.framerate = framerate
@@ -123,7 +126,7 @@ class Camera:
 
         self.image_processor = self.ImageProcessor(
             resolution=self.camera.resolution,
-            N_beams=5)
+            N_beams=N_beams)
 
     def start(self):
         if self.running: return
