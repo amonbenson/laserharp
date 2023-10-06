@@ -6,6 +6,10 @@ from .ipc import IPCController, IPCPacket
 from .midi import MidiEvent, MidiInterface
 
 
+NUM_LASERS = 24
+LASER_MAX = 63
+
+
 class LaserHarpApp:
     def __init__(self):
         # use hardware serial for IPC
@@ -21,9 +25,13 @@ class LaserHarpApp:
     def start(self):
         if self.running: return
 
+        # start all threads
         self.running = True
         self.ipc_thread.start()
         self.midi_thread.start()
+
+        # enable all lasers
+        self.ipc.set_all_lasers(LASER_MAX)
 
     def stop(self):
         if not self.running: return
@@ -37,15 +45,12 @@ class LaserHarpApp:
             packet = self.ipc.read()
 
             # STM handles USB midi messages, so this is the only command type we expect to receive
-            if packet.cmd == IPCPacket.Command.MIDI_USB:
+            if packet.cmd in [IPCPacket.Command.MIDI_DIN, IPCPacket.Command.MIDI_USB]:
                 self.midi_queue.put(packet.midi())
             else:
-                print(f"Received unknown IPC packet: {packet.bytes()}")
+                print(f"Received unknown IPC packet: {packet.bytes().hex(' ')}")
 
     def _midi_loop(self):
-        self.ipc.send_midi(MidiEvent(MidiInterface.USB, mido.Message('note_on', note=60, velocity=64)))
-
-        print("Start handling midi messages...")
         while self.running:
             event = self.midi_queue.get()
             print(event)
