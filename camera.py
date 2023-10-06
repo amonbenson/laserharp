@@ -3,7 +3,12 @@ import threading
 import picamera
 import numpy as np
 import cv2
+from dataclasses import dataclass
 
+
+@dataclass
+class InterceptionEvent:
+    beamlength: np.ndarray
 
 class Camera:
     class ImageProcessor:
@@ -14,7 +19,9 @@ class Camera:
             self.beam_start = np.zeros((N_beams, 2), dtype=np.int32)
             self.beam_end = np.zeros((N_beams, 2), dtype=np.int32)
 
-            self.status = np.full(N_beams, np.nan, dtype=np.float32)
+            self.beamlength = np.full(N_beams, np.nan, dtype=np.float32)
+            self.beamlength_lock = threading.Lock()
+            self.beamlength_event = threading.Event()
 
             self.frame = None
             self.frame_lock = threading.Lock()
@@ -51,7 +58,7 @@ class Camera:
                 self.frame_event.set()
 
             # TODO: vectorize this?
-            new_status = np.full_like(self.status, np.nan)
+            new_beamlength = np.full_like(self.beamlength, np.nan)
             for i in range(self.N_beams):
                 N_samples = self.beam_end[i, 1] - self.beam_start[i, 1] + 1
                 xs = np.linspace(self.beam_start[i, 0], self.beam_end[i, 0], N_samples, endpoint=True, dtype=np.int32)
@@ -63,16 +70,30 @@ class Camera:
                     b = self.frame[y, x]
                     if b > b_max:
                         b_max = b
-                        new_status[i] = v
+                        new_beamlength[i] = v
 
-            status_changed = np.any(self.status != new_status)
-            self.status = new_status
-            if status_changed:
-                print(self.status[0])
+            changed = np.any(self.beamlength != new_beamlength)
+
+            with self.beamlength_lock:
+                self.beamlength = new_beamlength
+
+                if changed:
+                    self.beamlength_event.set()
 
         def flush(self):
-            # clear the event
+            # clear the frame event
             self.frame_event.clear()
+
+        def read(self):
+            # wait for an interception event
+            self.beamlength_event.wait()
+            self.beamlength_event.clear()
+
+            # return a copy of the current beamlengths
+            with self.beamlength_lock:
+                beamlength = self.beamlength.copy()
+
+            return InterceptionEvent(beamlength)
 
         def get_frame(self, *, draw_calibration: bool = False):
             # wait for a frame to be available
@@ -92,10 +113,10 @@ class Camera:
 
             return frame
 
-    def __init__(self):
+    def __init__(self, framerate: int = 60):
         self.camera = picamera.PiCamera()
         self.camera.resolution = (640, 480) # VGA resolution
-        self.camera.framerate = 60
+        self.camera.framerate = framerate
         self.camera.rotation = 180
         self.thread = None
         self.running = False
@@ -126,6 +147,9 @@ class Camera:
                 self.camera.wait_recording(1)
         finally:
             self.camera.stop_recording()
+
+    def read(self):
+        return self.image_processor.read()
 
     def capture(self, *kargs, **kwargs) -> np.ndarray:
         return self.image_processor.get_frame(*kargs, **kwargs)
