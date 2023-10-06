@@ -102,8 +102,7 @@ class Camera:
 
         self.image_processor = self.ImageProcessor(
             resolution=self.camera.resolution,
-            N_beams=1
-        )
+            N_beams=5)
 
     def start(self):
         if self.running: return

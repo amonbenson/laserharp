@@ -24,15 +24,15 @@ class Test_Camera(unittest.TestCase):
         frame = self.camera.capture()
 
         # check the frame size and make sure it's not empty
-        self.assertEqual(frame.shape, (480, 640))
+        self.assertEqual(frame.shape, (480, 640, 3))
         self.assertTrue(frame.any())
 
         # save the frame to a file
-        cv2.imwrite(OUTPUT_DIRECTORY / 'camera_capture.jpg', frame)
+        cv2.imwrite(str(OUTPUT_DIRECTORY / 'camera_capture.jpg'), frame)
 
     def test_calibration(self):
         frame = self.camera.capture(draw_calibration=True)
-        cv2.imwrite(OUTPUT_DIRECTORY / 'camera_calibration.jpg', frame)
+        cv2.imwrite(str(OUTPUT_DIRECTORY / 'camera_calibration.jpg'), frame)
 
 if __name__ == '__main__':
     unittest.main()

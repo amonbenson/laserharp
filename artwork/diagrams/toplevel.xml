@@ -1,4 +1,4 @@
-<mxfile host="app.diagrams.net" modified="2023-10-05T16:15:41.992Z" agent="Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Safari/537.36" etag="lBYdHDYrkHoJWZVfHtjo" version="22.0.2" type="device">
+<mxfile host="app.diagrams.net" modified="2023-10-05T16:24:28.671Z" agent="Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Safari/537.36" etag="kq3cXIPSYqUeO_mywK-5" version="22.0.2" type="device">
   <diagram name="Page-1" id="H1mPvIyL1mCLss5jfLrY">
     <mxGraphModel dx="1405" dy="904" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" math="0" shadow="0">
       <root>
@@ -16,7 +16,7 @@
         <mxCell id="AvE4oNM-N3TdAotN3SgD-34" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.25;exitDx=0;exitDy=0;entryX=0.75;entryY=1;entryDx=0;entryDy=0;startArrow=classic;startFill=1;" parent="AvE4oNM-N3TdAotN3SgD-1" source="AvE4oNM-N3TdAotN3SgD-20" target="AvE4oNM-N3TdAotN3SgD-32" edge="1">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="AvE4oNM-N3TdAotN3SgD-20" value="Midi&lt;br&gt;Interface" style="rounded=0;whiteSpace=wrap;html=1;" parent="AvE4oNM-N3TdAotN3SgD-1" vertex="1">
+        <mxCell id="AvE4oNM-N3TdAotN3SgD-20" value="Midi&lt;br&gt;Controller" style="rounded=0;whiteSpace=wrap;html=1;" parent="AvE4oNM-N3TdAotN3SgD-1" vertex="1">
           <mxGeometry x="120" y="140" width="80" height="80" as="geometry" />
         </mxCell>
         <mxCell id="AvE4oNM-N3TdAotN3SgD-24" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;startArrow=classic;startFill=1;" parent="AvE4oNM-N3TdAotN3SgD-1" source="AvE4oNM-N3TdAotN3SgD-22" target="AvE4oNM-N3TdAotN3SgD-20" edge="1">
