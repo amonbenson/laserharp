@@ -9,4 +9,4 @@ class MidiEvent:
     message: mido.Message
 
     def __repr__(self):
-        return f"MidiEvent(cable_number={self.cable_number :.02x}, message={self.message.bytes().hex(' ')})"
+        return f"MidiEvent(cable_number={self.cable_number :02x}, message={bytearray(self.message.bytes()).hex(' ')})"

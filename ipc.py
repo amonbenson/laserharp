@@ -25,14 +25,17 @@ class IPCController():
 
         # construct and send the packet
         cn_cid = np.uint8(event.cable_number << 4 | message_data[0] >> 4)
-        self._serial.write(bytearray([cn_cid, *message_data]))
+
+        data = bytearray([cn_cid, *message_data])
+        print(f"RPI -> STM: {data.hex(' ')}")
+        self._serial.write(data)
 
     def read(self) -> MidiEvent:
         # read a packet
         data = self._serial.read(4)
         if len(data) != 4:
             raise ValueError(f"Invalid packet size: {len(data)}")
-        #print(f"IPC read: {data.hex(' ')}")
+        print(f"STM -> RPI: {data.hex(' ')}")
 
         # parse the packet
         cn = data[0] >> 4

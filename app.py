@@ -3,6 +3,7 @@ from queue import Queue
 import mido
 import time
 import numpy as np
+import traceback
 from .ipc import IPCController
 from .camera import Camera, InterceptionEvent
 from .midi import MidiEvent
@@ -13,10 +14,10 @@ LASER_MAX = 63
 
 CAMERA_FRAMERATE = 60
 
-IPC_CN_DIN = 0x00
-IPC_CN_USB = 0x01
-IPC_CN_BLE = 0x02
-IPC_CN_LASER_BRIGHTNESS = 0x10
+IPC_CN_DIN = 0
+IPC_CN_USB = 1
+IPC_CN_BLE = 2
+IPC_CN_LASER_BRIGHTNESS = 3
 
 
 class LaserHarpApp:
@@ -96,7 +97,7 @@ class LaserHarpApp:
             if event.cable_number in [IPC_CN_DIN, IPC_CN_USB]:
                 self.event_queue.put(event)
             else:
-                print(f"Received unknown IPC packet: {event.cable_number :.02x} {event.message.bytes().hex(' ')}")
+                print(f"Received unknown IPC packet: {event.cable_number :02x} {event.message.bytes().hex(' ')}")
 
     def _event_loop(self):
         while self.running:
@@ -112,6 +113,7 @@ class LaserHarpApp:
                     print(f"Received unknown event: {event}")
 
             except Exception as e:
+                traceback.print_exc()
                 print(f"Unhandled exception in event loop: {e}")
 
     def _handle_midi_event(self, event: MidiEvent):
@@ -129,7 +131,7 @@ class LaserHarpApp:
         # set the laser brightness (this will send an IPC packet to the STM)
         if index <= NUM_LASERS:
             self.set_laser(index, brightness)
-        if index == 127:
+        elif index == 127:
             self.set_all_lasers(brightness)
         else:
             print(f"Received midi note out of range: {index}")
