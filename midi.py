@@ -3,12 +3,10 @@ from enum import Enum
 from dataclasses import dataclass
 
 
-class MidiInterface(Enum):
-    DIN = 0x00
-    USB = 0x01
-    BLE = 0x02
-
 @dataclass
 class MidiEvent:
-    interface: MidiInterface
+    cable_number: int
     message: mido.Message
+
+    def __repr__(self):
+        return f"MidiEvent(cable_number={self.cable_number :.02x}, message={self.message.bytes().hex(' ')})"

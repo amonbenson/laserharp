@@ -3,15 +3,20 @@ from queue import Queue
 import mido
 import time
 import numpy as np
-from .ipc import IPCController, IPCPacket
+from .ipc import IPCController
 from .camera import Camera, InterceptionEvent
-from .midi import MidiEvent, MidiInterface
+from .midi import MidiEvent
 
 
 NUM_LASERS = 24
 LASER_MAX = 63
 
 CAMERA_FRAMERATE = 60
+
+IPC_CN_DIN = 0x00
+IPC_CN_USB = 0x01
+IPC_CN_BLE = 0x02
+IPC_CN_LASER_BRIGHTNESS = 0x10
 
 
 class LaserHarpApp:
@@ -34,6 +39,22 @@ class LaserHarpApp:
 
         self.note_status = np.zeros(NUM_LASERS, dtype=np.uint8)
 
+    def send_din_midi(self, message: mido.Message):
+        self.ipc.send(MidiEvent(IPC_CN_DIN, message))
+
+    def send_usb_midi(self, message: mido.Message):
+        self.ipc.send(MidiEvent(IPC_CN_USB, message))
+
+    def send_ble_midi(self, message: mido.Message):
+        # TODO: implement BLE
+        pass
+
+    def set_laser(self, index: int, brightness: int):
+        self.ipc.send(MidiEvent(IPC_CN_LASER_BRIGHTNESS, mido.Message('control_change', control=index, value=brightness)))
+
+    def set_all_lasers(self, brightness: int):
+        self.ipc.send(MidiEvent(IPC_CN_LASER_BRIGHTNESS, mido.Message('control_change', control=127, value=brightness)))
+
     def start(self):
         if self.running: return
 
@@ -47,7 +68,7 @@ class LaserHarpApp:
         self.camera.start()
 
         # enable all lasers
-        self.ipc.set_all_lasers(LASER_MAX)
+        self.set_all_lasers(LASER_MAX)
 
     def stop(self):
         if not self.running: return
@@ -69,51 +90,68 @@ class LaserHarpApp:
 
     def _ipc_loop(self):
         while self.running:
-            packet = self.ipc.read()
+            event = self.ipc.read()
 
-            # STM handles USB midi messages, so this is the only command type we expect to receive
-            if packet.cmd in [IPCPacket.Command.MIDI_DIN, IPCPacket.Command.MIDI_USB]:
-                self.event_queue.put(packet.midi())
+            # STM handles USB and DIN midi, so this is the only cable number we expect to receive
+            if event.cable_number in [IPC_CN_DIN, IPC_CN_USB]:
+                self.event_queue.put(event)
             else:
-                print(f"Received unknown IPC packet: {packet.bytes().hex(' ')}")
+                print(f"Received unknown IPC packet: {event.cable_number :.02x} {event.message.bytes().hex(' ')}")
 
     def _event_loop(self):
         while self.running:
-            event = self.event_queue.get()
+            try:
+                # process any incoming events
+                event = self.event_queue.get()
 
-            if isinstance(event, MidiEvent):
-
-                # set laser brightness from midi note
-                if event.message.type == 'note_on':
-                    index = event.message.note
-                    brightness = min(LASER_MAX, event.message.velocity)
-                elif event.message.type == 'note_off':
-                    index = event.message.note
-                    brightness = 0
+                if isinstance(event, MidiEvent):
+                    self._handle_midi_event(event)
+                elif isinstance(event, InterceptionEvent):
+                    self._handle_interception_event(event)
                 else:
-                    print(f"Unhandled midi message: {event.message}")
+                    print(f"Received unknown event: {event}")
 
-                if index <= NUM_LASERS:
-                    self.ipc.set_laser(index, brightness)
-                else:
-                    print(f"Received midi note out of range: {index}")
+            except Exception as e:
+                print(f"Unhandled exception in event loop: {e}")
 
-            elif isinstance(event, InterceptionEvent):
-                #print(event.beamlength)
+    def _handle_midi_event(self, event: MidiEvent):
+        # handle midi note on/off messages from any interface
+        if event.message.type == 'note_on':
+            index = event.message.note
+            brightness = min(LASER_MAX, event.message.velocity)
+        elif event.message.type == 'note_off':
+            index = event.message.note
+            brightness = 0
+        else:
+            print(f"Unhandled midi event: {event}")
+            return
 
-                # set note status to 127 if the beamlength is not nan/inf
-                new_note_status = np.where(np.isfinite(event.beamlength), 127, 0).astype(np.uint8)
+        # set the laser brightness (this will send an IPC packet to the STM)
+        if index <= NUM_LASERS:
+            self.set_laser(index, brightness)
+        if index == 127:
+            self.set_all_lasers(brightness)
+        else:
+            print(f"Received midi note out of range: {index}")
+            return
 
-                # send midi note on/off messages for each laser
-                for i in range(NUM_LASERS):
-                    if new_note_status[i] != self.note_status[i]:
-                        cmd = 'note_on' if new_note_status[i] else 'note_off'
-                        note = i
-                        velocity = new_note_status[i]
-                        self.ipc.send_midi(MidiEvent(MidiInterface.USB, mido.Message(cmd, note=note, velocity=velocity)))
+    def _handle_interception_event(self, event: InterceptionEvent):
+        #print(event.beamlength)
 
-                # update note status
-                np.copyto(self.note_status, new_note_status)
+        # set note status to 127 if the beamlength is not nan/inf
+        new_note_status = np.where(np.isfinite(event.beamlength), 127, 0).astype(np.uint8)
 
-            else:
-                print(f"Received unknown event: {event}")
+        # send midi note on/off messages for each laser to all interfaces
+        for i in range(NUM_LASERS):
+            if new_note_status[i] != self.note_status[i]:
+                cmd = 'note_on' if new_note_status[i] else 'note_off'
+                note = i
+                velocity = new_note_status[i]
+
+                message = mido.Message(cmd, note=note, velocity=velocity)
+                self.send_din_midi(message)
+                self.send_usb_midi(message)
+                self.send_ble_midi(message)
+
+        # update note status
+        np.copyto(self.note_status, new_note_status)
