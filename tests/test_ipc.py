@@ -29,6 +29,9 @@ class MockSerial:
     def write(self, data):
         self.txdata += data
 
+    def flush(self):
+        pass
+
 
 class Test_IPCConnector(unittest.TestCase):
     def setUp(self):

@@ -16,6 +16,7 @@ class IPCController():
                 parity=serial.PARITY_NONE,
                 stopbits=serial.STOPBITS_ONE,
                 bytesize=serial.EIGHTBITS)
+            self._serial.timeout = 0.001
 
     def send(self, event: MidiEvent):
         # only short messages are supported
@@ -27,21 +28,50 @@ class IPCController():
         cn_cid = np.uint8(event.cable_number << 4 | message_data[0] >> 4)
 
         data = bytearray([cn_cid, *message_data])
-        print(f"RPI -> STM: {data.hex(' ')}")
+        #print(f"RPI -> STM: {data.hex(' ')}")
         self._serial.write(data)
 
     def read(self) -> MidiEvent:
-        # read a packet
-        data = self._serial.read(4)
-        if len(data) != 4:
-            raise ValueError(f"Invalid packet size: {len(data)}")
-        print(f"STM -> RPI: {data.hex(' ')}")
+        # read the cable number and code index
+        cn_cid = self._serial.read(1)[0]
+        cn = cn_cid >> 4
+        cid = cn_cid & 0x0F
 
-        # parse the packet
-        cn = data[0] >> 4
-        cid = data[0] & 0x0F
-
-        if (cid >= 0x8 and cid <= 0xE):
-            return MidiEvent(cn, mido.Message.from_bytes(data[1:]))
-        else:
+        if not (cid >= 0x8 and cid <= 0xE):
             raise ValueError(f"Unsupported code index: {cid}")
+
+        # read the remaining packet
+        data = self._serial.read(3)
+        #print(f"STM -> RPI: {cn_cid :02x} {data.hex(' ')}")
+        return MidiEvent(cn, mido.Message.from_bytes(data))
+
+    def read_all(self) -> list[MidiEvent]:
+        # this code is faster than reading one byte at a time, but quite ugly.
+        # should be refactored asap.
+
+        events = []
+
+        # read all available data
+        n_packets = self._serial.in_waiting & ~0x03 # round down to nearest multiple of 4
+        data = self._serial.read(n_packets)
+        if len(data) == 0:
+            return []
+
+        # parse the data into packets
+        i = 0
+        while i < len(data):
+            cn_cid = data[i]
+            cn = cn_cid >> 4
+            cid = cn_cid & 0x0F
+            i += 1
+
+            if not (cid >= 0x8 and cid <= 0xE):
+                continue
+
+            packet_data = data[i:i+3]
+            i += 3
+
+            #print(f"STM -> RPI: {cn_cid :02x} {packet_data.hex(' ')}")
+            events.append(MidiEvent(cn, mido.Message.from_bytes(packet_data)))
+
+        return events

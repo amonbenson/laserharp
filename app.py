@@ -22,6 +22,9 @@ IPC_CN_LASER_BRIGHTNESS = 3
 
 class LaserHarpApp:
     def __init__(self):
+        self.running = False
+        self.note_status = np.zeros(NUM_LASERS, dtype=np.uint8)
+
         # use hardware serial to interface with the STM
         self.ipc = IPCController('/dev/ttyS0', baudrate=115200)
         self.ipc_thread = threading.Thread(target=self._ipc_loop)
@@ -31,14 +34,6 @@ class LaserHarpApp:
         self.camera = Camera(framerate=CAMERA_FRAMERATE, N_beams=NUM_LASERS)
         self.interception_thread = threading.Thread(target=self._interception_loop)
         self.interception_thread.daemon = True
-
-        # setup main event loop
-        self.running = False
-        self.event_queue = Queue()
-        self.event_thread = threading.Thread(target=self._event_loop)
-        self.event_thread.daemon = True
-
-        self.note_status = np.zeros(NUM_LASERS, dtype=np.uint8)
 
     def send_din_midi(self, message: mido.Message):
         self.ipc.send(MidiEvent(IPC_CN_DIN, message))
@@ -51,10 +46,10 @@ class LaserHarpApp:
         pass
 
     def set_laser(self, index: int, brightness: int):
-        self.ipc.send(MidiEvent(IPC_CN_LASER_BRIGHTNESS, mido.Message('control_change', control=index, value=brightness)))
+        self.ipc.send(MidiEvent(IPC_CN_LASER_BRIGHTNESS, mido.Message('note_on', note=index, velocity=brightness)))
 
     def set_all_lasers(self, brightness: int):
-        self.ipc.send(MidiEvent(IPC_CN_LASER_BRIGHTNESS, mido.Message('control_change', control=127, value=brightness)))
+        self.ipc.send(MidiEvent(IPC_CN_LASER_BRIGHTNESS, mido.Message('note_on', note=127, velocity=brightness)))
 
     def start(self):
         if self.running: return
@@ -63,7 +58,6 @@ class LaserHarpApp:
         self.running = True
         self.ipc_thread.start()
         self.interception_thread.start()
-        self.event_thread.start()
 
         # start the camera interface
         self.camera.start()
@@ -81,40 +75,32 @@ class LaserHarpApp:
         self.running = False
         self.ipc_thread.join(timeout=0.1)
         self.interception_thread.join(timeout=0.1)
-        self.event_thread.join(timeout=0.1)
 
     def _interception_loop(self):
         while self.running:
-            # queue any incoming events
-            interception_event = self.camera.read()
-            self.event_queue.put(interception_event)
-
-    def _ipc_loop(self):
-        while self.running:
-            event = self.ipc.read()
-
-            # STM handles USB and DIN midi, so this is the only cable number we expect to receive
-            if event.cable_number in [IPC_CN_DIN, IPC_CN_USB]:
-                self.event_queue.put(event)
-            else:
-                print(f"Received unknown IPC packet: {event.cable_number :02x} {event.message.bytes().hex(' ')}")
-
-    def _event_loop(self):
-        while self.running:
             try:
-                # process any incoming events
-                event = self.event_queue.get()
-
-                if isinstance(event, MidiEvent):
-                    self._handle_midi_event(event)
-                elif isinstance(event, InterceptionEvent):
-                    self._handle_interception_event(event)
-                else:
-                    print(f"Received unknown event: {event}")
+                # handle any incoming events
+                interception_event = self.camera.read()
+                self._handle_interception_event(interception_event)
 
             except Exception as e:
                 traceback.print_exc()
-                print(f"Unhandled exception in event loop: {e}")
+                print(f"Unhandled exception in camera event loop: {e}")
+
+    def _ipc_loop(self):
+        while self.running:
+            try:
+                for event in self.ipc.read_all():
+
+                    # STM handles USB and DIN midi, so this is the only cable number we expect to receive
+                    if event.cable_number in [IPC_CN_DIN, IPC_CN_USB]:
+                        self._handle_midi_event(event)
+                    else:
+                        print(f"Received unknown IPC packet: {event.cable_number :02x} {event.message.bytes().hex(' ')}")
+
+            except Exception as e:
+                traceback.print_exc()
+                print(f"Unhandled exception in IPC event loop: {e}")
 
     def _handle_midi_event(self, event: MidiEvent):
         # handle midi note on/off messages from any interface
