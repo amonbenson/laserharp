@@ -10,7 +10,6 @@ from .midi import MidiEvent
 
 
 NUM_LASERS = 24
-LASER_MAX = 63
 
 CAMERA_FRAMERATE = 60
 
@@ -46,10 +45,10 @@ class LaserHarpApp:
         pass
 
     def set_laser(self, index: int, brightness: int):
-        self.ipc.send(MidiEvent(IPC_CN_LASER_BRIGHTNESS, mido.Message('note_on', note=index, velocity=brightness)))
+        self.ipc.send(MidiEvent(IPC_CN_LASER_BRIGHTNESS, mido.Message('control_change', control=index, value=brightness)))
 
     def set_all_lasers(self, brightness: int):
-        self.ipc.send(MidiEvent(IPC_CN_LASER_BRIGHTNESS, mido.Message('note_on', note=127, velocity=brightness)))
+        self.ipc.send(MidiEvent(IPC_CN_LASER_BRIGHTNESS, mido.Message('control_change', control=127, value=brightness)))
 
     def start(self):
         if self.running: return
@@ -63,7 +62,9 @@ class LaserHarpApp:
         self.camera.start()
 
         # enable all lasers
-        self.set_all_lasers(LASER_MAX)
+        self.set_all_lasers(127)
+
+        print("Running")
 
     def stop(self):
         if not self.running: return
@@ -106,7 +107,7 @@ class LaserHarpApp:
         # handle midi note on/off messages from any interface
         if event.message.type == 'note_on':
             index = event.message.note
-            brightness = min(LASER_MAX, event.message.velocity)
+            brightness = event.message.velocity
         elif event.message.type == 'note_off':
             index = event.message.note
             brightness = 0
