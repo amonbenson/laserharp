@@ -87,9 +87,12 @@ class Camera:
             # clear the frame event
             self.frame_event.clear()
 
-        def read(self):
+        def read(self, timeout=None):
             # wait for an interception event
-            self.beamlength_event.wait()
+            was_set = self.beamlength_event.wait(timeout=timeout)
+            if not was_set:
+                return None
+
             self.beamlength_event.clear()
 
             # return a copy of the current beamlengths
@@ -151,8 +154,8 @@ class Camera:
         finally:
             self.camera.stop_recording()
 
-    def read(self):
-        return self.image_processor.read()
+    def read(self, timeout=None):
+        return self.image_processor.read(timeout=timeout)
 
     def capture(self, *kargs, **kwargs) -> np.ndarray:
         return self.image_processor.get_frame(*kargs, **kwargs)

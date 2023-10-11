@@ -77,15 +77,18 @@ class LaserHarpApp:
 
         # stop all threads
         self.running = False
-        self.ipc_proc.join(timeout=0.1)
-        self.interception_proc.join(timeout=0.1)
+        self.ipc_proc.join()
+        self.interception_proc.join()
 
     def _interception_loop(self):
         while self.running:
             try:
                 # handle any incoming events
-                interception_event = self.camera.read()
-                self._handle_interception_event(interception_event)
+                event = self.camera.read(timeout=0.1)
+                if event is None:
+                    continue
+
+                self._handle_interception_event(event)
 
             except Exception as e:
                 traceback.print_exc()
@@ -94,7 +97,9 @@ class LaserHarpApp:
     def _ipc_loop(self):
         while self.running:
             try:
-                event = self.ipc.read()
+                event = self.ipc.read(timeout=0.1)
+                if event is None:
+                    continue
 
                 # STM handles USB and DIN midi, so this is the only cable number we expect to receive
                 if event.cable_number in [IPC_CN_DIN, IPC_CN_USB]:
