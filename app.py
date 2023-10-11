@@ -1,5 +1,6 @@
-import threading
-from queue import Queue
+#import threading
+#from queue import Queue
+from multiprocessing import Process, Queue
 import mido
 import time
 import numpy as np
@@ -26,13 +27,15 @@ class LaserHarpApp:
 
         # use hardware serial to interface with the STM
         self.ipc = IPCController('/dev/ttyS0', baudrate=115200)
-        self.ipc_thread = threading.Thread(target=self._ipc_loop)
-        self.ipc_thread.daemon = True
 
         # setup camera interface
         self.camera = Camera(framerate=CAMERA_FRAMERATE, N_beams=NUM_LASERS)
-        self.interception_thread = threading.Thread(target=self._interception_loop)
-        self.interception_thread.daemon = True
+
+        # setup processes
+        self.ipc_proc = Process(target=self._ipc_loop)
+        self.ipc_proc.daemon = True
+        self.interception_proc = Process(target=self._interception_loop)
+        self.interception_proc.daemon = True
 
     def send_din_midi(self, message: mido.Message):
         self.ipc.send(MidiEvent(IPC_CN_DIN, message))
@@ -55,8 +58,8 @@ class LaserHarpApp:
 
         # start all threads
         self.running = True
-        self.ipc_thread.start()
-        self.interception_thread.start()
+        self.ipc_proc.start()
+        self.interception_proc.start()
 
         # start the camera interface
         self.camera.start()
@@ -74,8 +77,8 @@ class LaserHarpApp:
 
         # stop all threads
         self.running = False
-        self.ipc_thread.join(timeout=0.1)
-        self.interception_thread.join(timeout=0.1)
+        self.ipc_proc.join(timeout=0.1)
+        self.interception_proc.join(timeout=0.1)
 
     def _interception_loop(self):
         while self.running:
@@ -91,13 +94,13 @@ class LaserHarpApp:
     def _ipc_loop(self):
         while self.running:
             try:
-                for event in self.ipc.read_all():
+                event = self.ipc.read()
 
-                    # STM handles USB and DIN midi, so this is the only cable number we expect to receive
-                    if event.cable_number in [IPC_CN_DIN, IPC_CN_USB]:
-                        self._handle_midi_event(event)
-                    else:
-                        print(f"Received unknown IPC packet: {event.cable_number :02x} {event.message.bytes().hex(' ')}")
+                # STM handles USB and DIN midi, so this is the only cable number we expect to receive
+                if event.cable_number in [IPC_CN_DIN, IPC_CN_USB]:
+                    self._handle_midi_event(event)
+                else:
+                    print(f"Received unknown IPC packet: {event.cable_number :02x} {event.message.bytes().hex(' ')}")
 
             except Exception as e:
                 traceback.print_exc()

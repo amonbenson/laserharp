@@ -16,7 +16,7 @@ class IPCController():
                 parity=serial.PARITY_NONE,
                 stopbits=serial.STOPBITS_ONE,
                 bytesize=serial.EIGHTBITS)
-            self._serial.timeout = 0.001
+            #self._serial.timeout = 0.001
 
     def send(self, event: MidiEvent):
         # only short messages are supported
