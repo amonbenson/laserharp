@@ -19,6 +19,9 @@ class IPCController():
                 stopbits=serial.STOPBITS_ONE,
                 bytesize=serial.EIGHTBITS)
 
+    def stop(self):
+        self._serial.close()
+
     def send(self, event: MidiEvent, timeout=None):
         # only short messages are supported
         message_data = event.message.bytes()

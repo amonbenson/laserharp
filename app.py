@@ -33,9 +33,7 @@ class LaserHarpApp:
 
         # setup processes
         self.ipc_proc = Process(target=self._ipc_loop)
-        self.ipc_proc.daemon = True
         self.interception_proc = Process(target=self._interception_loop)
-        self.interception_proc.daemon = True
 
     def send_din_midi(self, message: mido.Message):
         self.ipc.send(MidiEvent(IPC_CN_DIN, message))
@@ -72,13 +70,16 @@ class LaserHarpApp:
     def stop(self):
         if not self.running: return
 
-        # stop the camera interface
-        self.camera.stop()
-
         # stop all threads
         self.running = False
         self.ipc_proc.join()
         self.interception_proc.join()
+
+        # stop the camera interface
+        self.camera.stop()
+
+        # stop IPC
+        self.ipc.stop()
 
     def _interception_loop(self):
         while self.running:
