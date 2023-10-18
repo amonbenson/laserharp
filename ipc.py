@@ -1,3 +1,4 @@
+import logging
 from enum import Enum
 import serial
 import mido
@@ -32,7 +33,7 @@ class IPCController():
         cn_cid = np.uint8(event.cable_number << 4 | message_data[0] >> 4)
 
         data = bytearray([cn_cid, *message_data])
-        print(f"RPI -> STM: {data.hex(' ')}")
+        logging.debug(f"RPI -> STM: {data.hex(' ')}")
 
         self._serial.write_timeout = timeout
         self._serial.write(data)
@@ -57,5 +58,5 @@ class IPCController():
         if len(data) != 3:
             raise ValueError(f"Read timeout")
 
-        print(f"STM -> RPI: {cn_cid :02x} {data.hex(' ')}")
+        logging.debug(f"STM -> RPI: {cn_cid :02x} {data.hex(' ')}")
         return MidiEvent(cn, mido.Message.from_bytes(data))

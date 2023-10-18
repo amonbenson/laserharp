@@ -1,3 +1,4 @@
+import logging
 import time
 from .app import LaserHarpApp
 
@@ -5,12 +6,15 @@ from .app import LaserHarpApp
 if __name__ == '__main__':
     app = LaserHarpApp()
     app.start()
+    app.calibrate()
+    app.stop()
+    exit(0)
 
     # wait for keyboard interrupt
     try:
-        while app.running:
+        while app.state != LaserHarpApp.State.IDLE:
             time.sleep(0.1)
     except KeyboardInterrupt:
-        print("Keyboard interrupt received, stopping...")
+        logging.info("Keyboard interrupt")
 
     app.stop()

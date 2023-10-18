@@ -32,9 +32,9 @@ class Camera:
             xs = np.linspace(0, w - 1, N_beams, endpoint=True, dtype=np.int32)
             beam_start = np.stack((xs, np.zeros_like(xs)), axis=1)
             beam_end = np.stack((xs, np.full_like(xs, h - 1)), axis=1)
-            self.calibrate(beam_start, beam_end)
+            self.set_calibration(beam_start, beam_end)
 
-        def calibrate(self, beam_start, beam_end):
+        def set_calibration(self, beam_start, beam_end):
             # assert x in ascending order for both arrays
             assert(np.all(np.diff(beam_start[:, 0]) > 0))
             assert(np.all(np.diff(beam_end[:, 0]) > 0))
@@ -101,7 +101,7 @@ class Camera:
 
             return InterceptionEvent(beamlength)
 
-        def get_frame(self, *, draw_calibration: bool = False):
+        def get_frame(self, *, draw_calibration: bool = False, grayscale: bool = False):
             # wait for a frame to be available
             self.frame_event.wait()
 
@@ -110,20 +110,42 @@ class Camera:
                 frame = self.frame.copy()
 
             # convert grayscale to bgr
-            frame = cv2.cvtColor(frame, cv2.COLOR_GRAY2BGR)
+            if not grayscale:
+                frame = cv2.cvtColor(frame, cv2.COLOR_GRAY2BGR)
 
             # draw a line for each beam span
             if draw_calibration:
                 for i in range(self.N_beams):
-                    cv2.line(frame, tuple(self.beam_start[i]), tuple(self.beam_end[i]), (0, 0, 255), 1)
+                    cv2.line(frame,
+                        tuple(self.beam_start[i]),
+                        tuple(self.beam_end[i]),
+                        255 if grayscale else (0, 0, 255),
+                        1)
 
             return frame
 
     def __init__(self, framerate: int = 60, N_beams: int = 24):
+        # setup camera
         self.camera = picamera.PiCamera()
         self.camera.resolution = (640, 480) # VGA resolution
         self.camera.framerate = framerate
         self.camera.rotation = 180
+
+        # set manual exposure and white balance
+        self.camera.shutter_speed = 5000
+        self.camera.iso = 10
+        self.camera.exposure_mode = 'off'
+        self.camera.awb_mode = 'off'
+        self.camera.awb_gains = (1.5, 1.5)
+
+        # image settings
+        self.camera.brightness = 50
+        self.camera.contrast = 0
+        self.camera.saturation = 0
+        self.camera.sharpness = 0
+        self.camera.exposure_compensation = 0
+        self.camera.meter_mode = 'average'
+
         self.thread = None
         self.running = False
 
