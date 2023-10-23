@@ -6,9 +6,9 @@ from .app import LaserHarpApp
 if __name__ == '__main__':
     app = LaserHarpApp()
     app.start()
-    app.calibrate()
-    app.stop()
-    exit(0)
+    #app.calibrate()
+    #app.stop()
+    #exit(0)
 
     # wait for keyboard interrupt
     try:

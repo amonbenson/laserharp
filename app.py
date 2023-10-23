@@ -3,6 +3,8 @@ import mido
 import time
 import numpy as np
 import traceback
+import json
+import os
 import cv2
 from multiprocessing import Process, Lock
 from enum import Enum
@@ -45,6 +47,9 @@ class LaserHarpApp:
         self.ipc_proc = Process(target=self._ipc_loop)
         self.interception_proc = Process(target=self._interception_loop)
 
+        self.calibration_file = os.path.join(os.path.dirname(__file__), 'calibration.json')
+        self.calibration = None
+
     def send_din_midi(self, message: mido.Message):
         self.ipc.send(MidiEvent(IPC_CN_DIN, message))
 
@@ -84,6 +89,15 @@ class LaserHarpApp:
             self.set_all_lasers(127)
 
             logging.info("App running")
+
+        # load calibration data
+        try:
+            self.load_calibration()
+        except:
+            logging.warning("No valid calibration data found. Starting new calibration...")
+            self.calibrate()
+
+        # TODO: set camera calibration data here
 
     def stop(self):
         if self.state != LaserHarpApp.State.RUNNING:
@@ -203,6 +217,46 @@ class LaserHarpApp:
 
         return result
 
+    def _fit_line(self, img, min_coverage=0.3):
+        # apply gaussian blue
+        blurred = cv2.GaussianBlur(img, (17, 17), 0)
+        
+        # get the brightes x coordinate of each row as point estimates
+        b = np.max(blurred, axis=1)
+        xs = np.argmax(blurred, axis=1)
+        ys = np.arange(img.shape[0])
+
+        # weight each estimate by a threshold
+        thresh = np.max(blurred) * 0.4
+        ws = b > thresh
+
+        # check if the minimum coverage is met
+        if np.sum(ws) / img.shape[0] < min_coverage:
+            raise RuntimeError("Minimum coverage not met")
+
+        # fit a line to the points (swap x and y because we want to fit a vertical line)
+        return np.polyfit(y=xs, x=ys, deg=1, w=ws)
+
+    def store_calibration(self):
+        with open(self.calibration_file, 'w') as f:
+            json.dump({
+                'num_lasers': NUM_LASERS,
+                'laser_translation_table': LASER_TRANSLATION_TABLE.tolist(),
+                'calibration': self.calibration
+            }, f, indent=4)
+
+    def load_calibration(self):
+        with open(self.calibration_file, 'r') as f:
+            calibration = json.load(f)
+
+        if calibration['num_lasers'] != NUM_LASERS:
+            raise RuntimeError("Number of lasers does not match calibration file")
+
+        if calibration['laser_translation_table'] != LASER_TRANSLATION_TABLE.tolist():
+            raise RuntimeError("Laser translation table does not match calibration file")
+
+        self.calibration = calibration['calibration']
+
     def calibrate(self):
         with self.state_lock:
             self.state = LaserHarpApp.State.CALIBRATING
@@ -210,6 +264,8 @@ class LaserHarpApp:
 
             # save the laser state
             prev_laser_state = self.laser_state.copy()
+
+            calibration = []
 
             # STEP 1: capture the base image
             logging.info("Capturing base image")
@@ -222,33 +278,59 @@ class LaserHarpApp:
             # STEP 2: capture each laser individually
             i = 0
             while i < NUM_LASERS:
+
+                beam_img = np.zeros_like(base_img)
+
                 try:
                     logging.info(f"Capturing laser {i}")
                     self.set_laser(i, 127)
                     time.sleep(1)
 
                     # capture the laser beam and subtract the base image
-                    beam_img = self._combined_capture(30, 0.1, mode='max')
+                    logging.debug("Start capture")
+                    beam_img = np.maximum(self._combined_capture(60, 0, mode='max'), beam_img)
                     beam_img = np.clip(beam_img - base_img, 0, 1)
 
-                    # fit a line to the laser beam
+                    # convert to uint8
                     beam_img = (beam_img * 255).astype(np.uint8)
-                    _, thresh = cv2.threshold(beam_img, 127, 255, cv2.THRESH_BINARY)
-                    contours, hierarchy = cv2.findContours(thresh, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
-                    cnt = contours[0]
-                    [vx, vy, x, y] = cv2.fitLine(cnt, cv2.DIST_L2, 0, 0.01, 0.01)
+                    cv2.imwrite(f'cap_laser_{i}.jpg', beam_img)
 
-                    if np.abs(vx / vy) > 0.1:
+                    # fit a line to the laser beam
+                    logging.debug("Fitting line")
+                    m, x0 = self._fit_line(beam_img)
+
+                    if np.abs(m) > 0.8:
                         logging.warning(f"Calibration failed. Retrying...")
                         continue
 
-                    # visualize the beam
-                    yl = int((-x * vy / vx) + y)
-                    yr = int(((beam_img.shape[1] - x) * vy / vx) + y)
+                    # calibration constants
+                    ya = 0.0
+                    yb = 0.9 # 
+                    ye = 1.0 # exponent (curvature)
+
+                    # save the calibration data
+                    calibration.append({
+                        'x0': x0,
+                        'm': m,
+                        'ya': ya,
+                        'yb': yb,
+                        'ye': ye
+                    })
+
+                    # visualize the result
+                    y_start = (beam_img.shape[0] - 1) * 0.0
+                    y_end = (beam_img.shape[0] - 1) * 0.9
+
+                    x_start = x0 + m * y_start
+                    x_end = x0 + m * y_end
 
                     rgb = cv2.cvtColor(beam_img, cv2.COLOR_GRAY2RGB)
-                    cv2.line(rgb, (0, yl), (beam_img.shape[1], yr), (0, 0, 255), 2)
-                    cv2.imwrite(f'cap_laser_{i}.jpg', rgb)
+                    rgb = cv2.line(rgb,
+                        (int(x_start), int(y_start)),
+                        (int(x_end), int(y_end)),
+                        (255, 255, 0),
+                        1)
+                    cv2.imwrite(f'cap_laser_{i}_line.jpg', rgb)
 
                     i += 1
 
@@ -258,6 +340,10 @@ class LaserHarpApp:
                 except Exception as e:
                     traceback.print_exc()
                     logging.warning(f"Calibration failed. Retrying...")
+
+            # store the calibration data
+            self.calibration = calibration
+            self.store_calibration()
 
             # restore the previous laser state
             for i, brightness in enumerate(prev_laser_state):

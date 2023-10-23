@@ -161,3 +161,6 @@ cython_debug/
 
 # tmp captures
 cap_*.jpg
+
+# calibration data
+calibration.json
