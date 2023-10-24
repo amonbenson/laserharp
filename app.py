@@ -17,6 +17,9 @@ NUM_LASERS = 2
 LASER_TRANSLATION_TABLE = np.array([11, 12])
 
 CAMERA_FRAMERATE = 60
+CAMERA_FOV_X = np.radians(53.50)
+CAMERA_FOV_Y = np.radians(41.41)
+CAMERA_MOUNT_ANGLE = np.radians(15.0)
 
 IPC_CN_DIN = 0
 IPC_CN_USB = 1
@@ -71,7 +74,7 @@ class LaserHarpApp:
         self.laser_state[:] = brightness
         self.ipc.send(MidiEvent(IPC_CN_LASER_BRIGHTNESS, mido.Message('control_change', control=127, value=brightness)))
 
-    def start(self):
+    def start(self, force_calibration=False):
         if self.state != LaserHarpApp.State.IDLE:
             raise RuntimeError("App was already started")
 
@@ -91,10 +94,18 @@ class LaserHarpApp:
             logging.info("App running")
 
         # load calibration data
-        try:
-            self.load_calibration()
-        except:
-            logging.warning("No valid calibration data found. Starting new calibration...")
+        calibration_required = False
+
+        if force_calibration:
+            calibration_required = True
+        else:
+            try:
+                self.load_calibration()
+            except:
+                logging.warning("No valid calibration data found. Starting new calibration...")
+                calibration_required = True
+
+        if calibration_required:
             self.calibrate()
 
         # TODO: set camera calibration data here
@@ -199,6 +210,29 @@ class LaserHarpApp:
         # update note status
         np.copyto(self.note_status, new_note_status)
 
+    def store_calibration(self):
+        with open(self.calibration_file, 'w') as f:
+            json.dump({
+                'num_lasers': NUM_LASERS,
+                'laser_translation_table': LASER_TRANSLATION_TABLE.tolist(),
+                'calibration': self.calibration
+            }, f, indent=4)
+
+    def load_calibration(self):
+        with open(self.calibration_file, 'r') as f:
+            calibration = json.load(f)
+
+        if calibration['num_lasers'] != NUM_LASERS:
+            raise RuntimeError("Number of lasers does not match calibration file")
+
+        if calibration['laser_translation_table'] != LASER_TRANSLATION_TABLE.tolist():
+            raise RuntimeError("Laser translation table does not match calibration file")
+
+        self.calibration = calibration['calibration']
+
+    def _angle_to_ypos(self, angle: float):
+        return angle / CAMERA_FOV_Y * self.camera.height
+
     def _combined_capture(self, num_frames: int, interval: float, mode='avg'):
         result = self.camera.capture(grayscale=True).astype(np.float32) / 255.0
 
@@ -214,6 +248,9 @@ class LaserHarpApp:
 
         if mode == 'avg':
             result /= num_frames
+
+        assert(result.shape[1] == self.camera.width)
+        assert(result.shape[0] == self.camera.height)
 
         return result
 
@@ -237,26 +274,6 @@ class LaserHarpApp:
         # fit a line to the points (swap x and y because we want to fit a vertical line)
         return np.polyfit(y=xs, x=ys, deg=1, w=ws)
 
-    def store_calibration(self):
-        with open(self.calibration_file, 'w') as f:
-            json.dump({
-                'num_lasers': NUM_LASERS,
-                'laser_translation_table': LASER_TRANSLATION_TABLE.tolist(),
-                'calibration': self.calibration
-            }, f, indent=4)
-
-    def load_calibration(self):
-        with open(self.calibration_file, 'r') as f:
-            calibration = json.load(f)
-
-        if calibration['num_lasers'] != NUM_LASERS:
-            raise RuntimeError("Number of lasers does not match calibration file")
-
-        if calibration['laser_translation_table'] != LASER_TRANSLATION_TABLE.tolist():
-            raise RuntimeError("Laser translation table does not match calibration file")
-
-        self.calibration = calibration['calibration']
-
     def calibrate(self):
         with self.state_lock:
             self.state = LaserHarpApp.State.CALIBRATING
@@ -265,7 +282,20 @@ class LaserHarpApp:
             # save the laser state
             prev_laser_state = self.laser_state.copy()
 
-            calibration = []
+            # setup the static calibration data
+            camera_top = np.pi / 2 - CAMERA_MOUNT_ANGLE + CAMERA_FOV_Y / 2
+            camera_bottom = np.pi / 2 - CAMERA_MOUNT_ANGLE - CAMERA_FOV_Y / 2
+
+            # calculate the position of the 0 and 90 degree mark in pixel space
+            ya = self._angle_to_ypos(-camera_bottom)
+            yb = self._angle_to_ypos(np.pi / 2 - camera_bottom)
+
+            calibration = {
+                'ya': ya,
+                'yb': yb,
+                'x0': [],
+                'm': []
+            }
 
             # STEP 1: capture the base image
             logging.info("Capturing base image")
@@ -303,23 +333,13 @@ class LaserHarpApp:
                         logging.warning(f"Calibration failed. Retrying...")
                         continue
 
-                    # calibration constants
-                    ya = 0.0
-                    yb = 0.9 # 
-                    ye = 1.0 # exponent (curvature)
-
                     # save the calibration data
-                    calibration.append({
-                        'x0': x0,
-                        'm': m,
-                        'ya': ya,
-                        'yb': yb,
-                        'ye': ye
-                    })
+                    calibration['x0'].append(x0)
+                    calibration['m'].append(m)
 
                     # visualize the result
-                    y_start = (beam_img.shape[0] - 1) * 0.0
-                    y_end = (beam_img.shape[0] - 1) * 0.9
+                    y_start = 0
+                    y_end = yb
 
                     x_start = x0 + m * y_start
                     x_end = x0 + m * y_end

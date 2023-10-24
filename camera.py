@@ -153,6 +153,14 @@ class Camera:
             resolution=self.camera.resolution,
             N_beams=N_beams)
 
+    @property
+    def width(self):
+        return self.camera.resolution[0]
+
+    @property
+    def height(self):
+        return self.camera.resolution[1]
+
     def start(self):
         if self.running: return
 
