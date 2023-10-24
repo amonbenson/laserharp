@@ -19,7 +19,7 @@ LASER_TRANSLATION_TABLE = np.array([11, 12])
 CAMERA_FRAMERATE = 60
 CAMERA_FOV_X = np.radians(53.50)
 CAMERA_FOV_Y = np.radians(41.41)
-CAMERA_MOUNT_ANGLE = np.radians(15.0)
+CAMERA_MOUNT_ANGLE = np.radians(20.0)
 
 IPC_CN_DIN = 0
 IPC_CN_USB = 1
@@ -108,7 +108,7 @@ class LaserHarpApp:
         if calibration_required:
             self.calibrate()
 
-        # TODO: set camera calibration data here
+        self.apply_calibration()
 
     def stop(self):
         if self.state != LaserHarpApp.State.RUNNING:
@@ -190,8 +190,6 @@ class LaserHarpApp:
             return
 
     def _handle_interception_event(self, event: InterceptionEvent):
-        #print(event.beamlength)
-
         # set note status to 127 if the beamlength is not nan/inf
         new_note_status = np.where(np.isfinite(event.beamlength), 127, 0).astype(np.uint8)
 
@@ -229,6 +227,9 @@ class LaserHarpApp:
             raise RuntimeError("Laser translation table does not match calibration file")
 
         self.calibration = calibration['calibration']
+
+    def apply_calibration(self):
+        self.camera.set_calibration(**self.calibration)
 
     def _angle_to_ypos(self, angle: float):
         return angle / CAMERA_FOV_Y * self.camera.height

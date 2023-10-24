@@ -1,5 +1,6 @@
 import time
 import threading
+import multiprocessing
 import picamera
 import numpy as np
 import cv2
@@ -19,33 +20,46 @@ class Camera:
             self.beam_start = np.zeros((N_beams, 2), dtype=np.int32)
             self.beam_end = np.zeros((N_beams, 2), dtype=np.int32)
 
-            self.beamlength = np.full(N_beams, np.nan, dtype=np.float32)
-            self.beamlength_lock = threading.Lock()
-            self.beamlength_event = threading.Event()
+            self.beamlength_shared = multiprocessing.Array('f', N_beams)
+            self.beamlength_event = multiprocessing.Event()
 
+            # TODO: use a shared memory array instead of a lock
             self.frame = None
-            self.frame_lock = threading.Lock()
-            self.frame_event = threading.Event()
+            self.frame_lock = multiprocessing.Lock()
+            self.frame_event = multiprocessing.Event()
 
             # initial calibration
-            w, h = self.resolution
-            xs = np.linspace(0, w - 1, N_beams, endpoint=True, dtype=np.int32)
-            beam_start = np.stack((xs, np.zeros_like(xs)), axis=1)
-            beam_end = np.stack((xs, np.full_like(xs, h - 1)), axis=1)
-            self.set_calibration(beam_start, beam_end)
+            self.calibrated = False
+            self.ya = 0.0
+            self.yb = 0.0
+            self.x0 = np.zeros(N_beams, dtype=np.float32)
+            self.m = np.zeros(N_beams, dtype=np.float32)
 
-        def set_calibration(self, beam_start, beam_end):
-            # assert x in ascending order for both arrays
-            assert(np.all(np.diff(beam_start[:, 0]) > 0))
-            assert(np.all(np.diff(beam_end[:, 0]) > 0))
+        def set_calibration(self, ya, yb, x0, m):
+            # store the new calibration data
+            self.ya = float(ya)
+            self.yb = float(yb)
+            np.copyto(self.x0, x0)
+            np.copyto(self.m, m)
 
-            # assert end y > start y for each beam
-            assert(np.all(beam_end[:, 1] > beam_start[:, 1]))
+            # setup the points of interest
+            y_lower = np.maximum(ya, 0)
+            y_upper = np.minimum(yb, self.resolution[1] - 1)
 
-            # store the calibration points
-            np.copyto(self.beam_start, beam_start)
-            np.copyto(self.beam_end, beam_end)
-            self.beam_threshold = 128
+            y = np.arange(y_lower, y_upper + 1)
+            y_angle = (y - ya) / (yb - ya) * np.pi / 2 # map to range [0, pi/2]
+            y_angle = np.clip(y_angle, 0, np.pi / 2 - 0.01) # clip to avoid infinite and negative values
+            y_tan = np.tan(y_angle) # calculate the tangent of the angle
+            self.y_metric = y_tan * 0.135 # covert to metric units TODO: magic number (= distance between camera and beam plane)
+
+            # store each grid coordinate we need to check
+            self.beam_yv = np.round(y[:, np.newaxis]).astype(np.int32)
+            self.beam_xv = np.round(self.x0[np.newaxis, :] + self.m[np.newaxis, :] * y[:, np.newaxis]).astype(np.int32)
+
+            self.beam_threshold = 10 # TODO: magic number
+            self.beamlength_max = 2.0 # TODO: magic number
+
+            self.calibrated = True
 
         def write(self, buf):
             w, h = self.resolution
@@ -58,30 +72,31 @@ class Camera:
 
                 self.frame_event.set()
 
-            # calculate the beam intercepts
-            new_beamlength = np.full_like(self.beamlength, np.nan)
-            for i in range(self.N_beams):
-                N_samples = self.beam_end[i, 1] - self.beam_start[i, 1] + 1
-                xs = np.linspace(self.beam_start[i, 0], self.beam_end[i, 0], N_samples, endpoint=True, dtype=np.int32)
-                ys = np.linspace(self.beam_start[i, 1], self.beam_end[i, 1], N_samples, endpoint=True, dtype=np.int32)
-                vs = np.linspace(0, 1, N_samples, endpoint=True, dtype=np.float32)
+            # skip if not calibrated
+            if not self.calibrated:
+                return
 
-                # check if any pixel is brightner than the specified threshold
-                b_max = self.beam_threshold
-                for x, y, v in zip(xs, ys, vs):
-                    b = self.frame[y, x]
-                    if b > b_max:
-                        b_max = b
-                        new_beamlength[i] = v
+            # blur the frame
+            blurred = cv2.GaussianBlur(self.frame, (23, 23), 0)
 
-            # notify the reading thread
-            changed = np.any(self.beamlength != new_beamlength)
+            # get the brightness for each point of interest
+            brightness = blurred[self.beam_yv, self.beam_xv]
 
-            with self.beamlength_lock:
-                np.copyto(self.beamlength, new_beamlength)
+            # calculate the beamlengths (length is NaN if the beam is not intercepted)
+            beam_strength = np.max(brightness, axis=0)
+            beam_position = np.argmax(brightness, axis=0)
 
-                if changed:
-                    self.beamlength_event.set()
+            # replace weak values by NaN
+            beamlength = np.where(beam_strength > self.beam_threshold, self.y_metric[beam_position], np.nan)
+
+            # replace too large values by NaN
+            beamlength = np.where(beamlength > self.beamlength_max, np.nan, beamlength)
+
+            # store the beamlengths
+            with self.beamlength_shared.get_lock():
+                np.copyto(np.frombuffer(self.beamlength_shared.get_obj(), dtype=np.float32), beamlength)
+
+            self.beamlength_event.set()
 
         def flush(self):
             # clear the frame event
@@ -96,9 +111,8 @@ class Camera:
             self.beamlength_event.clear()
 
             # return a copy of the current beamlengths
-            with self.beamlength_lock:
-                beamlength = self.beamlength.copy()
-
+            with self.beamlength_shared.get_lock():
+                beamlength = np.frombuffer(self.beamlength_shared.get_obj(), dtype=np.float32)
             return InterceptionEvent(beamlength)
 
         def get_frame(self, *, draw_calibration: bool = False, grayscale: bool = False):
@@ -189,6 +203,9 @@ class Camera:
 
     def capture(self, *kargs, **kwargs) -> np.ndarray:
         return self.image_processor.get_frame(*kargs, **kwargs)
+
+    def set_calibration(self, **kwargs):
+        self.image_processor.set_calibration(**kwargs)
 
     def close(self):
         self.camera.close()
