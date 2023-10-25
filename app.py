@@ -228,7 +228,7 @@ class LaserHarpApp:
         self.camera.set_calibration(**self.calibration)
 
     def _angle_to_ypos(self, angle: float):
-        fov_y = CONFIG['camera']['fov'][1]
+        fov_y = np.radians(CONFIG['camera']['fov'][1])
         return angle / fov_y * self.camera.height
 
     def _combined_capture(self, num_frames: int, interval: float, mode='avg'):
@@ -281,8 +281,8 @@ class LaserHarpApp:
             prev_laser_state = self.laser_state.copy()
 
             # setup the static calibration data
-            fov_y = CONFIG['camera']['fov'][1]
-            mount_angle = CONFIG['camera']['mount_angle']
+            fov_y = np.radians(CONFIG['camera']['fov'][1])
+            mount_angle = np.radians(CONFIG['camera']['mount_angle'])
             camera_top = np.pi / 2 - mount_angle + fov_y / 2
             camera_bottom = np.pi / 2 - mount_angle - fov_y / 2
 
@@ -291,8 +291,8 @@ class LaserHarpApp:
             yb = self._angle_to_ypos(np.pi / 2 - camera_bottom)
 
             calibration = {
-                'ya': ya,
-                'yb': yb,
+                'ya': float(ya),
+                'yb': float(yb),
                 'x0': [],
                 'm': []
             }
@@ -300,12 +300,11 @@ class LaserHarpApp:
             # STEP 1: capture the base image
             logging.info("Capturing base image")
             self.set_all_lasers(0)
-            time.sleep(1)
 
             base_img = self._combined_capture(10, 0.1, mode='max')
             cv2.imwrite('cap_base.jpg', (base_img * 255).astype(np.uint8))
 
-            # STEP 2: capture each laser individually
+            # STEP 2: fit a line to each individual laser's beam path
             i = 0
             while i < CONFIG['num_lasers']:
 
@@ -314,11 +313,10 @@ class LaserHarpApp:
                 try:
                     logging.info(f"Capturing laser {i}")
                     self.set_laser(i, 127)
-                    time.sleep(1)
 
                     # capture the laser beam and subtract the base image
                     logging.debug("Start capture")
-                    beam_img = np.maximum(self._combined_capture(60, 0, mode='max'), beam_img)
+                    beam_img = np.maximum(self._combined_capture(30, 0, mode='max'), beam_img)
                     beam_img = np.clip(beam_img - base_img, 0, 1)
 
                     # convert to uint8
@@ -355,11 +353,14 @@ class LaserHarpApp:
                     i += 1
 
                     self.set_all_lasers(0)
-                    time.sleep(0.5)
 
                 except Exception as e:
                     traceback.print_exc()
                     logging.warning(f"Calibration failed. Retrying...")
+
+            # STEP 3: store the fitted line data
+            self.set_all_lasers(0)
+            time.sleep(1)
 
             # store the calibration data
             self.calibration = calibration

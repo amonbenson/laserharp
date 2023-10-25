@@ -58,6 +58,7 @@ class Camera:
             self.beam_xv = np.round(self.x0[np.newaxis, :] + self.m[np.newaxis, :] * y[:, np.newaxis]).astype(np.int32)
 
             self.beam_threshold = 255 * CONFIG['image_processor']['threshold']
+            self.beamlength_min = CONFIG['image_processor']['beam_length_min']
             self.beamlength_max = CONFIG['image_processor']['beam_length_max']
 
             self.calibrated = True
@@ -91,7 +92,8 @@ class Camera:
             # replace weak values by NaN
             beamlength = np.where(beam_strength > self.beam_threshold, self.y_metric[beam_position], np.nan)
 
-            # replace too large values by NaN
+            # replace out of bounds values by NaN
+            beamlength = np.where(beamlength < self.beamlength_min, np.nan, beamlength)
             beamlength = np.where(beamlength > self.beamlength_max, np.nan, beamlength)
 
             # store the beamlengths
