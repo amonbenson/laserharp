@@ -5,6 +5,7 @@ import picamera
 import numpy as np
 import cv2
 from dataclasses import dataclass
+from .config import CONFIG
 
 
 @dataclass
@@ -50,14 +51,14 @@ class Camera:
             y_angle = (y - ya) / (yb - ya) * np.pi / 2 # map to range [0, pi/2]
             y_angle = np.clip(y_angle, 0, np.pi / 2 - 0.01) # clip to avoid infinite and negative values
             y_tan = np.tan(y_angle) # calculate the tangent of the angle
-            self.y_metric = y_tan * 0.135 # covert to metric units TODO: magic number (= distance between camera and beam plane)
+            self.y_metric = y_tan * CONFIG['camera']['mount_distance'] # covert to metric units
 
             # store each grid coordinate we need to check
             self.beam_yv = np.round(y[:, np.newaxis]).astype(np.int32)
             self.beam_xv = np.round(self.x0[np.newaxis, :] + self.m[np.newaxis, :] * y[:, np.newaxis]).astype(np.int32)
 
-            self.beam_threshold = 10 # TODO: magic number
-            self.beamlength_max = 2.0 # TODO: magic number
+            self.beam_threshold = 255 * CONFIG['image_processor']['threshold']
+            self.beamlength_max = CONFIG['image_processor']['beam_length_max']
 
             self.calibrated = True
 
@@ -77,7 +78,8 @@ class Camera:
                 return
 
             # blur the frame
-            blurred = cv2.GaussianBlur(self.frame, (23, 23), 0)
+            ksize = CONFIG['image_processor']['preblur']
+            blurred = cv2.GaussianBlur(self.frame, (ksize, ksize), 0)
 
             # get the brightness for each point of interest
             brightness = blurred[self.beam_yv, self.beam_xv]
@@ -138,25 +140,25 @@ class Camera:
 
             return frame
 
-    def __init__(self, framerate: int = 60, N_beams: int = 24):
+    def __init__(self):
         # setup camera
         self.camera = picamera.PiCamera()
-        self.camera.resolution = (640, 480) # VGA resolution
-        self.camera.framerate = framerate
-        self.camera.rotation = 180
+        self.camera.resolution = CONFIG['camera']['resolution']
+        self.camera.framerate = CONFIG['camera']['framerate']
+        self.camera.rotation = CONFIG['camera']['rotation']
 
         # set manual exposure and white balance
-        self.camera.shutter_speed = 5000
-        self.camera.iso = 10
+        self.camera.shutter_speed = CONFIG['camera']['shutter_speed']
+        self.camera.iso = CONFIG['camera']['iso']
         self.camera.exposure_mode = 'off'
         self.camera.awb_mode = 'off'
         self.camera.awb_gains = (1.5, 1.5)
 
         # image settings
-        self.camera.brightness = 50
-        self.camera.contrast = 0
-        self.camera.saturation = 0
-        self.camera.sharpness = 0
+        self.camera.brightness = CONFIG['camera']['brightness']
+        self.camera.contrast = CONFIG['camera']['contrast']
+        self.camera.saturation = CONFIG['camera']['saturation']
+        self.camera.sharpness = CONFIG['camera']['sharpness']
         self.camera.exposure_compensation = 0
         self.camera.meter_mode = 'average'
 
@@ -165,7 +167,7 @@ class Camera:
 
         self.image_processor = self.ImageProcessor(
             resolution=self.camera.resolution,
-            N_beams=N_beams)
+            N_beams=CONFIG['num_lasers'])
 
     @property
     def width(self):

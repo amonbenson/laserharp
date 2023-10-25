@@ -3,23 +3,19 @@ import mido
 import time
 import numpy as np
 import traceback
-import json
+import yaml
 import os
 import cv2
 from multiprocessing import Process, Lock
 from enum import Enum
+from .config import CONFIG
 from .ipc import IPCController
 from .camera import Camera, InterceptionEvent
 from .midi import MidiEvent
 
 
-NUM_LASERS = 2
-LASER_TRANSLATION_TABLE = np.array([11, 12])
+CALIBRATION_FILE = os.path.join(os.path.dirname(__file__), 'calibration.yaml')
 
-CAMERA_FRAMERATE = 60
-CAMERA_FOV_X = np.radians(53.50)
-CAMERA_FOV_Y = np.radians(41.41)
-CAMERA_MOUNT_ANGLE = np.radians(20.0)
 
 IPC_CN_DIN = 0
 IPC_CN_USB = 1
@@ -37,20 +33,19 @@ class LaserHarpApp:
         self.state = LaserHarpApp.State.IDLE
         self.state_lock = Lock()
 
-        self.note_status = np.zeros(NUM_LASERS, dtype=np.uint8)
+        self.note_status = np.zeros(CONFIG['num_lasers'], dtype=np.uint8)
 
         # use hardware serial to interface with the STM
         self.ipc = IPCController('/dev/ttyS0', baudrate=115200)
-        self.laser_state = np.ones(NUM_LASERS, dtype=np.uint8) * 127
+        self.laser_state = np.ones(CONFIG['num_lasers'], dtype=np.uint8) * 127
 
         # setup camera interface
-        self.camera = Camera(framerate=CAMERA_FRAMERATE, N_beams=NUM_LASERS)
+        self.camera = Camera()
 
         # setup processes
         self.ipc_proc = Process(target=self._ipc_loop)
         self.interception_proc = Process(target=self._interception_loop)
 
-        self.calibration_file = os.path.join(os.path.dirname(__file__), 'calibration.json')
         self.calibration = None
 
     def send_din_midi(self, message: mido.Message):
@@ -66,8 +61,8 @@ class LaserHarpApp:
     def set_laser(self, index: int, brightness: int):
         self.laser_state[index] = brightness
 
-        if LASER_TRANSLATION_TABLE is not None:
-            index = LASER_TRANSLATION_TABLE[index]
+        if CONFIG['laser_translation_table'] is not None:
+            index = CONFIG['laser_translation_table'][index]
         self.ipc.send(MidiEvent(IPC_CN_LASER_BRIGHTNESS, mido.Message('control_change', control=index, value=brightness)))
 
     def set_all_lasers(self, brightness: int):
@@ -181,7 +176,7 @@ class LaserHarpApp:
             return
 
         # set the laser brightness (this will send an IPC packet to the STM)
-        if index <= NUM_LASERS:
+        if index <= CONFIG['num_lasers']:
             self.set_laser(index, brightness)
         elif index == 127:
             self.set_all_lasers(brightness)
@@ -194,7 +189,7 @@ class LaserHarpApp:
         new_note_status = np.where(np.isfinite(event.beamlength), 127, 0).astype(np.uint8)
 
         # send midi note on/off messages for each laser to all interfaces
-        for i in range(NUM_LASERS):
+        for i in range(CONFIG['num_lasers']):
             if new_note_status[i] != self.note_status[i]:
                 cmd = 'note_on' if new_note_status[i] else 'note_off'
                 note = i
@@ -209,21 +204,22 @@ class LaserHarpApp:
         np.copyto(self.note_status, new_note_status)
 
     def store_calibration(self):
-        with open(self.calibration_file, 'w') as f:
-            json.dump({
-                'num_lasers': NUM_LASERS,
-                'laser_translation_table': LASER_TRANSLATION_TABLE.tolist(),
+        print(self.calibration)
+        with open(CALIBRATION_FILE, 'w') as f:
+            yaml.dump({
+                'num_lasers': CONFIG['num_lasers'],
+                'laser_translation_table': CONFIG['laser_translation_table'],
                 'calibration': self.calibration
             }, f, indent=4)
 
     def load_calibration(self):
-        with open(self.calibration_file, 'r') as f:
-            calibration = json.load(f)
+        with open(CALIBRATION_FILE, 'r') as f:
+            calibration = yaml.safe_load(f)
 
-        if calibration['num_lasers'] != NUM_LASERS:
+        if calibration['num_lasers'] != CONFIG['num_lasers']:
             raise RuntimeError("Number of lasers does not match calibration file")
 
-        if calibration['laser_translation_table'] != LASER_TRANSLATION_TABLE.tolist():
+        if calibration['laser_translation_table'] != CONFIG['laser_translation_table']:
             raise RuntimeError("Laser translation table does not match calibration file")
 
         self.calibration = calibration['calibration']
@@ -232,7 +228,8 @@ class LaserHarpApp:
         self.camera.set_calibration(**self.calibration)
 
     def _angle_to_ypos(self, angle: float):
-        return angle / CAMERA_FOV_Y * self.camera.height
+        fov_y = CONFIG['camera']['fov'][1]
+        return angle / fov_y * self.camera.height
 
     def _combined_capture(self, num_frames: int, interval: float, mode='avg'):
         result = self.camera.capture(grayscale=True).astype(np.float32) / 255.0
@@ -284,8 +281,10 @@ class LaserHarpApp:
             prev_laser_state = self.laser_state.copy()
 
             # setup the static calibration data
-            camera_top = np.pi / 2 - CAMERA_MOUNT_ANGLE + CAMERA_FOV_Y / 2
-            camera_bottom = np.pi / 2 - CAMERA_MOUNT_ANGLE - CAMERA_FOV_Y / 2
+            fov_y = CONFIG['camera']['fov'][1]
+            mount_angle = CONFIG['camera']['mount_angle']
+            camera_top = np.pi / 2 - mount_angle + fov_y / 2
+            camera_bottom = np.pi / 2 - mount_angle - fov_y / 2
 
             # calculate the position of the 0 and 90 degree mark in pixel space
             ya = self._angle_to_ypos(-camera_bottom)
@@ -308,7 +307,7 @@ class LaserHarpApp:
 
             # STEP 2: capture each laser individually
             i = 0
-            while i < NUM_LASERS:
+            while i < CONFIG['num_lasers']:
 
                 beam_img = np.zeros_like(base_img)
 
@@ -335,8 +334,8 @@ class LaserHarpApp:
                         continue
 
                     # save the calibration data
-                    calibration['x0'].append(x0)
-                    calibration['m'].append(m)
+                    calibration['x0'].append(float(x0))
+                    calibration['m'].append(float(m))
 
                     # visualize the result
                     y_start = 0

@@ -163,4 +163,4 @@ cython_debug/
 cap_*.jpg
 
 # calibration data
-calibration.json
+calibration.yaml
