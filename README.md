@@ -39,3 +39,13 @@ Use needs to be addded to the bluetooth group
 ```bash
 sudo usermod -G bluetooth -a $USER
 ```
+
+
+### Raspberry Pi Performance Improvements:
+
+see https://wiki.linuxaudio.org/wiki/raspberrypi
+
+```bash
+for cpu in /sys/devices/system/cpu/cpu[0-9]*; do echo -n performance \
+| sudo tee $cpu/cpufreq/scaling_governor; done
+```

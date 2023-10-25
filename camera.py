@@ -10,10 +10,13 @@ from .config import CONFIG
 
 @dataclass
 class InterceptionEvent:
-    beamlength: np.ndarray
+    beam_length: np.ndarray
+    beam_vibrato: np.ndarray
 
 class Camera:
     class ImageProcessor:
+        FILTER_SIZE = 11
+
         def __init__(self, resolution: tuple, N_beams: int):
             self.resolution = resolution
             self.N_beams = N_beams
@@ -21,8 +24,26 @@ class Camera:
             self.beam_start = np.zeros((N_beams, 2), dtype=np.int32)
             self.beam_end = np.zeros((N_beams, 2), dtype=np.int32)
 
-            self.beamlength_shared = multiprocessing.Array('f', N_beams)
-            self.beamlength_event = multiprocessing.Event()
+            # TODO: make coefficients configurable (see https://fiiir.com/)
+            self.filter_taps = np.zeros((self.FILTER_SIZE, N_beams), dtype=np.float32)
+            self.filter_coeff = np.array([
+                -0.033953150079712217,
+                0.009049772158682429,
+                0.074180583436830330,
+                0.144126409950432216,
+                0.197712774636478017,
+                0.217767219794578387,
+                0.197712774636478017,
+                0.144126409950432216,
+                0.074180583436830330,
+                0.009049772158682429,
+                -0.033953150079712217
+            ])
+
+            self.nan_state = np.zeros(N_beams, dtype=bool)
+            self.beam_length_shared = multiprocessing.Array('f', N_beams)
+            self.beam_vibrato_shared = multiprocessing.Array('f', N_beams)
+            self.beam_length_event = multiprocessing.Event()
 
             # TODO: use a shared memory array instead of a lock
             self.frame = None
@@ -58,8 +79,8 @@ class Camera:
             self.beam_xv = np.round(self.x0[np.newaxis, :] + self.m[np.newaxis, :] * y[:, np.newaxis]).astype(np.int32)
 
             self.beam_threshold = 255 * CONFIG['image_processor']['threshold']
-            self.beamlength_min = CONFIG['image_processor']['beam_length_min']
-            self.beamlength_max = CONFIG['image_processor']['beam_length_max']
+            self.beam_length_min = CONFIG['image_processor']['beam_length_min']
+            self.beam_length_max = CONFIG['image_processor']['beam_length_max']
 
             self.calibrated = True
 
@@ -89,18 +110,48 @@ class Camera:
             beam_strength = np.max(brightness, axis=0)
             beam_position = np.argmax(brightness, axis=0)
 
-            # replace weak values by NaN
-            beamlength = np.where(beam_strength > self.beam_threshold, self.y_metric[beam_position], np.nan)
+            # lookup the beamlength and replace weak values by NaN
+            beam_length_raw = self.y_metric[beam_position]
+            beam_length_raw[beam_strength < self.beam_threshold] = np.nan
 
             # replace out of bounds values by NaN
-            beamlength = np.where(beamlength < self.beamlength_min, np.nan, beamlength)
-            beamlength = np.where(beamlength > self.beamlength_max, np.nan, beamlength)
+            beam_length_raw[beam_length_raw < self.beam_length_min] = np.nan
+            beam_length_raw[beam_length_raw > self.beam_length_max] = np.nan
 
-            # store the beamlengths
-            with self.beamlength_shared.get_lock():
-                np.copyto(np.frombuffer(self.beamlength_shared.get_obj(), dtype=np.float32), beamlength)
+            nan_state_new = np.isfinite(beam_length_raw)
 
-            self.beamlength_event.set()
+            # low-pass filter the beamlengths over time
+            # TODO: think about how to handle NaNs here:
+            # NaNs should not propagate into the filter and the first value afterwards should be
+            # set to all taps effectively "resetting" the filter.
+
+            # shift the filter taps
+            self.filter_taps[1:] = self.filter_taps[:-1]
+            self.filter_taps[0] = beam_length_raw
+
+            # set all taps to NaN if the beam was not intercepted
+            self.filter_taps[:, ~nan_state_new] = np.nan
+
+            # set all taps to the same value if the beam was just intercepted
+            nan_state_rising = nan_state_new & ~self.nan_state
+            self.filter_taps[:, nan_state_rising] = beam_length_raw[nan_state_rising]
+
+            # split the beam length into low-frequency (beam_length) and high-frequency (beam_vibrato) components
+            beam_length = np.nansum(self.filter_taps * self.filter_coeff[:, np.newaxis], axis=0)
+            beam_length[np.isnan(beam_length_raw)] = np.nan # keep NaNs
+
+            beam_vibrato = beam_length_raw - beam_length
+            beam_vibrato = np.tanh(beam_vibrato * CONFIG['image_processor']['vibrato_gain'])
+            #beam_vibrato[np.isnan(beam_length_raw)] = 0 # replace NaNs by 0
+
+            self.nan_state = nan_state_new
+
+            # store the beam lengths
+            with self.beam_length_shared.get_lock():
+                np.copyto(np.frombuffer(self.beam_length_shared.get_obj(), dtype=np.float32), beam_length)
+                np.copyto(np.frombuffer(self.beam_vibrato_shared.get_obj(), dtype=np.float32), beam_vibrato)
+
+            self.beam_length_event.set()
 
         def flush(self):
             # clear the frame event
@@ -108,16 +159,17 @@ class Camera:
 
         def read(self, timeout=None):
             # wait for an interception event
-            was_set = self.beamlength_event.wait(timeout=timeout)
+            was_set = self.beam_length_event.wait(timeout=timeout)
             if not was_set:
                 return None
 
-            self.beamlength_event.clear()
+            self.beam_length_event.clear()
 
             # return a copy of the current beamlengths
-            with self.beamlength_shared.get_lock():
-                beamlength = np.frombuffer(self.beamlength_shared.get_obj(), dtype=np.float32)
-            return InterceptionEvent(beamlength)
+            with self.beam_length_shared.get_lock():
+                beam_length = np.frombuffer(self.beam_length_shared.get_obj(), dtype=np.float32)
+                beam_vibrato = np.frombuffer(self.beam_vibrato_shared.get_obj(), dtype=np.float32)
+            return InterceptionEvent(beam_length, beam_vibrato)
 
         def get_frame(self, *, draw_calibration: bool = False, grayscale: bool = False):
             # wait for a frame to be available

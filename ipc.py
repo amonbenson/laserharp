@@ -1,3 +1,4 @@
+import os
 import logging
 from enum import Enum
 import serial
@@ -37,6 +38,7 @@ class IPCController():
 
         self._serial.write_timeout = timeout
         self._serial.write(data)
+        self._serial.flush()
 
     def read(self, timeout=None) -> MidiEvent:
         # read the cable number and code index

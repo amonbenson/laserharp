@@ -1,9 +1,13 @@
-log_level: DEBUG
+log_level: INFO
 
 num_lasers: 2
 laser_translation_table: [12, 11]
 
 root_note: 60
+
+ipc:
+  port: /dev/ttyS0
+  baudrate: 1152000
 
 camera:
   # mechanical parameters
@@ -37,3 +41,5 @@ image_processor:
   threshold: 0.04 # minimum brightness to be considered a beam
   beam_length_min: 0.05 # minimum beam length in meters
   beam_length_max: 2.0 # maximum beam length in meters
+
+  vibrato_gain: 15 # vibrato factor before soft-clipping (e. g. "drive")

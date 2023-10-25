@@ -37,7 +37,7 @@ class LaserHarpApp:
         self.note_status = np.zeros(CONFIG['num_lasers'], dtype=np.uint8)
 
         # use hardware serial to interface with the STM
-        self.ipc = IPCController('/dev/ttyS0', baudrate=115200)
+        self.ipc = IPCController(**CONFIG['ipc'])
         self.laser_state = np.ones(CONFIG['num_lasers'], dtype=np.uint8) * 127
 
         # setup camera interface
@@ -195,7 +195,20 @@ class LaserHarpApp:
 
     def _handle_interception_event(self, event: InterceptionEvent):
         # set note status to 127 if the beamlength is not nan/inf
-        new_note_status = np.where(np.isfinite(event.beamlength), 127, 0).astype(np.uint8)
+        new_note_status = np.where(np.isfinite(event.beam_length), 127, 0).astype(np.uint8)
+
+        # generate pitch-bend from vibrato values (TODO: use MPE)
+        if np.any(new_note_status):
+            if np.any(np.isfinite(event.beam_vibrato)):
+                vibrato = np.nanmean(event.beam_vibrato)
+            else:
+                vibrato = 0
+
+            pitch_bend = int(vibrato * 8191)
+            message = mido.Message('pitchwheel', pitch=pitch_bend)
+            self.send_din_midi(message)
+            self.send_usb_midi(message)
+            self.send_ble_midi(message)
 
         # send midi note on/off messages for each laser to all interfaces
         for i in range(CONFIG['num_lasers']):
