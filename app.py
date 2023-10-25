@@ -33,6 +33,7 @@ class LaserHarpApp:
         self.state = LaserHarpApp.State.IDLE
         self.state_lock = Lock()
 
+        self.root_note = CONFIG['root_note']
         self.note_status = np.zeros(CONFIG['num_lasers'], dtype=np.uint8)
 
         # use hardware serial to interface with the STM
@@ -142,6 +143,14 @@ class LaserHarpApp:
                 traceback.print_exc()
                 logging.warning(f"Unhandled exception in interception event loop: {e}")
 
+    def _note_to_laser(self, note: int):
+        if note == 127: return 127
+        else: return note - self.root_note
+
+    def _laser_to_note(self, index: int):
+        if index == 127: return 127
+        else: return index + self.root_note
+
     def _ipc_loop(self):
         while self.state != LaserHarpApp.State.IDLE:
             try:
@@ -166,10 +175,10 @@ class LaserHarpApp:
     def _handle_midi_event(self, event: MidiEvent):
         # handle midi note on/off messages from any interface
         if event.message.type == 'note_on':
-            index = event.message.note
+            index = self._note_to_laser(event.message.note)
             brightness = event.message.velocity
         elif event.message.type == 'note_off':
-            index = event.message.note
+            index = self._note_to_laser(event.message.note)
             brightness = 0
         else:
             logging.warning(f"Unhandled midi event: {event}")
@@ -192,7 +201,7 @@ class LaserHarpApp:
         for i in range(CONFIG['num_lasers']):
             if new_note_status[i] != self.note_status[i]:
                 cmd = 'note_on' if new_note_status[i] else 'note_off'
-                note = i
+                note = self._laser_to_note(i)
                 velocity = new_note_status[i]
 
                 message = mido.Message(cmd, note=note, velocity=velocity)

@@ -1,5 +1,7 @@
+log_level: DEBUG
+
 num_lasers: 2
-laser_translation_table: [11, 12]
+laser_translation_table: [12, 11]
 
 root_note: 60
 
