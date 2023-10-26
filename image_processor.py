@@ -22,7 +22,7 @@ class ImageProcessor():
 
     def _calculate_coeff(self) -> np.ndarray:
         # compute number of taps
-        f_S = self.config['camera_framerate']
+        f_S = self.config['camera']['framerate']
         f_L = self.config['filter_cutoff']
         N = self.config['filter_size']
 
@@ -41,7 +41,7 @@ class ImageProcessor():
         self.calibration = calibration
 
         # get all possible y coordinates
-        w, h = self.config['camera_resolution']
+        w, h = self.config['camera']['resolution']
         y_lower = np.maximum(0, calibration.ya)
         y_upper = np.minimum(h, calibration.yb)
         y = np.arange(y_lower, y_upper)
@@ -50,7 +50,7 @@ class ImageProcessor():
         y_angle = (y - calibration.ya) / (calibration.yb - calibration.ya) * np.pi / 2
         y_angle = np.clip(y_angle, 0, np.pi / 2 - 0.01)
         y_tan = np.tan(y_angle)
-        self.y_metric = y_tan * self.config['camera_mount_distance']
+        self.y_metric = y_tan * self.config['camera']['mount_distance']
 
         # calculate the grid of beam interception points
         self.beam_yv = np.round(y[:, np.newaxis]).astype(np.int32)
@@ -113,7 +113,7 @@ class ImageProcessor():
         frame = np.frombuffer(buffer, dtype=np.uint8)
 
         # extract the luminance component
-        w, h = self.config['camera_resolution']
+        w, h = self.config['camera']['resolution']
         frame = frame.reshape((h * 3 // 2, w))
         frame = frame[:h, :w]
 

@@ -10,9 +10,11 @@ class Test_ImageProcessor(unittest.TestCase):
     def setUp(self):
         config = {
             'num_lasers': 3,
-            'camera_resolution': (640, 480),
-            'camera_framerate': 60,
-            'camera_mount_distance': 0.2,
+            'camera': {
+                'resolution': (640, 480),
+                'framerate': 60,
+                'mount_distance': 0.2
+            },
             'preblur': 23,
             'threshold': 10,
             'length_min': 0.05,
@@ -30,7 +32,7 @@ class Test_ImageProcessor(unittest.TestCase):
             m=[-0.1, 0, 0.1])
         self.processor.set_calibration(calibration)
 
-        w, h = config['camera_resolution']
+        w, h = config['camera']['resolution']
         self.frame = np.zeros((h, w), dtype=np.uint8)
 
     def tearDown(self):
