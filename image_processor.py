@@ -16,9 +16,9 @@ class ImageProcessor():
         self.calibration = None
 
         self.filter_coeff = self._calculate_coeff()
-        self.filter_taps = np.zeros((len(self.filter_coeff), config['num_lasers']), dtype=np.float32)
+        self.filter_taps = np.zeros((len(self.filter_coeff), config['laser_array']['size']), dtype=np.float32)
 
-        self.beam_active = np.zeros(config['num_lasers'], dtype=bool)
+        self.beam_active = np.zeros(config['laser_array']['size'], dtype=bool)
 
     def _calculate_coeff(self) -> np.ndarray:
         # compute number of taps

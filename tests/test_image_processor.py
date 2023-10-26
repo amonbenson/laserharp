@@ -9,7 +9,9 @@ from . import OUTPUT_DIRECTORY
 class Test_ImageProcessor(unittest.TestCase):
     def setUp(self):
         config = {
-            'num_lasers': 3,
+            'laser_array': {
+                'size': 3
+            },
             'camera': {
                 'resolution': (640, 480),
                 'framerate': 60,

@@ -1,5 +1,7 @@
 from dataclasses import dataclass
 import numpy as np
+from .camera import Camera
+from .laser_array import LaserArray
 
 @dataclass
 class Calibration:
@@ -21,3 +23,14 @@ class Calibration:
         # sanity checks
         assert self.ya < self.yb
         assert len(self.x0) == len(self.m)
+
+
+class ImageCalibrator:
+    def __init__(self, camera: Camera, laser_array: LaserArray, **config):
+        self.config = config
+
+        self.camera = camera
+        self.laser_array = laser_array
+
+    def calibrate(self):
+        pass

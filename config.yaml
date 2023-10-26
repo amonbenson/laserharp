@@ -1,13 +1,20 @@
 log_level: INFO
 
-num_lasers: 2
-laser_translation_table: [12, 11]
-
 root_note: 60
+
+laser_array:
+  size: 2 # number of lasers
+  translation_table: [12, 11] # mapping from note to laser index
 
 ipc:
   port: /dev/ttyS0
   baudrate: 1152000
+
+  cables:
+    din: 0
+    usb: 1
+    ble: 2
+    laser_array: 3
 
 camera:
   # mechanical parameters
