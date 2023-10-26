@@ -17,15 +17,17 @@ class Test_ImageProcessor(unittest.TestCase):
                 'framerate': 60,
                 'mount_distance': 0.2
             },
-            'preblur': 23,
-            'threshold': 10,
-            'length_min': 0.05,
-            'length_max': 2.0,
-            'filter_size': 23,
-            'filter_cutoff': 6,
-            'modulation_gain': 15
+            'image_processor': {
+                'preblur': 23,
+                'threshold': 10,
+                'length_min': 0.05,
+                'length_max': 2.0,
+                'filter_size': 23,
+                'filter_cutoff': 6,
+                'modulation_gain': 15
+            }
         }
-        self.processor = ImageProcessor(**config)
+        self.processor = ImageProcessor(config)
 
         calibration = Calibration(
             ya=0,

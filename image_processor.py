@@ -11,14 +11,14 @@ class ImageProcessor():
         length: np.ndarray
         modulation: np.ndarray
 
-    def __init__(self, **config: dict):
-        self.config = config
+    def __init__(self, config: dict):
+        self.config = { **config, **config['image_processor'] }
         self.calibration = None
 
         self.filter_coeff = self._calculate_coeff()
-        self.filter_taps = np.zeros((len(self.filter_coeff), config['laser_array']['size']), dtype=np.float32)
+        self.filter_taps = np.zeros((len(self.filter_coeff), self.config['laser_array']['size']), dtype=np.float32)
 
-        self.beam_active = np.zeros(config['laser_array']['size'], dtype=bool)
+        self.beam_active = np.zeros(self.config['laser_array']['size'], dtype=bool)
 
     def _calculate_coeff(self) -> np.ndarray:
         # compute number of taps
