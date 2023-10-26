@@ -16,7 +16,7 @@ class ImageProcessor():
         self.calibration = None
 
         self.filter_coeff = self._calculate_coeff()
-        self.filter_taps = np.zeros_like(self.filter_coeff)
+        self.filter_taps = np.zeros((len(self.filter_coeff), config['num_lasers']), dtype=np.float32)
 
         self.beam_active = np.zeros(config['num_lasers'], dtype=bool)
 
@@ -76,8 +76,8 @@ class ImageProcessor():
 
         # filter out invalid interception points
         length[strength < self.config['threshold']] = np.nan
-        length[length < self.config['min_length']] = np.nan
-        length[length > self.config['max_length']] = np.nan
+        length[length < self.config['length_min']] = np.nan
+        length[length > self.config['length_max']] = np.nan
 
         return length
 
@@ -102,8 +102,8 @@ class ImageProcessor():
         length[~active] = np.nan # keep NaNs
 
         # store the high frequency content as the modulation
-        modulation = raw_length - self.beam_length
-        modulation = np.tanh(self.beam_modulation * self.config['modulation_gain'])
+        modulation = raw_length - length
+        modulation = np.tanh(modulation * self.config['modulation_gain'])
 
         return self.Result(active, length, modulation)
 

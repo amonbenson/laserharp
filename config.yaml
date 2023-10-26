@@ -39,7 +39,7 @@ image_calibrator:
 image_processor:
   preblur: 23 # gaussian blur kernel size
 
-  threshold: 0.04 # minimum brightness to be considered a beam
+  threshold: 10 # minimum brightness to be considered a beam (0-255)
   length_min: 0.05 # minimum beam length in meters
   length_max: 2.0 # maximum beam length in meters
 
