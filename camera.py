@@ -79,8 +79,8 @@ class Camera:
             self.beam_xv = np.round(self.x0[np.newaxis, :] + self.m[np.newaxis, :] * y[:, np.newaxis]).astype(np.int32)
 
             self.beam_threshold = 255 * CONFIG['image_processor']['threshold']
-            self.beam_length_min = CONFIG['image_processor']['beam_length_min']
-            self.beam_length_max = CONFIG['image_processor']['beam_length_max']
+            self.beam_length_min = CONFIG['image_processor']['length_min']
+            self.beam_length_max = CONFIG['image_processor']['length_max']
 
             self.calibrated = True
 
