@@ -104,6 +104,7 @@ class ImageProcessor():
         # store the high frequency content as the modulation
         modulation = raw_length - length
         modulation = np.tanh(modulation * self.config['modulation_gain'])
+        modulation[~active] = 0 # inactive beams have no modulation
 
         return self.Result(active, length, modulation)
 
