@@ -36,20 +36,20 @@ class LaserArray():
         # apply the translation table and send the message
         if self.config['laser_translation_table'] is not None:
             index = self.config['laser_translation_table'][index]
-        self.ipc.send(MidiEvent(self._cn, mido.Message('control_change', control=index, value=brightness)))
+        self.ipc.send(MidiEvent(self._cn, 'control_change', control=index, value=brightness))
 
     def set_all(self, brightness: int):
         self._state[:] = brightness
 
         # send a special message to set all lasers at once
-        self.ipc.send(MidiEvent(self._cn, mido.Message('control_change', control=127, value=brightness)))
+        self.ipc.send(MidiEvent(self._cn, 'control_change', control=127, value=brightness))
 
     def push_state(self):
         self._state_stack.append(self._state.copy())
 
     def pop_state(self):
-        self._state = self._state_stack.pop()
+        state = self._state_stack.pop()
 
         # update all lasers to this state
-        for i, brightness in enumerate(self._state):
+        for i, brightness in enumerate(state):
             self.set(i, brightness)
