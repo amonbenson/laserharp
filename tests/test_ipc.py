@@ -2,36 +2,7 @@ import unittest
 import mido
 from ..midi import MidiEvent
 from ..ipc import IPCController
-
-class MockSerial:
-    def __init__(self):
-        self.txdata = bytearray()
-        self.rxdata = bytearray()
-
-    def clear(self):
-        self.txdata = bytearray()
-        self.rxdata = bytearray()
-
-    @property
-    def in_waiting(self):
-        return len(self.rxdata)
-
-    def read(self, n):
-        data = self.rxdata[:n]
-        self.rxdata = self.rxdata[n:]
-        return data
-
-    def read_all(self):
-        data = self.rxdata
-        self.rxdata = bytearray()
-        return data
-
-    def write(self, data):
-        self.txdata += data
-
-    def flush(self):
-        pass
-
+from .mock import MockSerial
 
 class Test_IPCConnector(unittest.TestCase):
     def setUp(self):

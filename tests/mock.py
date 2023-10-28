@@ -3,7 +3,37 @@ import cv2
 from ..midi import MidiEvent
 
 
-class DummyIPCController():
+class MockSerial:
+    def __init__(self):
+        self.txdata = bytearray()
+        self.rxdata = bytearray()
+
+    def clear(self):
+        self.txdata = bytearray()
+        self.rxdata = bytearray()
+
+    @property
+    def in_waiting(self):
+        return len(self.rxdata)
+
+    def read(self, n):
+        data = self.rxdata[:n]
+        self.rxdata = self.rxdata[n:]
+        return data
+
+    def read_all(self):
+        data = self.rxdata
+        self.rxdata = bytearray()
+        return data
+
+    def write(self, data):
+        self.txdata += data
+
+    def flush(self):
+        pass
+
+
+class MockIPC():
     def __init__(self, config: dict):
         self.config = config
         self.event = None
@@ -11,7 +41,7 @@ class DummyIPCController():
     def send(self, event: MidiEvent):
         self.event = event
 
-class DummyCamera():
+class MockCamera():
     def __init__(self, config: dict):
         self.config = config
 

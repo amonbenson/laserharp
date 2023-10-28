@@ -1,12 +1,12 @@
 import unittest
 from ..laser_array import LaserArray
 from ..midi import MidiEvent
-from .dummy import DummyIPCController
+from .mock import MockIPC
 
 
 class Test_LaserArray(unittest.TestCase):
     def setUp(self):
-        self.ipc = DummyIPCController(config={
+        self.ipc = MockIPC(config={
             'cables': {
                 'laser_array': 3
             }
