@@ -2,6 +2,8 @@ from dataclasses import dataclass
 import numpy as np
 import cv2
 from .image_calibrator import Calibration
+from .laser_array import LaserArray
+from .camera import Camera
 
 
 class ImageProcessor():
@@ -11,18 +13,21 @@ class ImageProcessor():
         length: np.ndarray
         modulation: np.ndarray
 
-    def __init__(self, config: dict):
-        self.config = { **config, **config['image_processor'] }
+    def __init__(self, laser_array: LaserArray, camera: Camera, config: dict):
+        self.config = config
+        self.laser_array = laser_array
+        self.camera = camera
+
         self.calibration = None
 
         self.filter_coeff = self._calculate_coeff()
-        self.filter_taps = np.zeros((len(self.filter_coeff), self.config['laser_array']['size']), dtype=np.float32)
+        self.filter_taps = np.zeros((len(self.filter_coeff), len(self.laser_array)), dtype=np.float32)
 
-        self.beam_active = np.zeros(self.config['laser_array']['size'], dtype=bool)
+        self.beam_active = np.zeros(len(self.laser_array), dtype=bool)
 
     def _calculate_coeff(self) -> np.ndarray:
         # compute number of taps
-        f_S = self.config['camera']['framerate']
+        f_S = self.camera.framerate
         f_L = self.config['filter_cutoff']
         N = self.config['filter_size']
 
@@ -41,7 +46,7 @@ class ImageProcessor():
         self.calibration = calibration
 
         # get all possible y coordinates
-        w, h = self.config['camera']['resolution']
+        w, h = self.camera.resolution
         y_lower = np.maximum(0, calibration.ya)
         y_upper = np.minimum(h, calibration.yb)
         y = np.arange(y_lower, y_upper)
@@ -50,7 +55,7 @@ class ImageProcessor():
         y_angle = (y - calibration.ya) / (calibration.yb - calibration.ya) * np.pi / 2
         y_angle = np.clip(y_angle, 0, np.pi / 2 - 0.01)
         y_tan = np.tan(y_angle)
-        self.y_metric = y_tan * self.config['camera']['mount_distance']
+        self.y_metric = y_tan * self.camera.config['mount_distance']
 
         # calculate the grid of beam interception points
         self.beam_yv = np.round(y[:, np.newaxis]).astype(np.int32)
@@ -108,15 +113,7 @@ class ImageProcessor():
 
         return self.Result(active, length, modulation)
 
-    def process(self, buffer) -> Result:
-        # convert the buffer to a numpy image array
-        frame = np.frombuffer(buffer, dtype=np.uint8)
-
-        # extract the luminance component
-        w, h = self.config['camera']['resolution']
-        frame = frame.reshape((h * 3 // 2, w))
-        frame = frame[:h, :w]
-
+    def process(self, frame) -> Result:
         # process the frame
         raw_length = self._calculate_beam_length(frame)
         result = self._apply_filter(raw_length)

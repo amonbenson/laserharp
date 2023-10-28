@@ -34,5 +34,6 @@ class Test_Camera(unittest.TestCase):
         frame = self.camera.capture(draw_calibration=True)
         cv2.imwrite(str(OUTPUT_DIRECTORY / 'camera_calibration.jpg'), frame)
 
+
 if __name__ == '__main__':
     unittest.main()

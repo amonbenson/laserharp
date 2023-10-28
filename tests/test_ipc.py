@@ -42,7 +42,7 @@ class Test_IPCConnector(unittest.TestCase):
         self.serial.clear()
 
     def test_send_midi(self):
-        self.ipc.send(MidiEvent(1, mido.Message('note_on', note=60, velocity=64)))
+        self.ipc.send(MidiEvent(1, 'note_on', note=60, velocity=64))
         self.assertEqual(self.serial.txdata, bytearray([0x19, 0x90, 60, 64]))
 
     def test_read_midi(self):

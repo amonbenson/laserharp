@@ -1,32 +1,21 @@
 import unittest
-from ..midi import MidiEvent
 from ..laser_array import LaserArray
-
-
-class DummyIPCController:
-    def __init__(self):
-        self.event = None
-
-    def send(self, event: MidiEvent):
-        self.event = event
+from ..midi import MidiEvent
+from .dummy import DummyIPCController
 
 
 class Test_LaserArray(unittest.TestCase):
     def setUp(self):
-        config = {
-            'ipc': {
-                'cables': {
-                    'laser_array': 3
-                }
-            },
-            'laser_array': {
-                'size': 3,
-                'laser_translation_table': [3, 4, 5]
+        self.ipc = DummyIPCController(config={
+            'cables': {
+                'laser_array': 3
             }
-        }
+        })
 
-        self.ipc = DummyIPCController()
-        self.laser_array = LaserArray(config, self.ipc)
+        self.laser_array = LaserArray(self.ipc, config={
+            'size': 3,
+            'laser_translation_table': [3, 4, 5]
+        })
 
     def tearDown(self):
         pass
@@ -65,3 +54,7 @@ class Test_LaserArray(unittest.TestCase):
         self.laser_array.pop_state()
         self.assertEqual(self.laser_array[0], 64)
         self.assertEqual(self.ipc.event, MidiEvent(3, 'control_change', control=3, value=64))
+
+
+if __name__ == '__main__':
+    unittest.main()

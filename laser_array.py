@@ -5,11 +5,11 @@ from .midi import MidiEvent
 
 
 class LaserArray():
-    def __init__(self, config: dict, ipc: IPCController):
-        self.config = { **config, **config['laser_array'] }
+    def __init__(self, ipc: IPCController, config: dict):
+        self.config = config
         self.ipc = ipc
 
-        self._cn = config['ipc']['cables']['laser_array']
+        self._cn = self.ipc.config['cables']['laser_array']
 
         self._state = np.zeros(self.config['size'], dtype=np.uint8)
         self._state_stack = []
