@@ -2,7 +2,7 @@ import unittest
 import mido
 from ..midi import MidiEvent
 from ..ipc import IPCController
-from .mock import MockSerial
+from .utils import MockSerial
 
 class Test_IPCConnector(unittest.TestCase):
     def setUp(self):
@@ -26,7 +26,7 @@ class Test_IPCConnector(unittest.TestCase):
         self.assertEqual(self.serial.txdata, bytearray([0x19, 0x90, 60, 64]))
 
     def test_read_midi(self):
-        self.serial.rxdata = bytearray([0x38, 0x80, 60, 64])
+        self.serial.rxdata = bytearray([0x28, 0x80, 60, 64])
 
         # validate packet midi conversion
         event = self.ipc.read()

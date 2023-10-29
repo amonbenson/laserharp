@@ -61,7 +61,7 @@ class Test_Camera(unittest.TestCase):
         self.assertEqual(frame.shape, (480, 640))
 
         # save the frame to a file
-        cv2.imwrite(str(OUTPUT_DIRECTORY / 'camera_capture.jpg'), frame)
+        cv2.imwrite(str(OUTPUT_DIRECTORY / 'test_camera_capture.png'), frame)
 
 
 if __name__ == '__main__':

@@ -19,7 +19,11 @@ class LaserArray():
         return self._state[key]
 
     def __setitem__(self, key, value):
-        self.set(key, value)
+        if isinstance(key, slice):
+            for i in range(*key.indices(len(self))):
+                self.set(i, value)
+        else:
+            self.set(key, value)
 
     def set(self, index: int, brightness: int):
         assert(0 <= index < len(self))

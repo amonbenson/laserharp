@@ -1,7 +1,7 @@
 import unittest
 import numpy as np
 import cv2
-from .mock import MockIPC, MockCamera
+from .utils import MockIPC, MockCamera
 from ..laser_array import LaserArray
 from ..image_processor import ImageProcessor
 from ..image_calibrator import Calibration

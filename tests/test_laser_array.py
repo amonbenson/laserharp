@@ -1,7 +1,7 @@
 import unittest
 from ..laser_array import LaserArray
 from ..midi import MidiEvent
-from .mock import MockIPC
+from .utils import MockIPC
 
 
 class Test_LaserArray(unittest.TestCase):

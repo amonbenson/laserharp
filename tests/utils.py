@@ -1,6 +1,20 @@
 import numpy as np
 import cv2
+import time
 from ..midi import MidiEvent
+from ..events import EventEmitter
+
+
+def wait_until(condition: callable, timeout: float):
+    start_time = time.time()
+
+    while not condition():
+        if time.time() - start_time > timeout:
+            return False
+
+        time.sleep(0.01)
+
+    return True
 
 
 class MockSerial:
@@ -33,15 +47,18 @@ class MockSerial:
         pass
 
 
-class MockIPC():
+class MockIPC(EventEmitter):
     def __init__(self, config: dict):
+        super().__init__()
+
         self.config = config
         self.event = None
 
     def send(self, event: MidiEvent):
         self.event = event
+        self.emit('send', event)
 
-class MockCamera():
+class MockCamera:
     def __init__(self, config: dict):
         self.config = config
 
@@ -61,28 +78,13 @@ class MockCamera():
         self.frame = np.zeros_like(self.frame)
 
     def draw_blob(self, x: int, y: int, radius: int, intensity: int):
-        self.frame = cv2.circle(self.frame, (x, y), radius, intensity, -1)
+        self.frame = cv2.circle(self.frame, (int(x), int(y)), int(radius), int(intensity), -1)
+
+    def save(self, filename: str):
+        cv2.imwrite(str(filename), self.frame)
 
     def capture(self):
+        # simulate capture delay
+        time.sleep(1 / self.framerate)
+
         return self.frame
-
-    def frame_to_yuv(self, frame: np.ndarray):
-        # convert frame to yuv format
-        w, h = self.resolution
-        uv = np.zeros((h // 2, w), dtype=np.uint8)
-        yuv = np.vstack((frame, uv))
-
-        # convert to byte stream
-        return yuv.tobytes()
-
-    # TODO: use this function in the actual camera class
-    def yuv_to_frame(self, yuv: bytes):
-        # convert to numpy array
-        frame = np.frombuffer(yuv, dtype=np.uint8)
-
-        # extract the luminance component
-        w, h = self.resolution
-        frame = frame.reshape((h * 3 // 2, w))
-        frame = frame[:h, :w]
-
-        return frame

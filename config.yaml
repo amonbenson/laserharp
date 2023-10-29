@@ -40,7 +40,8 @@ camera:
 # settings during the calibration process
 image_calibrator:
   preblur: 17 # gaussian blur kernel size
-  threshold: 0.4 # minimum brightness to be considered a beam
+  threshold: 100 # minimum brightness to be considered
+  min_coverage: 0.6 # percentual number of blobs that must be captured for each beam
 
 # settings during normal operation
 image_processor:
