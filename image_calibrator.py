@@ -78,7 +78,7 @@ class ImageCalibrator:
         # fit a line to the points (swap x and y because we want to fit a vertical line)
         return np.polyfit(y=xs, x=ys, deg=1, w=ws)
 
-    def calibrate(self):
+    def calibrate(self, save_debug_images=False):
         logging.info("Starting calibration")
 
         # store the laser state
@@ -105,7 +105,9 @@ class ImageCalibrator:
         self.laser_array.set_all(0)
 
         base_img = self._combined_capture(10, 0.1, mode='max')
-        cv2.imwrite('cap_base.jpg', (base_img * 255).astype(np.uint8))
+
+        if save_debug_images:
+            cv2.imwrite('cap_base.jpg', (base_img * 255).astype(np.uint8))
 
         # STEP 2: fit a line to each individual laser's beam path
         i = 0
@@ -123,7 +125,9 @@ class ImageCalibrator:
 
                 # convert to uint8
                 beam_img = (beam_img * 255).astype(np.uint8)
-                cv2.imwrite(f'cap_laser_{i}.jpg', beam_img)
+
+                if save_debug_images:
+                    cv2.imwrite(f'cap_laser_{i}.jpg', beam_img)
 
                 # fit a line to the laser beam
                 logging.debug("Fitting line")
@@ -138,19 +142,21 @@ class ImageCalibrator:
                 calibration.m[i] = m
 
                 # visualize the result
-                y_start = 0
-                y_end = yb
+                if save_debug_images:
+                    y_start = 0
+                    y_end = yb
 
-                x_start = x0 + m * y_start
-                x_end = x0 + m * y_end
+                    x_start = x0 + m * y_start
+                    x_end = x0 + m * y_end
 
-                rgb = cv2.cvtColor(beam_img, cv2.COLOR_GRAY2RGB)
-                rgb = cv2.line(rgb,
-                    (int(x_start), int(y_start)),
-                    (int(x_end), int(y_end)),
-                    (255, 255, 0),
-                    1)
-                cv2.imwrite(f'cap_laser_{i}_line.jpg', rgb)
+                    rgb = cv2.cvtColor(beam_img, cv2.COLOR_GRAY2RGB)
+                    rgb = cv2.line(rgb,
+                        (int(x_start), int(y_start)),
+                        (int(x_end), int(y_end)),
+                        (255, 255, 0),
+                        1)
+
+                    cv2.imwrite(f'cap_laser_{i}_line.jpg', rgb)
 
                 i += 1
 
