@@ -13,8 +13,8 @@ class Test_IPCConnector(unittest.TestCase):
             'cables': {
                 'din': 0,
                 'usb': 1,
-                'ble': 3,
-                'laser_array': 4
+                'ble': 2,
+                'laser_array': 3
             }
         }, custom_serial=self.serial)
 
@@ -32,6 +32,16 @@ class Test_IPCConnector(unittest.TestCase):
         event = self.ipc.read()
         self.assertEqual(event.cable, 'ble')
         self.assertEqual(event.message, mido.Message('note_off', note=60, velocity=64))
+
+    def test_invalid_cable(self):
+        # invalid write
+        with self.assertRaises(ValueError):
+            self.ipc.send(MidiEvent('invalid', 'note_on', note=60, velocity=64))
+
+        # invalid read
+        with self.assertRaises(ValueError):
+            self.serial.rxdata = bytearray([0x78, 0x80, 60, 64])
+            self.ipc.read()
 
 
 if __name__ == '__main__':
