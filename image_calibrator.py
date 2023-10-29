@@ -4,8 +4,34 @@ import numpy as np
 import cv2
 import logging
 import traceback
+import os
+import yaml
 from .camera import Camera
 from .laser_array import LaserArray
+
+
+def _compare_config(a: dict, b: dict):
+    keys = set(a.keys()) & set(b.keys())
+    a = { k: a[k] for k in keys }
+    b = { k: b[k] for k in keys }
+
+    for k in keys:
+        va = a[k]
+        vb = b[k]
+
+        # make sure we can compare tuples and lists
+        if isinstance(va, tuple): va = list(va)
+        if isinstance(vb, tuple): vb = list(vb)
+
+        if isinstance(va, dict) and isinstance(vb, dict):
+            if not _compare_config(va, vb):
+                return False
+        elif va != vb:
+            logging.debug(f"Key {k} does not match: {a[k]} != {b[k]}")
+            return False
+
+    return True
+
 
 @dataclass
 class Calibration:
@@ -28,12 +54,71 @@ class Calibration:
         assert self.ya < self.yb
         assert len(self.x0) == len(self.m)
 
+    def to_dict(self):
+        return ({
+            'ya': float(self.ya),
+            'yb': float(self.yb),
+            'x0': self.x0.tolist(),
+            'm': self.m.tolist()
+        })
+
+    @staticmethod
+    def from_dict(d):
+        return Calibration(
+            ya=d['ya'],
+            yb=d['yb'],
+            x0=np.array(d['x0']),
+            m=np.array(d['m']))
+
 
 class ImageCalibrator:
     def __init__(self, laser_array: LaserArray, camera: Camera, config):
         self.laser_array = laser_array
         self.camera = camera
         self.config = config
+
+        self.filename = os.path.join(os.path.dirname(__file__), config['filename'])
+        self.calibration = None
+
+    def required_config(self):
+        # get all configuration values that must be consistent between calibration and runtime
+        return {
+            'laser_array': self.laser_array.config,
+            'camera': {
+                'fov': self.camera.config['fov'],
+                'mount_angle': self.camera.config['mount_angle'],
+                'resolution': self.camera.resolution,
+                'rotation': self.camera.config['rotation']
+            }
+        }
+
+    def load(self) -> bool:
+        if not os.path.exists(self.filename):
+            logging.warning("No calibration data available")
+            return False
+
+        with open(self.filename, 'r') as f:
+            d = yaml.safe_load(f)
+
+            # check if the config is compatible
+            required_config = d['required_config']
+            if not _compare_config(required_config, self.required_config()):
+                logging.warning("Calibration data is incompatible with current configuration")
+                return False
+
+            self.calibration = Calibration.from_dict(d['calibration'])
+
+        return True
+
+    def save(self):
+        if self.calibration is None:
+            raise RuntimeError("Not calibrated yet")
+
+        with open(self.filename, 'w') as f:
+            yaml.safe_dump({
+                'required_config': self.required_config(),
+                'calibration': self.calibration.to_dict()
+            }, f)
 
     def _angle_to_ypos(self, angle: float):
         fov_y = np.radians(self.camera.config['fov'][1])

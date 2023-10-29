@@ -1,6 +1,7 @@
 import unittest
 import time
 import numpy as np
+import yaml
 from threading import Thread
 from .utils import MockIPC, MockCamera, wait_until
 from ..laser_array import LaserArray
@@ -27,10 +28,11 @@ class Test_ImageCalibrator(unittest.TestCase):
             'mount_distance': 0.135,
             'resolution': (640, 480),
             'framerate': 60,
-            'mount_distance': 0.2
+            'rotation': 180
         })
 
         self.image_calibrator = ImageCalibrator(self.laser_array, self.camera, config={
+            'filename': 'tests/output/calibration.yaml',
             'preblur': 17,
             'threshold': 100,
             'min_coverage': 0.6
@@ -43,6 +45,86 @@ class Test_ImageCalibrator(unittest.TestCase):
 
     def _do_calibration(self):
         self.calibration = self.image_calibrator.calibrate()
+
+    def test_load_unknown_file(self):
+        self.image_calibrator.filename = 'unknown.yaml'
+        self.assertFalse(self.image_calibrator.load())
+
+    def test_load_incompatible(self):
+        # write a sample config
+        with open(self.image_calibrator.filename, 'w') as f:
+            yaml.safe_dump({
+                'required_config': {
+                    'laser_array': {
+                        'size': 2, # incompatible
+                        'laser_translation_table': None
+                    },
+                    'camera': {
+                        'fov': (50, 45),
+                        'mount_angle': 45,
+                        'resolution': (640, 480),
+                        'rotation': 180
+                    }
+                },
+                'calibration': {
+                    'ya': 0,
+                    'yb': 480,
+                    'x0': [200, 300],
+                    'm': [-0.1, 0.1]
+                }
+            }, f)
+
+        self.assertFalse(self.image_calibrator.load())
+
+    def test_load(self):
+        # write a sample config
+        with open(self.image_calibrator.filename, 'w') as f:
+            yaml.safe_dump({
+                'required_config': self.image_calibrator.required_config(),
+                'calibration': {
+                    'ya': -10,
+                    'yb': 200,
+                    'x0': [250, 350, 450],
+                    'm': [-0.2, 0.0, 0.2]
+                }
+            }, f)
+
+        # load the config
+        self.assertTrue(self.image_calibrator.load())
+
+        # check the values
+        self.assertAlmostEqual(self.image_calibrator.calibration.ya, -10, delta=0.01)
+        self.assertAlmostEqual(self.image_calibrator.calibration.yb, 200, delta=0.01)
+        self.assertAlmostEqual(self.image_calibrator.calibration.x0[0], 250, delta=0.01)
+        self.assertAlmostEqual(self.image_calibrator.calibration.x0[1], 350, delta=0.01)
+        self.assertAlmostEqual(self.image_calibrator.calibration.x0[2], 450, delta=0.01)
+        self.assertAlmostEqual(self.image_calibrator.calibration.m[0], -0.2, delta=0.01)
+        self.assertAlmostEqual(self.image_calibrator.calibration.m[1], 0.0, delta=0.01)
+        self.assertAlmostEqual(self.image_calibrator.calibration.m[2], 0.2, delta=0.01)
+
+    def test_save(self):
+        # store the config
+        self.image_calibrator.calibration = Calibration(
+            ya=-20,
+            yb=300,
+            x0=[150, 250, 350],
+            m=[-0.3, 0.0, 0.3]
+        )
+        self.image_calibrator.save()
+
+        # check the output file
+        with open(self.image_calibrator.filename, 'r') as f:
+            config = yaml.safe_load(f)
+            calibration = config['calibration']
+
+            self.assertAlmostEqual(calibration['ya'], -20, delta=0.01)
+            self.assertAlmostEqual(calibration['yb'], 300, delta=0.01)
+            self.assertAlmostEqual(calibration['x0'][0], 150, delta=0.01)
+            self.assertAlmostEqual(calibration['x0'][1], 250, delta=0.01)
+            self.assertAlmostEqual(calibration['x0'][2], 350, delta=0.01)
+            self.assertAlmostEqual(calibration['m'][0], -0.3, delta=0.01)
+            self.assertAlmostEqual(calibration['m'][1], 0.0, delta=0.01)
+            self.assertAlmostEqual(calibration['m'][2], 0.3, delta=0.01)
 
     def test_calibrate(self):
         x0 = np.array([200, 300, 400])
