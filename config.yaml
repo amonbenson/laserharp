@@ -24,7 +24,7 @@ camera:
 
   # basic confguration
   resolution: [640, 480] # VGA resolution
-  framerate: 60
+  framerate: 60 # max: 90
   rotation: 180 # configure any 90 degree rotation
 
   # exposure settings

@@ -1,1 +1,1 @@
-pkill -f "python3 -m laserharp"
+pkill -f ".*python3.*laserharp.*"

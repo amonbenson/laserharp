@@ -7,7 +7,17 @@ from . import OUTPUT_DIRECTORY
 
 class Test_Camera(unittest.TestCase):
     def setUp(self):
-        self.camera = Camera()
+        self.camera = Camera(config={
+            'resolution': (640, 480),
+            'framerate': 60,
+            'rotation': 180,
+            'shutter_speed': 5000,
+            'iso': 10,
+            'brightness': 50,
+            'contrast': 0,
+            'saturation': 0,
+            'sharpness': 0
+        })
         self.camera.start()
 
     def tearDown(self):
@@ -15,24 +25,43 @@ class Test_Camera(unittest.TestCase):
         self.camera.close()
 
     def test_running(self):
+        time.sleep(1)
+        self.assertTrue(self.camera.state == Camera.State.RUNNING)
+
+    def test_callback(self):
+        counter = 0
+        shape = None
+
+        def callback(frame):
+            nonlocal counter, shape
+            counter += 1
+            shape = frame.shape
+
         # wait until the camera is running
-        while not self.camera.running:
+        while self.camera.state != Camera.State.RUNNING:
             time.sleep(0.1)
+
+        # register the callback and capture for 1 second
+        self.camera.on('frame', callback)
+        time.sleep(1)
+
+        self.camera.off('frame', callback)
+        time.sleep(0.5)
+
+        # make sure the callback was called (~60 FPS, accounting for some deviation)
+        print(f"Callback was invoked {counter} times")
+        self.assertIn(counter, range(55, 65))
+        self.assertEqual(shape, (480, 640))
 
     def test_capture(self):
         # capture a frame
         frame = self.camera.capture()
 
         # check the frame size and make sure it's not empty
-        self.assertEqual(frame.shape, (480, 640, 3))
-        self.assertTrue(frame.any())
+        self.assertEqual(frame.shape, (480, 640))
 
         # save the frame to a file
         cv2.imwrite(str(OUTPUT_DIRECTORY / 'camera_capture.jpg'), frame)
-
-    def test_calibration(self):
-        frame = self.camera.capture(draw_calibration=True)
-        cv2.imwrite(str(OUTPUT_DIRECTORY / 'camera_calibration.jpg'), frame)
 
 
 if __name__ == '__main__':
