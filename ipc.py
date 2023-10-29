@@ -1,16 +1,20 @@
 import os
+from multiprocessing import Process, Queue
 import logging
 from enum import Enum
 import serial
 import mido
 import numpy as np
 from .midi import MidiEvent
+from .events import EventEmitter
 
 
-class IPCController():
+class IPCController(EventEmitter):
     BYTE_TIMEOUT = 0.01
 
     def __init__(self, config: dict, custom_serial = None):
+        super().__init__()
+
         self.config = config
 
         if custom_serial is not None:
@@ -26,7 +30,27 @@ class IPCController():
         self._cable_map = self.config['cables']
         self._cn_map = { cn: cable for cable, cn in self._cable_map.items() }
 
+        self._read_queue = Queue()
+        self.running = False
+
+    def start(self):
+        if self.running:
+            raise RuntimeError("IPC controller is already running")
+
+        self.running = True
+        self._read_process = Process(target=self._read_loop, args=(self._read_queue,))
+        self._read_process.start()
+
+        if not self._serial.is_open: self._serial.open()
+
     def stop(self):
+        if not self.running:
+            raise RuntimeError("IPC controller is not running")
+
+        self.running = False
+        self._read_process.join(timeout=1)
+        self._read_process.terminate()
+
         self._serial.close()
 
     def send(self, event: MidiEvent, timeout=None):
@@ -48,6 +72,20 @@ class IPCController():
         self._serial.write_timeout = timeout
         self._serial.write(data)
         self._serial.flush()
+
+    def _read_loop(self, queue: Queue):
+        while self.running:
+            try:
+                # continously read events
+                event = self.read(timeout=1)
+
+                # invoke the callback
+                self.emit('read', event)
+
+                if event is not None:
+                    queue.put(event)
+            except Exception as e:
+                logging.error(f"IPC read error: {e}")
 
     def read(self, timeout=None) -> MidiEvent:
         # read the cable number and code index
