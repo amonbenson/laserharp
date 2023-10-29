@@ -20,9 +20,15 @@ class LaserArray():
 
     def __setitem__(self, key, value):
         if isinstance(key, slice):
-            for i in range(*key.indices(len(self))):
-                self.set(i, value)
+            if key == slice(None):
+                # if all lasers are set, we can use the set_all method
+                self.set_all(value)
+            else:
+                # set each laser individually
+                for i in range(*key.indices(len(self))):
+                    self.set(i, value)
         else:
+            # set a single laser
             self.set(key, value)
 
     def set(self, index: int, brightness: int):

@@ -43,6 +43,10 @@ class Test_LaserArray(unittest.TestCase):
         # test if a message was sent
         self.assertEqual(self.ipc.event, MidiEvent('laser_array', 'control_change', control=127, value=101))
 
+        # check if set all works with a slice
+        self.laser_array[:] = 127
+        self.assertEqual(self.ipc.event, MidiEvent('laser_array', 'control_change', control=127, value=127))
+
     def test_stack(self):
         self.laser_array.set(0, 64)
         self.laser_array.push_state()
