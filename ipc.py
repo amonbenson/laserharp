@@ -10,16 +10,21 @@ from .midi import MidiEvent
 class IPCController():
     BYTE_TIMEOUT = 0.01
 
-    def __init__(self, port: str, baudrate: int = 115200, custom_serial = None):
+    def __init__(self, config: dict, custom_serial = None):
+        self.config = config
+
         if custom_serial is not None:
             self._serial = custom_serial
         else:
             self._serial = serial.Serial(
-                port=port,
-                baudrate=baudrate,
+                port=config['port'],
+                baudrate=config['baudrate'],
                 parity=serial.PARITY_NONE,
                 stopbits=serial.STOPBITS_ONE,
                 bytesize=serial.EIGHTBITS)
+
+        self._cable_map = self.config['cables']
+        self._cn_map = { cn: cable for cable, cn in self._cable_map.items() }
 
     def stop(self):
         self._serial.close()
@@ -30,8 +35,12 @@ class IPCController():
         if len(message_data) != 3:
             raise ValueError(f"Unsupported MIDI event: {event}")
 
+        if event.cable not in self._cable_map:
+            raise ValueError(f"Unsupported cable: {event.cable}")
+
         # construct and send the packet
-        cn_cid = np.uint8(event.cable_number << 4 | message_data[0] >> 4)
+        cn = self._cable_map[event.cable]
+        cn_cid = np.uint8(cn << 4 | message_data[0] >> 4)
 
         data = bytearray([cn_cid, *message_data])
         logging.debug(f"RPI -> STM: {data.hex(' ')}")
@@ -51,6 +60,10 @@ class IPCController():
         cn = cn_cid >> 4
         cid = cn_cid & 0x0F
 
+        if cn not in self._cn_map:
+            raise ValueError(f"Unsupported cable number: {cn}")
+        cable = self._cn_map[cn]
+
         if not (cid >= 0x8 and cid <= 0xE):
             raise ValueError(f"Unsupported code index: {cid}")
 
@@ -61,4 +74,4 @@ class IPCController():
             raise ValueError(f"Read timeout")
 
         logging.debug(f"STM -> RPI: {cn_cid :02x} {data.hex(' ')}")
-        return MidiEvent(cn, mido.Message.from_bytes(data))
+        return MidiEvent(cable, mido.Message.from_bytes(data))

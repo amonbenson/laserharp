@@ -1,9 +1,10 @@
 import mido
+from typing import Union
 
 
 class MidiEvent:
-    def __init__(self, cable_number: int, message_type: str, **kwargs):
-        self.cable_number = cable_number
+    def __init__(self, cable: str, message_type: Union[str, mido.Message], **kwargs):
+        self.cable = str(cable)
 
         if isinstance(message_type, mido.Message):
             self.message = message_type
@@ -11,7 +12,7 @@ class MidiEvent:
             self.message = mido.Message(message_type, **kwargs)
 
     def __eq__(self, other):
-        return self.cable_number == other.cable_number and self.message == other.message
+        return self.cable == other.cable and self.message == other.message
 
     def __repr__(self):
-        return f"MidiEvent(cable_number={self.cable_number :02x}, message={bytearray(self.message.bytes()).hex(' ')})"
+        return f"MidiEvent(cable={self.cable}, message={bytearray(self.message.bytes()).hex(' ')})"
