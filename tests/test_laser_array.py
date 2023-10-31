@@ -14,7 +14,7 @@ class Test_LaserArray(unittest.TestCase):
 
         self.laser_array = LaserArray(self.ipc, config={
             'size': 3,
-            'laser_translation_table': [3, 4, 5]
+            'translation_table': [3, 4, 5]
         })
 
     def tearDown(self):

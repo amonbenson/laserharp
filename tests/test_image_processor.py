@@ -18,7 +18,7 @@ class Test_ImageProcessor(unittest.TestCase):
 
         self.laser_array = LaserArray(self.ipc, config={
             'size': 3,
-            'laser_translation_table': None
+            'translation_table': None
         })
 
         self.camera = MockCamera(config={

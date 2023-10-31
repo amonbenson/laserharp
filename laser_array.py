@@ -42,8 +42,8 @@ class LaserArray():
         self._state[index] = brightness
 
         # apply the translation table and send the message
-        if self.config['laser_translation_table'] is not None:
-            index = self.config['laser_translation_table'][index]
+        if self.config['translation_table'] is not None:
+            index = self.config['translation_table'][index]
         self.ipc.send(MidiEvent('laser_array', 'control_change', control=index, value=brightness))
 
     def set_all(self, brightness: int):

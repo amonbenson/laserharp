@@ -20,7 +20,7 @@ class Test_ImageCalibrator(unittest.TestCase):
 
         self.laser_array = LaserArray(self.ipc, config={
             'size': 3,
-            'laser_translation_table': None
+            'translation_table': None
         })
 
         self.camera = MockCamera(config={
@@ -60,7 +60,7 @@ class Test_ImageCalibrator(unittest.TestCase):
                 'required_config': {
                     'laser_array': {
                         'size': 2, # incompatible
-                        'laser_translation_table': None
+                        'translation_table': None
                     },
                     'camera': {
                         'fov': (50, 45),

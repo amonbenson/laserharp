@@ -1,4 +1,4 @@
-log_level: INFO
+log_level: DEBUG
 
 root_note: 60
 
@@ -40,7 +40,7 @@ camera:
 # settings during the calibration process
 image_calibrator:
   preblur: 17 # gaussian blur kernel size
-  threshold: 100 # minimum brightness to be considered
+  threshold: 50 # minimum brightness to be considered
   min_coverage: 0.6 # percentual number of blobs that must be captured for each beam
 
 # settings during normal operation

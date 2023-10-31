@@ -158,7 +158,7 @@ class ImageCalibrator:
 
         # check if the minimum coverage is met
         if np.sum(ws) / img.shape[0] < self.config['min_coverage']:
-            raise Exception("Minimum coverage not met")
+            return None, None
 
         # fit a line to the points (swap x and y because we want to fit a vertical line)
         return np.polyfit(y=xs, x=ys, deg=1, w=ws)
@@ -195,22 +195,23 @@ class ImageCalibrator:
             cv2.imwrite('cap_base.jpg', (base_img * 255).astype(np.uint8))
 
         # STEP 2: fit a line to each individual laser's beam path
-        i = 0
-        while i < len(self.laser_array):
-            beam_img = np.zeros_like(base_img)
+        for i in range(len(self.laser_array)):
+            logging.info(f"Capturing laser {i}")
+            self.laser_array[i] = 127
 
-            try:
-                logging.info(f"Capturing laser {i}")
-                self.laser_array[i] = 127
+            combined_capture = np.zeros_like(base_img)
 
+            while True:
                 # capture the laser beam and subtract the base image
                 logging.debug("Start capture")
-                beam_img = np.maximum(self._combined_capture(30, 0, mode='max'), beam_img)
-                beam_img = np.clip(beam_img - base_img, 0, 1)
+                capture = self._combined_capture(30, 0, mode='max')
+                capture = np.clip(capture - base_img, 0, 1)
+
+                # combine all captures
+                combined_capture = np.maximum(combined_capture, capture)
 
                 # convert to uint8
-                beam_img = (beam_img * 255).astype(np.uint8)
-
+                beam_img = (combined_capture * 255).astype(np.uint8)
                 if save_debug_images:
                     cv2.imwrite(f'cap_laser_{i}.jpg', beam_img)
 
@@ -218,8 +219,12 @@ class ImageCalibrator:
                 logging.debug("Fitting line")
                 m, x0 = self._fit_line(beam_img)
 
+                if m is None:
+                    logging.warning(f"Beam too weak. Continuing...")
+                    continue
+
                 if np.abs(m) > 0.8:
-                    logging.warning(f"Calibration failed. Retrying...")
+                    logging.warning(f"Beam gradient to high. Continuing...")
                     continue
 
                 # save the calibration data
@@ -243,13 +248,9 @@ class ImageCalibrator:
 
                     cv2.imwrite(f'cap_laser_{i}_line.jpg', rgb)
 
-                i += 1
+                break
 
-                self.laser_array.set_all(0)
-
-            except Exception as e:
-                traceback.print_exc()
-                logging.warning(f"Calibration failed. Retrying...")
+            self.laser_array.set_all(0)
 
         # STEP 3: store the fitted line data
         self.laser_array.set_all(0)
