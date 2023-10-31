@@ -77,7 +77,7 @@ class ImageCalibrator:
         self.camera = camera
         self.config = config
 
-        self.filename = os.path.join(os.path.dirname(__file__), config['filename'])
+        self.filename = os.path.join(os.path.dirname(__file__), 'calibration.yaml')
         self.calibration = None
 
     def required_config(self):
@@ -163,7 +163,7 @@ class ImageCalibrator:
         # fit a line to the points (swap x and y because we want to fit a vertical line)
         return np.polyfit(y=xs, x=ys, deg=1, w=ws)
 
-    def calibrate(self, save_debug_images=False):
+    def calibrate(self, save_debug_images=False) -> Calibration:
         logging.info("Starting calibration")
 
         # store the laser state
@@ -259,4 +259,5 @@ class ImageCalibrator:
         self.laser_array.pop_state()
 
         logging.info("Calibration complete")
+        self.calibration = calibration
         return calibration

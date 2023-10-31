@@ -61,8 +61,12 @@ class ImageProcessor():
         self.beam_yv = np.round(y[:, np.newaxis]).astype(np.int32)
         self.beam_xv = np.round(calibration.x0[np.newaxis, :] + calibration.m[np.newaxis, :] * y[:, np.newaxis]).astype(np.int32)
 
+    @property
+    def is_calibrated(self):
+        return self.calibration is not None
+
     def _calculate_beam_length(self, frame: np.ndarray) -> np.ndarray:
-        if self.calibration is None:
+        if not self.is_calibrated:
             raise RuntimeError('No calibration data available')
 
         # blur the frame

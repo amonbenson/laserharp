@@ -1,3 +1,4 @@
+import os
 import unittest
 import time
 import numpy as np
@@ -32,11 +33,13 @@ class Test_ImageCalibrator(unittest.TestCase):
         })
 
         self.image_calibrator = ImageCalibrator(self.laser_array, self.camera, config={
-            'filename': 'tests/output/calibration.yaml',
             'preblur': 17,
             'threshold': 100,
             'min_coverage': 0.6
         })
+
+        # override filename
+        self.image_calibrator.filename = os.path.join(OUTPUT_DIRECTORY, 'calibration.yaml')
 
         self.calibration = None
 
@@ -47,7 +50,7 @@ class Test_ImageCalibrator(unittest.TestCase):
         self.calibration = self.image_calibrator.calibrate()
 
     def test_load_unknown_file(self):
-        self.image_calibrator.filename = 'unknown.yaml'
+        self.image_calibrator.filename = 'unknown_something.yaml'
         self.assertFalse(self.image_calibrator.load())
 
     def test_load_incompatible(self):

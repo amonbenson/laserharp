@@ -1,10 +1,11 @@
 import logging
 import time
 from .app import LaserHarpApp
+from .config import load_config
 
 
 if __name__ == '__main__':
-    app = LaserHarpApp()
+    app = LaserHarpApp(load_config())
     app.start(force_calibration=False)
 
     # wait for keyboard interrupt
