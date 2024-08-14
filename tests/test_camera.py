@@ -32,7 +32,7 @@ class Test_Camera(unittest.TestCase):
         self.camera.stop()
 
     def test_running(self):
-        time.sleep(1)
+        time.sleep(3)
         self.assertTrue(self.camera.state == Camera.State.RUNNING)
 
     def test_callback(self):
@@ -47,6 +47,7 @@ class Test_Camera(unittest.TestCase):
         # wait until the camera is running
         while self.camera.state != Camera.State.RUNNING:
             time.sleep(0.1)
+        time.sleep(1)
 
         # register the callback and capture for 1 second
         self.camera.on('frame', callback)
