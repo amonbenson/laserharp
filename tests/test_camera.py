@@ -5,6 +5,14 @@ from ..camera import Camera
 from . import OUTPUT_DIRECTORY
 
 
+try:
+    import picamera2
+    picamera2_available = True
+except ImportError:
+    picamera2_available = False
+
+
+@unittest.skipUnless(picamera2_available, "picamera2 is not available")
 class Test_Camera(unittest.TestCase):
     def setUp(self):
         self.camera = Camera(config={

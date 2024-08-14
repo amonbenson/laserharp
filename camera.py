@@ -1,12 +1,17 @@
 import logging
 import multiprocessing
-import libcamera
-import picamera2
 import time
 import numpy as np
 from threading import Thread, Lock
 from enum import Enum
 from .events import EventEmitter
+
+try:
+    import libcamera
+    import picamera2
+    picamera2_available = True
+except ImportError:
+    picamera2_available = False
 
 
 def _is_main_process():
@@ -30,6 +35,10 @@ class Camera(EventEmitter):
         self.frame = np.zeros((h, w), dtype=np.uint8)
         self.frame_lock = Lock()
 
+        if picamera2_available:
+            self._init_camera()
+
+    def _init_camera(self):
         # convert the rotation to a libcamera transform
         rotation = self.config.get('rotation', 0)
         if rotation == 0:
@@ -101,6 +110,9 @@ class Camera(EventEmitter):
         return self.config['framerate']
 
     def start(self):
+        if not picamera2_available:
+            raise RuntimeError("libcamera2 is not available. Please install it using 'apt-get install python3-picamera2'.")
+
         if self.state != self.State.STOPPED:
             raise RuntimeError("Camera is already running.")
 
@@ -112,6 +124,9 @@ class Camera(EventEmitter):
         self.capture_thread.start()
 
     def stop(self):
+        if not picamera2_available:
+            raise RuntimeError("libcamera2 is not available. Please install it using 'apt-get install python3-picamera2'.")
+
         if self.state not in (self.State.STARTING, self.State.RUNNING):
             raise RuntimeError("Camera is not running.")
 
@@ -153,6 +168,9 @@ class Camera(EventEmitter):
         self.picam.close()
 
     def capture(self, *kargs, **kwargs) -> np.ndarray:
+        if not picamera2_available:
+            raise RuntimeError("libcamera2 is not available. Please install it using 'apt-get install python3-picamera2'.")
+
         # return a copy of the frame buffer
         with self.frame_lock:
             return self.frame.copy()
