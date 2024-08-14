@@ -2,7 +2,7 @@ import unittest
 import time
 import logging
 import cv2
-from ..camera import Camera
+from laserharp.camera import Camera
 from . import OUTPUT_DIRECTORY
 
 

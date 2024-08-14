@@ -1,7 +1,7 @@
 import unittest
 import mido
-from ..midi import MidiEvent
-from ..ipc import IPCController
+from laserharp.midi import MidiEvent
+from laserharp.ipc import IPCController
 from .utils import MockSerial
 
 class Test_IPCConnector(unittest.TestCase):

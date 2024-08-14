@@ -5,8 +5,8 @@ import numpy as np
 import yaml
 from threading import Thread
 from .utils import MockIPC, MockCamera, wait_until
-from ..laser_array import LaserArray
-from ..image_calibrator import Calibration, ImageCalibrator
+from laserharp.laser_array import LaserArray
+from laserharp.image_calibrator import Calibration, ImageCalibrator
 from . import OUTPUT_DIRECTORY
 
 
@@ -33,13 +33,11 @@ class Test_ImageCalibrator(unittest.TestCase):
         })
 
         self.image_calibrator = ImageCalibrator(self.laser_array, self.camera, config={
+            'calibration_file': os.path.join(OUTPUT_DIRECTORY, 'calibration.yaml'),
             'preblur': 17,
             'threshold': 100,
             'min_coverage': 0.6
         })
-
-        # override filename
-        self.image_calibrator.filename = os.path.join(OUTPUT_DIRECTORY, 'calibration.yaml')
 
         self.calibration = None
 

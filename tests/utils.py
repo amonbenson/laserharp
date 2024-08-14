@@ -1,8 +1,8 @@
 import numpy as np
 import cv2
 import time
-from ..midi import MidiEvent
-from ..events import EventEmitter
+from laserharp.midi import MidiEvent
+from laserharp.events import EventEmitter
 
 
 def wait_until(condition: callable, timeout: float):
