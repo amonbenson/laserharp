@@ -24,7 +24,7 @@ jobs:
       - name: Install apt dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y --no-install-recommends python3-picamera2 sudo python3-opencv
+          sudo apt-get install -y --no-install-recommends sudo python3-opencv
 
       - name: Install pip dependencies
         run: |
