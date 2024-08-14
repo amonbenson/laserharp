@@ -1,4 +1,6 @@
+import logging
 import multiprocessing
+import libcamera
 import picamera2
 import time
 import numpy as np
@@ -12,39 +14,6 @@ def _is_main_process():
 
 
 class Camera(EventEmitter):
-    class StreamTarget(EventEmitter):
-        def __init__(self, camera: 'Camera', frame_callback: callable):
-            self.camera = camera
-            self.frame_callback = frame_callback
-
-            w, h = self.camera.resolution
-            self.frame = np.zeros((h, w), dtype=np.uint8)
-            self.frame_lock = Lock()
-
-        def write(self, yuv_buffer):
-            # convert the yuv buffer to a numpy array
-            # convert to numpy array
-            yuv = np.frombuffer(yuv_buffer, dtype=np.uint8)
-
-            # extract the luminance component
-            w, h = self.camera.resolution
-            yuv = yuv.reshape((h * 3 // 2, w))
-            frame = yuv[:h, :w]
-
-            # call the frame handler
-            self.frame_callback(frame)
-
-            # store the frame
-            with self.frame_lock:
-                np.copyto(self.frame, frame)
-
-        def get_frame(self):
-            # copy the frame buffer
-            with self.frame_lock:
-                frame = self.frame.copy()
-
-            return frame
-
     class State(Enum):
         STOPPED = 0
         STARTING = 1
@@ -56,8 +25,48 @@ class Camera(EventEmitter):
 
         self.config = config
 
+        # store the current frame in a buffer
+        w, h = self.config['resolution']
+        self.frame = np.zeros((h, w), dtype=np.uint8)
+        self.frame_lock = Lock()
+
+        # convert the rotation to a libcamera transform
+        rotation = self.config.get('rotation', 0)
+        if rotation == 0:
+            transform = libcamera.Transform(hflip=True, vflip=True)
+        elif rotation == 180:
+            transform = libcamera.Transform(hflip=True, vflip=True)
+        else:
+            raise ValueError(f"Invalid rotation: {rotation}. With libcamera2, only 0 and 180 degree rotations are supported.")
+
         # setup camera
         self.picam = picamera2.Picamera2()
+
+        config = self.picam.create_preview_configuration(
+            main={
+                'size': tuple(self.config['resolution']),
+                'format': 'YUV420',
+            },
+            transform=transform,
+            controls={
+                'FrameRate': self.config['framerate'],
+            },
+            buffer_count=1
+        )
+        self.picam.align_configuration(config)
+        self.picam.configure(config)
+        logging.debug(f"Final camera configuration: {self.picam.stream_configuration('raw')}")
+
+        """
+        self.picam.set_controls({
+            'AeEnable': False,
+            'AeFlickerMode': libcamera.controls.AeFlickerMode.Off,
+            'AfMode': libcamera.controls.AfMode.Off,
+            'AwbEnable': False
+        })
+        """
+
+        """
         self.picam.resolution = self.config['resolution']
         self.picam.framerate = self.config['framerate']
         self.picam.rotation = self.config['rotation']
@@ -78,6 +87,7 @@ class Camera(EventEmitter):
         self.picam.meter_mode = 'average'
 
         self.stream_target = self.StreamTarget(self, self._on_frame)
+        """
 
         self.capture_process = None
         self.state = self.State.STOPPED
@@ -90,9 +100,6 @@ class Camera(EventEmitter):
     def framerate(self):
         return self.config['framerate']
 
-    def _on_frame(self, frame):
-        self.emit('frame', frame)
-
     def start(self):
         if self.state != self.State.STOPPED:
             raise RuntimeError("Camera is already running.")
@@ -101,33 +108,53 @@ class Camera(EventEmitter):
             raise RuntimeError("Camera can only be started in the main process.")
 
         self.state = self.State.STARTING
-        self.process = Thread(target=self._capture_loop)
-        self.process.start()
+        self.capture_thread = Thread(target=self._capture_loop)
+        self.capture_thread.start()
 
     def stop(self):
         if self.state not in (self.State.STARTING, self.State.RUNNING):
             raise RuntimeError("Camera is not running.")
 
         self.state = self.State.STOPPING
-        self.process.join(timeout=2)
+        self.capture_thread.join(timeout=2)
         self.state = self.State.STOPPED
 
     def _capture_loop(self):
-        self.picam.start_recording(self.stream_target, format='yuv')
-
-        # if the camera was stopped immediately after starting, do not overwrite the state
+        # check if the camera is still in starting state
         if self.state == self.State.STARTING:
             self.state = self.State.RUNNING
+        else:
+            return
+
+        self.picam.start(show_preview=False)
 
         # start capturing. For each frame, the stream target's write() method is called
-        try:
-            while self.state == self.State.RUNNING:
-                self.picam.wait_recording(1)
-        finally:
-            self.picam.stop_recording()
+        while self.state == self.State.RUNNING:
+            try:
+                # capture a frame
+                yuv: np.ndarray = self.picam.capture_array('main')
+
+                # extract the luminance component
+                w, h = self.config['resolution']
+                yuv = yuv.reshape((h * 3 // 2, w))
+                frame = yuv[:h, :w]
+
+                # call the frame handler
+                self.emit('frame', frame)
+
+                # store the frame
+                with self.frame_lock:
+                    np.copyto(self.frame, frame)
+            except Exception as e:
+                logging.error(f"Error capturing frame: {e}")
+                break
+
+        self.picam.stop()
 
     def capture(self, *kargs, **kwargs) -> np.ndarray:
-        return self.stream_target.get_frame(*kargs, **kwargs)
+        # return a copy of the frame buffer
+        with self.frame_lock:
+            return self.frame.copy()
 
     def close(self):
         self.picam.close()
