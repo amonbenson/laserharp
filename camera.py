@@ -1,5 +1,5 @@
 import multiprocessing
-import picamera
+import picamera2
 import time
 import numpy as np
 from threading import Thread, Lock
@@ -57,7 +57,7 @@ class Camera(EventEmitter):
         self.config = config
 
         # setup camera
-        self.picam = picamera.PiCamera()
+        self.picam = picamera2.Picamera2()
         self.picam.resolution = self.config['resolution']
         self.picam.framerate = self.config['framerate']
         self.picam.rotation = self.config['rotation']

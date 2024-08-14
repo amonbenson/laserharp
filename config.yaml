@@ -7,7 +7,7 @@ laser_array:
   translation_table: [12, 11] # mapping from note to laser index
 
 ipc:
-  port: /dev/ttyS0
+  port: /dev/serial0
   baudrate: 1152000
 
   cables:
