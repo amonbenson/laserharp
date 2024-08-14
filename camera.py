@@ -147,17 +147,15 @@ class Camera(EventEmitter):
                     np.copyto(self.frame, frame)
             except Exception as e:
                 logging.error(f"Error capturing frame: {e}")
-                break
+                logging.exception(e)
 
         self.picam.stop()
+        self.picam.close()
 
     def capture(self, *kargs, **kwargs) -> np.ndarray:
         # return a copy of the frame buffer
         with self.frame_lock:
             return self.frame.copy()
-
-    def close(self):
-        self.picam.close()
 
 
 if __name__ == '__main__':

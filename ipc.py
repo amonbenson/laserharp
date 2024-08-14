@@ -58,7 +58,10 @@ class IPCController(EventEmitter):
     def read(self, timeout=None) -> MidiEvent:
         # read the cable number and code index
         self._serial.timeout = timeout
-        data0 = self._serial.read(1)
+        try:
+            data0 = self._serial.read(1)
+        except KeyboardInterrupt:
+            return None
         if len(data0) == 0:
             return None
 
