@@ -2,6 +2,8 @@ log_level: DEBUG
 
 root_note: 60
 
+save_debug_images: true
+
 laser_array:
   size: 2 # number of lasers
   translation_table: [12, 11] # mapping from note to laser index
@@ -39,6 +41,8 @@ camera:
 
 # settings during the calibration process
 image_calibrator:
+  calibration_file: calibration.yaml # path to the calibration file
+
   preblur: 17 # gaussian blur kernel size
   threshold: 50 # minimum brightness to be considered
   min_coverage: 0.6 # percentual number of blobs that must be captured for each beam

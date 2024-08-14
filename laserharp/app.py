@@ -136,7 +136,7 @@ class LaserHarpApp:
         self._state_change([self.State.RUNNING, self.State.STARTING], self.State.CALIBRATING)
 
         # run the calibrator
-        calibration = self.calibrator.calibrate(save_debug_images=True)
+        calibration = self.calibrator.calibrate(save_debug_images=self.config['save_debug_images'])
         self.calibrator.save()
 
         # update the processor

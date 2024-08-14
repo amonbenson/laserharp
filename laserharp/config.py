@@ -5,7 +5,7 @@ import yaml
 
 def load_config(filename: str = None, config_logging: bool = True):
     if filename is None:
-        filename = os.path.join(os.path.dirname(__file__), 'config.yaml')
+        filename = os.path.abspath("config.yaml")
 
     # load the configuration
     with open(filename, 'r') as f:

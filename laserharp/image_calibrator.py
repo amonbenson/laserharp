@@ -77,7 +77,7 @@ class ImageCalibrator:
         self.camera = camera
         self.config = config
 
-        self.filename = os.path.join(os.path.dirname(__file__), 'calibration.yaml')
+        self.filename = os.path.abspath(config['calibration_file'])
         self.calibration = None
 
     def required_config(self):
