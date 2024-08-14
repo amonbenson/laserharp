@@ -8,7 +8,7 @@ sudo apt-get update
 sudo apt-get install -y python3 python3-venv python3-setuptools python3-pip python3-wheel
 
 # Install libcamera2 and opencv
-sudo apt-get install -y python3-picamera2 sudo python3-opencv --no-install-recommends
+sudo apt-get install -y --no-install-recommends python3-picamera2 sudo python3-opencv
 
 # Create a virtual environment
 python3 -m venv --prompt laserharp --system-site-packages .venv
