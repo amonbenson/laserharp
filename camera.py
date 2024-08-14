@@ -75,6 +75,17 @@ class Camera(EventEmitter):
         else:
             raise ValueError(f"Invalid rotation: {rotation}. With libcamera2, only 0 and 180 degree rotations are supported.")
 
+        # set camera controls
+        controls = {
+            'FrameRate': self.config['framerate'],
+            'ExposureTime': self.config['shutter_speed'],
+            'AnalogueGain': self.config['iso'] / 100,
+            'AeEnable': False,
+            'AeFlickerMode': libcamera.controls.AeFlickerModeEnum.Off,
+            # 'AfMode': 'Off',
+            'AwbEnable': False,
+        }
+
         # setup camera
         self.picam = picamera2.Picamera2()
 
@@ -84,14 +95,17 @@ class Camera(EventEmitter):
                 'format': 'YUV420',
             },
             transform=transform,
-            controls={
-                'FrameRate': self.config['framerate'],
-            },
+            controls=controls,
             buffer_count=1
         )
         self.picam.align_configuration(config)
         self.picam.configure(config)
-        logging.debug(f"Final camera configuration: {self.picam.stream_configuration('raw')}")
+
+        # for some reason, the framerate needs to be set again. While we're at it, let's set all controls again
+        self.picam.set_controls(controls)
+
+        logging.debug(f"Camera configuration: {self.picam.stream_configuration('main')}")
+        print(self.picam.stream_configuration('main'), self.picam.controls)
 
         """
         self.picam.set_controls({
@@ -166,7 +180,9 @@ class Camera(EventEmitter):
 
     def _capture_loop(self):
         # start continuous capture
-        self.picam.start_recording(picamera2.encoders.Encoder(), picamera2.outputs.FileOutput(self._output))
+        raw_encoder = picamera2.encoders.Encoder()
+        raw_encoder.framerate = self.config['framerate']
+        self.picam.start_recording(raw_encoder, picamera2.outputs.FileOutput(self._output))
         time.sleep(2)
 
         # check if the camera is still in starting state
@@ -177,9 +193,10 @@ class Camera(EventEmitter):
 
         # start capturing. For each frame, the output's write() method is called
         while self.state == self.State.RUNNING:
-            time.sleep(1)
+            time.sleep(0.1)
 
         self.picam.stop_recording()
+        self.picam.stop()
         self.picam.close()
 
     def capture(self) -> np.ndarray:
