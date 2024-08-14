@@ -22,7 +22,6 @@ class Test_Camera(unittest.TestCase):
 
     def tearDown(self):
         self.camera.stop()
-        self.camera.close()
 
     def test_running(self):
         time.sleep(1)
