@@ -5,7 +5,10 @@ import { RouterLink, RouterView } from "vue-router";
 <template>
   <div class="w-full h-full flex flex-col select-none">
     <header class="w-full h-12 bg-gray-900 text-white flex justify-start items-center">
-      <RouterLink to="/" class="mx-8">
+      <RouterLink
+        to="/"
+        class="mx-8"
+      >
         <h1>
           Laserharp
         </h1>

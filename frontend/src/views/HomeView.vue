@@ -65,7 +65,7 @@ onBeforeUnmount(() => {
 <template>
   <main class="w-full h-full relative">
     <div class="absolute inset-8">
-      <canvas ref="cameraCanvas"></canvas>
+      <canvas ref="cameraCanvas" />
     </div>
   </main>
 </template>
