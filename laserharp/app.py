@@ -129,7 +129,7 @@ class LaserHarpApp:
 
         # invoke the image processor
         result = self.processor.process(frame)
-        print(result)
+        # print(result)
 
     def run_calibration(self):
         prev_state = self.state
