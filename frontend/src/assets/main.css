@@ -4,11 +4,27 @@
 @tailwind components;
 @tailwind utilities;
 
-html, body, #app {
+html,
+body,
+#app {
     @apply w-screen h-screen overflow-hidden bg-gray-800 text-white;
     font-family: "Poppins", sans-serif;
 }
 
 h1 {
     @apply text-2xl font-semibold;
+}
+
+h2 {
+    @apply text-xl font-semibold;
+}
+
+h3 {
+    @apply text-lg font-semibold;
+}
+
+h4,
+h5,
+h6 {
+    @apply text-base font-semibold;
 }

@@ -1,11 +1,8 @@
 import io
 import logging
-import multiprocessing
 import time
 import numpy as np
-from threading import Thread, Lock
 from enum import Enum
-from .events import EventEmitter
 
 try:
     import libcamera
@@ -14,42 +11,7 @@ try:
 except ImportError:
     picamera2_available = False
 
-
-def _is_main_process():
-    return multiprocessing.parent_process() is None
-
-
-class Camera(EventEmitter):
-    class CameraOutput(io.BufferedIOBase):
-        def __init__(self, camera: 'Camera', frame_callback: callable):
-            self._camera = camera
-            self._frame_callback = frame_callback
-            
-            w, h = self._camera.resolution
-            self._frame = np.zeros((h, w), dtype=np.uint8)
-            self._frame_lock = Lock()
-
-        def write(self, yuv_buffer):
-            # convert to numpy array
-            yuv = np.frombuffer(yuv_buffer, dtype=np.uint8)
-
-            # extract the luminance component
-            w, h = self._camera.resolution
-            yuv = yuv.reshape((h * 3 // 2, w))
-            frame = yuv[:h, :w]
-
-            # call the frame handler
-            self._frame_callback(frame)
-
-            # store the frame
-            with self._frame_lock:
-                np.copyto(self._frame, frame)
-
-        def get_frame(self):
-            # copy the frame buffer
-            with self._frame_lock:
-                return self._frame.copy()
-
+class Camera:
     class State(Enum):
         STOPPED = 0
         STARTING = 1
@@ -57,13 +19,12 @@ class Camera(EventEmitter):
         STOPPING = 3
 
     def __init__(self, config: dict):
-        super().__init__()
-
         self.config = config
-        self._output = self.CameraOutput(self, self._on_frame)
 
         if picamera2_available:
             self._init_camera()
+
+        picamera2.Picamera2.set_logging(logging.INFO)
 
     def _init_camera(self):
         # convert the rotation to a libcamera transform
@@ -150,9 +111,6 @@ class Camera(EventEmitter):
     def framerate(self):
         return self.config['framerate']
 
-    def _on_frame(self, frame: np.ndarray):
-        self.emit('frame', frame)
-
     def start(self):
         if not picamera2_available:
             raise RuntimeError("libcamera2 is not available. Please install it using 'apt-get install python3-picamera2'.")
@@ -160,12 +118,13 @@ class Camera(EventEmitter):
         if self.state != self.State.STOPPED:
             raise RuntimeError("Camera is already running.")
 
-        if not _is_main_process():
-            raise RuntimeError("Camera can only be started in the main process.")
-
         self.state = self.State.STARTING
-        self.capture_thread = Thread(target=self._capture_loop)
-        self.capture_thread.start()
+
+        # start continuous capture
+        self.picam.start()
+        time.sleep(2)
+
+        self.state = self.State.RUNNING
 
     def stop(self):
         if not picamera2_available:
@@ -175,36 +134,31 @@ class Camera(EventEmitter):
             raise RuntimeError("Camera is not running.")
 
         self.state = self.State.STOPPING
-        self.capture_thread.join(timeout=2)
-        self.state = self.State.STOPPED
-
-    def _capture_loop(self):
-        # start continuous capture
-        raw_encoder = picamera2.encoders.Encoder()
-        raw_encoder.framerate = self.config['framerate']
-        self.picam.start_recording(raw_encoder, picamera2.outputs.FileOutput(self._output))
-        time.sleep(2)
-
-        # check if the camera is still in starting state
-        if self.state == self.State.STARTING:
-            self.state = self.State.RUNNING
-        else:
-            return
-
-        # start capturing. For each frame, the output's write() method is called
-        while self.state == self.State.RUNNING:
-            time.sleep(0.1)
-
         self.picam.stop_recording()
         self.picam.stop()
         self.picam.close()
+        self.state = self.State.STOPPED
 
     def capture(self) -> np.ndarray:
         if not picamera2_available:
             raise RuntimeError("libcamera2 is not available. Please install it using 'apt-get install python3-picamera2'.")
+        if self.state != self.State.RUNNING:
+            raise RuntimeError("Camera is not running.")
 
-        # return a copy of the frame buffer
-        return self._output.get_frame()
+        w, h = self.config['resolution']
+
+        # capture a single frame
+        yuv = self.picam.capture_array("main")
+        assert yuv.dtype == np.uint8
+        assert yuv.shape[0] == h * 3 // 2
+        assert yuv.shape[1] == w
+
+        # extract the luminance component
+        yuv = yuv.reshape((h * 3 // 2, w))
+        self._frame = yuv[:h, :w]
+
+        # call the frame handler
+        return self._frame
 
 
 if __name__ == '__main__':

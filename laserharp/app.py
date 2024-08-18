@@ -1,6 +1,8 @@
 from enum import Enum
 import logging
-import multiprocessing
+import threading
+import time
+from .events import EventEmitter
 from .midi import MidiEvent
 from .ipc import IPCController
 from .laser_array import LaserArray
@@ -9,7 +11,7 @@ from .image_calibrator import ImageCalibrator
 from .image_processor import ImageProcessor
 
 
-class LaserHarpApp:
+class LaserHarpApp(EventEmitter):
     class State(Enum):
         IDLE = 0
         STARTING = 1
@@ -23,8 +25,11 @@ class LaserHarpApp:
 
         logging.debug(f"App state change: {self.state} -> {target_state}")
         self.state = target_state
+        self.emit("state", self.state)
 
     def __init__(self, config: dict):
+        super().__init__()
+
         self.config = config
 
         # setup all components
@@ -34,13 +39,18 @@ class LaserHarpApp:
         self.calibrator = ImageCalibrator(self.laser_array, self.camera, self.config['image_calibrator'])
         self.processor = ImageProcessor(self.laser_array, self.camera, self.config['image_processor'])
 
-        self.camera.on('frame', self._on_frame)
-
         # setup the ipc read process
-        self.ipc_read_process = multiprocessing.Process(target=self._ipc_read_process)
-        self.ipc_read_process.daemon = True
+        self.capture_thread = threading.Thread(target=self._capture_thread, daemon=True)
+        # self.ipc_read_thread = threading.Thread(target=self._ipc_read_process, daemon=True)
+
+        self._frame_rate = None
+        self._frame_last_update = time.time()
+        self.frame_emit_rate = 10
+        self._frame_emit_last_update = time.time()
 
         self.state = self.State.IDLE
+        self.emit("state", self.state)
+        self.emit("calibration", self.calibrator.calibration)
 
     def start(self, force_calibration=False):
         self._state_change([self.State.IDLE], self.State.STARTING)
@@ -50,14 +60,17 @@ class LaserHarpApp:
         self.ipc.start()
         self.camera.start()
 
-        # start the ipc read process
-        self.ipc_read_process.start()
+        # start all threads
+        logging.info("Starting threads...")
+        self.capture_thread.start()
+        # self.ipc_read_process.start()
 
         # load the calibration
         logging.info("Loading calibration...")
         if self.calibrator.load() and not force_calibration:
             # use the loaded calibration
             self.processor.set_calibration(self.calibrator.calibration)
+            self.emit("calibration", self.calibrator.calibration)
         else:
             # run a new calibration
             self.run_calibration()
@@ -73,9 +86,10 @@ class LaserHarpApp:
         # disable all lasers
         self.laser_array.set_all(0)
 
-        # stop the ipc read process
-        self.ipc_read_process.join(timeout=1)
-        self.ipc_read_process.terminate()
+        # stop all threads
+        self.capture_thread.join(timeout=1)
+        # self.ipc_read_process.join(timeout=1)
+        # self.ipc_read_process.terminate()
 
         # stop all components
         self.camera.stop()
@@ -83,6 +97,7 @@ class LaserHarpApp:
 
         self._state_change([self.State.STOPPING], self.State.IDLE)
 
+    """
     def _ipc_read_process(self):
         while self.state != self.State.IDLE:
             # read the next event
@@ -92,6 +107,40 @@ class LaserHarpApp:
 
             # process the event
             self._handle_midi_event(event)
+    """
+
+    def _capture_thread(self):
+        while self.state != self.State.IDLE:
+            # stop if the camera is not running anymore
+            if self.camera.state != Camera.State.RUNNING:
+                break
+
+            # capture the next frame
+            frame = self.camera.capture()
+
+            # emit at a lower rate
+            t = time.time()
+            emit_enabled = t - self._frame_emit_last_update >= 1 / self.frame_emit_rate
+            if emit_enabled:
+                self._frame_emit_last_update = t
+
+            # calculate capture rate
+            new_framerate = 1 / (t - self._frame_last_update)
+            self._frame_rate = new_framerate * 0.5 + self._frame_rate * 0.5 if self._frame_rate is not None else new_framerate
+            self._frame_last_update = t
+            if emit_enabled:
+                self.emit("frame_rate", self._frame_rate)
+
+            if emit_enabled:
+                self.emit("frame", frame)
+
+            # invoke the image processor
+            result = self.processor.process(frame)
+            
+            if emit_enabled:
+                self.emit("result", result)
+
+            # TODO: generate midi data
 
     def _note_to_laser(self, note: int):
         if note == 127: return 127
@@ -122,15 +171,6 @@ class LaserHarpApp:
             logging.warning(f"Midi note out of range: {index}")
             return
 
-    def _on_frame(self, frame):
-        # skip if not running
-        if self.state != self.State.RUNNING:
-            return
-
-        # invoke the image processor
-        result = self.processor.process(frame)
-        # print(result)
-
     def run_calibration(self):
         prev_state = self.state
         self._state_change([self.State.RUNNING, self.State.STARTING], self.State.CALIBRATING)
@@ -141,5 +181,6 @@ class LaserHarpApp:
 
         # update the processor
         self.processor.set_calibration(calibration)
+        self.emit("calibration", self.calibrator.calibration)
 
         self._state_change([self.State.CALIBRATING], prev_state)
