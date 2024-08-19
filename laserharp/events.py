@@ -20,3 +20,23 @@ class EventEmitter:
 
         for callback in self._events[event]:
             callback(*args, **kwargs)
+
+class Ref(EventEmitter):
+    def __init__(self, value):
+        super().__init__()
+        self._value = value
+
+    @property
+    def value(self):
+        return self._value
+
+    @value.setter
+    def value(self, value):
+        self._value = value
+        self.emit("change", value)
+
+    def on_change(self, callback: callable, immediate=False):
+        self.on("change", callback)
+
+        if immediate:
+            callback(self._value)

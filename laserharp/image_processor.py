@@ -4,6 +4,7 @@ import cv2
 from .image_calibrator import Calibration
 from .laser_array import LaserArray
 from .camera import Camera
+from .events import Ref
 
 
 class ImageProcessor():
@@ -13,8 +14,19 @@ class ImageProcessor():
         length: np.ndarray
         modulation: np.ndarray
 
+        def to_dict(self, replace_nan=False):
+            return {
+                'active': np.nan_to_num(self.active).tolist(),
+                'length': np.nan_to_num(self.length).tolist() if replace_nan else self.length.tolist(),
+                'modulation': np.nan_to_num(self.modulation).tolist()
+            }
+
     def __init__(self, laser_array: LaserArray, camera: Camera, config: dict):
         self.config = config
+        self.state = Ref({
+            "result": None
+        })
+
         self.laser_array = laser_array
         self.camera = camera
 
@@ -121,5 +133,10 @@ class ImageProcessor():
         # process the frame
         raw_length = self._calculate_beam_length(frame)
         result = self._apply_filter(raw_length)
+
+        # perform state update
+        self.state.value = {
+            "result": result.to_dict(replace_nan=True)
+        }
 
         return result

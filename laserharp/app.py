@@ -52,7 +52,6 @@ class LaserHarpApp(EventEmitter):
 
         self.state = self.State.IDLE
         self.emit("state", self.state)
-        self.emit("calibration", self.calibrator.calibration)
 
     def start(self, force_calibration=False):
         self._state_change([self.State.IDLE], self.State.STARTING)
@@ -72,7 +71,6 @@ class LaserHarpApp(EventEmitter):
         if self.calibrator.load() and not force_calibration:
             # use the loaded calibration
             self.processor.set_calibration(self.calibrator.calibration)
-            self.emit("calibration", self.calibrator.calibration)
         else:
             # run a new calibration
             self.run_calibration()
@@ -143,9 +141,6 @@ class LaserHarpApp(EventEmitter):
 
             # invoke the image processor
             result = self.processor.process(frame)
-            
-            if emit_enabled:
-                self.emit("result", result)
 
             # TODO: generate midi data
             if any(result.active):
@@ -192,6 +187,5 @@ class LaserHarpApp(EventEmitter):
 
         # update the processor
         self.processor.set_calibration(calibration)
-        self.emit("calibration", self.calibrator.calibration)
 
         self._state_change([self.State.CALIBRATING], prev_state)

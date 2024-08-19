@@ -8,6 +8,7 @@ import os
 import yaml
 from .camera import Camera
 from .laser_array import LaserArray
+from .events import Ref
 
 
 def _compare_config(a: dict, b: dict):
@@ -73,9 +74,13 @@ class Calibration:
 
 class ImageCalibrator:
     def __init__(self, laser_array: LaserArray, camera: Camera, config):
+        self.config = config
+        self.state = Ref({
+            "calibration": None
+        })
+
         self.laser_array = laser_array
         self.camera = camera
-        self.config = config
 
         self.filename = os.path.abspath(config['calibration_file'])
         self.calibration = None
@@ -107,6 +112,7 @@ class ImageCalibrator:
                 return False
 
             self.calibration = Calibration.from_dict(d['calibration'])
+            self.state.value = { "calibration": self.calibration.to_dict() }
 
         return True
 
@@ -261,4 +267,5 @@ class ImageCalibrator:
 
         logging.info("Calibration complete")
         self.calibration = calibration
+        self.state.value = { "calibration": self.calibration.to_dict() }
         return calibration

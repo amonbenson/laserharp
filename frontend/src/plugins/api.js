@@ -34,12 +34,16 @@ export class Api {
       laserharp.$patch({ status });
     });
 
-    this.socket.on("app:calibration", calibration => {
-      laserharp.$patch({ calibration });
-    });
-
     this.socket.on("app:config", config => {
       laserharp.$patch({ config });
+    });
+
+    this.socket.on("app:processor", value => {
+      laserharp.$patch({ processor: value });
+    });
+
+    this.socket.on("app:calibrator", value => {
+      laserharp.$patch({ calibrator: value });
     });
   }
 

@@ -37,8 +37,8 @@ function onRedraw() {
   context.drawImage(stream, 0, 0, CAMERA_WIDTH, CAMERA_HEIGHT);
 
   // draw the calibration lines
-  const calibration = laserharp.calibration;
-  if (calibration.m && calibration.x0) {
+  const calibration = laserharp.calibrator.calibration;
+  if (calibration) {
     const n = calibration.m.length;
 
     context.strokeStyle = "red";

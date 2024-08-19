@@ -1,12 +1,7 @@
-import threading
-import base64
-import io
-from flask import Flask, Response, stream_with_context
+from flask import Flask, Response, stream_with_context, request
 from flask_cors import CORS
 from flask_socketio import SocketIO
 from laserharp.app import LaserHarpApp
-from picamera2.encoders import JpegEncoder
-from picamera2.outputs import FileOutput
 
 def create_backend(laserharp: LaserHarpApp) -> tuple[Flask, callable]:
     app = Flask(__name__)
@@ -18,19 +13,20 @@ def create_backend(laserharp: LaserHarpApp) -> tuple[Flask, callable]:
     # send app events via socket connection
     laserharp.on("state", lambda state: socketio.emit("app:state", state.name.lower()))
     laserharp.on("frame_rate", lambda frame_rate: socketio.emit("app:frame_rate", frame_rate))
-    laserharp.on("calibration", lambda calibration: socketio.emit("app:calibration", calibration.to_dict() if calibration else None))
-    # laserharp.on("result", lambda result: socketio.emit("app:result", {
-    #     "active": result.active.tolist(),
-    #     "length": result.length.tolist(),
-    #     "modulation": result.modulation.tolist()  
-    # }))
+    # laserharp.on("calibration", lambda calibration: socketio.emit("app:calibration", calibration.to_dict() if calibration else None))
+    # laserharp.on("result", lambda result: socketio.emit("app:result", result.to_dict(replace_nan=True)))
 
     @socketio.on("connect")
     def on_connect():
-        print("Socket connected")
+        clientid = request.sid
+        print(f"Client connected: {clientid}")
+
         socketio.emit("app:state", laserharp.state.name.lower())
         socketio.emit("app:config", laserharp.config)
         socketio.emit("app:calibration", laserharp.calibrator.calibration.to_dict() if laserharp.calibrator.calibration else None)
+
+        laserharp.processor.state.on_change(lambda value: socketio.emit("app:processor", value, to=clientid), immediate=True)
+        laserharp.calibrator.state.on_change(lambda value: socketio.emit("app:calibrator", value, to=clientid), immediate=True)
 
     @socketio.on_error()
     def on_error(e):

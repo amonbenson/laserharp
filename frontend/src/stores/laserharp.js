@@ -3,11 +3,11 @@ import { defineStore } from "pinia";
 export const useLaserharpStore = defineStore("laserharp", {
   state: () => ({
     config: {},
-    calibration: {
-      ya: 0,
-      yb: 0,
-      m: [],
-      x0: [],
+    calibrator: {
+      calibration: null,
+    },
+    processor: {
+      result: null,
     },
     status: "connecting",
     connected: false,
