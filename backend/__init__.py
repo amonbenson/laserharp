@@ -13,8 +13,6 @@ def create_backend(laserharp: LaserHarpApp) -> tuple[Flask, callable]:
     # send app events via socket connection
     laserharp.on("state", lambda state: socketio.emit("app:state", state.name.lower()))
     laserharp.on("frame_rate", lambda frame_rate: socketio.emit("app:frame_rate", frame_rate))
-    # laserharp.on("calibration", lambda calibration: socketio.emit("app:calibration", calibration.to_dict() if calibration else None))
-    # laserharp.on("result", lambda result: socketio.emit("app:result", result.to_dict(replace_nan=True)))
 
     @socketio.on("connect")
     def on_connect():
@@ -25,8 +23,8 @@ def create_backend(laserharp: LaserHarpApp) -> tuple[Flask, callable]:
         socketio.emit("app:config", laserharp.config)
         socketio.emit("app:calibration", laserharp.calibrator.calibration.to_dict() if laserharp.calibrator.calibration else None)
 
-        laserharp.processor.state.on_change(lambda value: socketio.emit("app:processor", value, to=clientid), immediate=True)
-        laserharp.calibrator.state.on_change(lambda value: socketio.emit("app:calibrator", value, to=clientid), immediate=True)
+        laserharp.processor.state.watch(lambda value: socketio.emit("app:processor", value, to=clientid), immediate=True)
+        laserharp.calibrator.state.watch(lambda value: socketio.emit("app:calibrator", value, to=clientid), immediate=True)
 
     @socketio.on_error()
     def on_error(e):

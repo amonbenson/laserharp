@@ -32,10 +32,32 @@ class Ref(EventEmitter):
 
     @value.setter
     def value(self, value):
+        if self._value == value:
+            return
+
         self._value = value
         self.emit("change", value)
 
-    def on_change(self, callback: callable, immediate=False):
+    def update(self, value):
+        if not isinstance(self._value, dict):
+            raise TypeError("Ref must contain a dictionary")
+        if not isinstance(value, dict):
+            raise TypeError("Value must be a dictionary")
+
+        # check if any key has changed
+        changed = False
+        for key in value:
+            if self._value.get(key) != value[key]:
+                changed = True
+                break
+        if not changed:
+            return
+
+        # update the value
+        self._value.update(value)
+        self.emit("change", self._value)
+
+    def watch(self, callback: callable, immediate=False):
         self.on("change", callback)
 
         if immediate:

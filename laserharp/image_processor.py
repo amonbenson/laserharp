@@ -135,8 +135,8 @@ class ImageProcessor():
         result = self._apply_filter(raw_length)
 
         # perform state update
-        self.state.value = {
+        self.state.update({
             "result": result.to_dict(replace_nan=True)
-        }
+        })
 
         return result

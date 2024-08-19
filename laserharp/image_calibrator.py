@@ -112,7 +112,7 @@ class ImageCalibrator:
                 return False
 
             self.calibration = Calibration.from_dict(d['calibration'])
-            self.state.value = { "calibration": self.calibration.to_dict() }
+            self.state.update({ "calibration": self.calibration.to_dict() })
 
         return True
 
@@ -267,5 +267,5 @@ class ImageCalibrator:
 
         logging.info("Calibration complete")
         self.calibration = calibration
-        self.state.value = { "calibration": self.calibration.to_dict() }
+        self.state.update({ "calibration": self.calibration.to_dict() })
         return calibration

@@ -66,8 +66,8 @@ function onRedraw() {
       context.setLineDash([5, 5]);
 
       context.beginPath();
-      context.moveTo(x0 - 1, y0);
-      context.lineTo(x1 - 1, y1);
+      context.moveTo(x0, y0);
+      context.lineTo(x1, y1);
       context.stroke();
 
       if (!result.active[i]) {
@@ -79,7 +79,10 @@ function onRedraw() {
       } else {
         // draw a green blob with the modulation depth at the point of intersection
         const y = calculateScreenY(result.length[i], mountDistance, calibration.ya, calibration.yb);
-        const modOffset = result.modulation[i] * 70;
+        const x = x0 + y * calibration.m[i];
+
+        const yMod = y + result.modulation[i] * 70;
+        const xMod = x0 + yMod * calibration.m[i];
 
         context.fillStyle = colors.rose[600];
         context.strokeStyle = colors.rose[600];
@@ -87,11 +90,11 @@ function onRedraw() {
 
         context.beginPath();
         context.beginPath();
-        context.arc(x0, y + modOffset, 5, 0, 2 * Math.PI);
+        context.arc(xMod, yMod, 5, 0, 2 * Math.PI);
         context.stroke();
 
         context.beginPath();
-        context.arc(x0, y, 5, 0, 2 * Math.PI);
+        context.arc(x, y, 5, 0, 2 * Math.PI);
         context.fill();
       }
     }
