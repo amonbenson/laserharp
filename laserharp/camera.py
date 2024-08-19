@@ -184,7 +184,8 @@ class Camera:
         self.picam.start_recording(
             picamera2.encoders.JpegEncoder(),
             picamera2.outputs.FileOutput(output),
-            name="lores"
+            name="lores",
+            quality=picamera2.encoders.Quality.VERY_HIGH
         )
 
         return output

@@ -11,6 +11,9 @@ const laserharp = useLaserharpStore();
 const canvas = ref(null);
 let canvasAnimationFrameHandle = null;
 
+const stream = new Image();
+stream.src = `${api.axios.defaults.baseURL}/stream.mjpg`;
+
 function onResize() {
   // resize the drawing canvas
   const parent = canvas.value.parentElement;
@@ -29,6 +32,9 @@ function onRedraw() {
 
   // scale the drawing to fit the camera resolution
   context.scale(canvas.value.width / CAMERA_WIDTH, canvas.value.height / CAMERA_HEIGHT);
+
+  // draw the camera stream
+  context.drawImage(stream, 0, 0, CAMERA_WIDTH, CAMERA_HEIGHT);
 
   // draw the calibration lines
   const calibration = laserharp.calibration;
@@ -71,9 +77,6 @@ onBeforeUnmount(() => {
 
 <template>
   <div class="aspect-[4/3]">
-    <div class="w-full h-full relative">
-      <img :src="`${api.axios.defaults.baseURL}/stream.mjpg`" class="absolute inset-0 object-cover" />
-      <canvas ref="canvas" class="absolute inset-0" />
-    </div>
+    <canvas ref="canvas" class="w-full h-full" />
   </div>
 </template>
