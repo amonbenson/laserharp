@@ -39,7 +39,8 @@ function onRedraw() {
   context.clearRect(0, 0, canvas.value.width, canvas.value.height);
 
   // scale the drawing to fit the camera resolution
-  context.scale(canvas.value.width / CAMERA_WIDTH, canvas.value.height / CAMERA_HEIGHT);
+  context.scale(canvas.value.width / CAMERA_WIDTH, -canvas.value.height / CAMERA_HEIGHT);
+  context.translate(0, -CAMERA_HEIGHT);
 
   // draw the camera stream
   context.drawImage(stream, 0, 0, CAMERA_WIDTH, CAMERA_HEIGHT);
@@ -70,14 +71,8 @@ function onRedraw() {
       context.lineTo(x1, y1);
       context.stroke();
 
-      if (!result.active[i]) {
-        // draw a red blob if no intersection was detected
-        context.fillStyle = colors.rose[600];
-        context.beginPath();
-        context.arc(x0, y0, 5, 0, 2 * Math.PI);
-        context.fill();
-      } else {
-        // draw a green blob with the modulation depth at the point of intersection
+      // draw a blob at the point of intersection
+      if (result.active[i]) {
         const y = calculateScreenY(result.length[i], mountDistance, calibration.ya, calibration.yb);
         const x = x0 + y * calibration.m[i];
 
@@ -120,9 +115,6 @@ onBeforeUnmount(() => {
 
 <template>
   <div class="aspect-[4/3]">
-    <canvas
-      ref="canvas"
-      class="w-full h-full"
-    />
+    <canvas ref="canvas" class="w-full h-full" />
   </div>
 </template>

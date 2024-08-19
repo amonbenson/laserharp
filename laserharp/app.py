@@ -53,6 +53,7 @@ class LaserHarpApp(EventEmitter):
         
         self._prev_result = None
         self._midi_serial = serial.Serial("/dev/ttyAMA0", 31250)
+        self._prev_pitch_bend = 8192
 
         self.state = self.State.IDLE
         self.emit("state", self.state)
@@ -161,11 +162,21 @@ class LaserHarpApp(EventEmitter):
                 if note_on:
                     print(f"Note on: {note}")
                     self._midi_serial.write(bytes([0x90, note, 127]))
-                    self._midi_serial.flush()
                 elif note_off:
                     print(f"Note off: {note}")
                     self._midi_serial.write(bytes([0x80, note, 0]))
-                    self._midi_serial.flush()
+
+            # use the average modulation to send pitch bend
+            num_active = sum(result.active)
+            mod_sum = sum(result.modulation)
+            mod_avg = mod_sum / num_active if num_active > 0 else 0
+            pitch_bend = int(mod_avg * 8192 + 8192)
+            
+            if pitch_bend != self._prev_pitch_bend:
+                self._midi_serial.write(bytes([0xE0, pitch_bend & 0x7F, pitch_bend >> 7]))
+            self._prev_pitch_bend = pitch_bend
+
+            self._midi_serial.flush()
 
             self._prev_result = result
 
