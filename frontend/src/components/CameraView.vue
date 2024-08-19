@@ -8,32 +8,8 @@ const CAMERA_HEIGHT = 480;
 const api = inject("api");
 const laserharp = useLaserharpStore();
 
-const cameraImage = document.createElement("canvas");
-cameraImage.width = CAMERA_WIDTH;
-cameraImage.height = CAMERA_HEIGHT;
-
 const canvas = ref(null);
 let canvasAnimationFrameHandle = null;
-
-async function parseCameraImage(framebuffer) {
-  // validate the length
-  if (framebuffer.byteLength !== CAMERA_WIDTH * CAMERA_HEIGHT) {
-    console.error(`Invalid frame length: ${framebuffer.byteLength}, expected ${CAMERA_WIDTH * CAMERA_HEIGHT}`);
-    return;
-  }
-
-  // set the framebuffer data
-  const context = cameraImage.getContext("2d");
-  const imageData = context.createImageData(640, 480);
-  const data = new Uint8Array(framebuffer);
-  for (let i = 0; i < data.length; i++) {
-    imageData.data[i * 4] = data[i];
-    imageData.data[i * 4 + 1] = data[i];
-    imageData.data[i * 4 + 2] = data[i];
-    imageData.data[i * 4 + 3] = 255;
-  }
-  context.putImageData(imageData, 0, 0);
-}
 
 function onResize() {
   // resize the drawing canvas
@@ -51,9 +27,8 @@ function onRedraw() {
   // clear the canvas
   context.clearRect(0, 0, canvas.value.width, canvas.value.height);
 
+  // scale the drawing to fit the camera resolution
   context.scale(canvas.value.width / CAMERA_WIDTH, canvas.value.height / CAMERA_HEIGHT);
-  // draw the camera image
-  context.drawImage(cameraImage, 0, 0, CAMERA_WIDTH, CAMERA_HEIGHT);
 
   // draw the calibration lines
   const calibration = laserharp.calibration;
@@ -81,11 +56,6 @@ onMounted(() => {
   onResize();
   window.addEventListener("resize", onResize);
 
-  api.on("app:frame", (data) => {
-    const framebuffer = new Uint8Array(atob(data).split("").map((c) => c.charCodeAt(0)));
-    parseCameraImage(framebuffer);
-  });
-
   const continuousRedraw = () => {
     onRedraw();
     canvasAnimationFrameHandle = requestAnimationFrame(continuousRedraw);
@@ -101,6 +71,9 @@ onBeforeUnmount(() => {
 
 <template>
   <div class="aspect-[4/3]">
-    <canvas ref="canvas" class="w-full h-full" />
+    <div class="w-full h-full relative">
+      <img :src="`${api.axios.defaults.baseURL}/stream.mjpg`" class="absolute inset-0 object-cover" />
+      <canvas ref="canvas" class="absolute inset-0" />
+    </div>
   </div>
 </template>

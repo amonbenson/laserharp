@@ -1,6 +1,7 @@
 import io
 import logging
 import time
+import threading
 import numpy as np
 from enum import Enum
 
@@ -17,6 +18,16 @@ class Camera:
         STARTING = 1
         RUNNING = 2
         STOPPING = 3
+
+    class StreamingOutput(io.BufferedIOBase):
+        def __init__(self):
+            self.frame = None
+            self.condition = threading.Condition()
+
+        def write(self, buf):
+            with self.condition:
+                self.frame = buf
+                self.condition.notify_all()
 
     def __init__(self, config: dict):
         self.config = config
@@ -51,9 +62,13 @@ class Camera:
         self.picam = picamera2.Picamera2()
 
         config = self.picam.create_preview_configuration(
-            main={
+            main={ # use for internal processing
                 'size': tuple(self.config['resolution']),
                 'format': 'YUV420',
+            }, # use for the webserver
+            lores={
+                'size': (320, 240),
+                'format': 'RGB888',
             },
             transform=transform,
             controls=controls,
@@ -100,7 +115,6 @@ class Camera:
         self.stream_target = self.StreamTarget(self, self._on_frame)
         """
 
-        self.capture_process = None
         self.state = self.State.STOPPED
 
     @property
@@ -160,6 +174,20 @@ class Camera:
         # call the frame handler
         return self._frame
 
+    def start_debug_stream(self) -> "Camera.StreamingOutput":
+        if not picamera2_available:
+            raise RuntimeError("libcamera2 is not available. Please install it using 'apt-get install python3-picamera2'.")
+        if self.state != self.State.RUNNING:
+            raise RuntimeError("Camera is not running.")
+
+        output = self.StreamingOutput()
+        self.picam.start_recording(
+            picamera2.encoders.JpegEncoder(),
+            picamera2.outputs.FileOutput(output),
+            name="lores"
+        )
+
+        return output
 
 if __name__ == '__main__':
     camera = Camera(config={

@@ -2,6 +2,7 @@ from enum import Enum
 import logging
 import threading
 import time
+import gpiozero
 from .events import EventEmitter
 from .midi import MidiEvent
 from .ipc import IPCController
@@ -10,6 +11,7 @@ from .camera import Camera
 from .image_calibrator import ImageCalibrator
 from .image_processor import ImageProcessor
 
+debug_led = gpiozero.LED(17)
 
 class LaserHarpApp(EventEmitter):
     class State(Enum):
@@ -111,8 +113,8 @@ class LaserHarpApp(EventEmitter):
 
     def _capture_thread(self):
         while self.state != self.State.IDLE:
-            # stop if the camera is not running anymore
-            if self.camera.state != Camera.State.RUNNING:
+            # stop if the camera is not running anymore (note: this is the camera state, not the app state)
+            if self.camera.state != self.camera.State.RUNNING:
                 break
 
             # capture the next frame
@@ -124,15 +126,20 @@ class LaserHarpApp(EventEmitter):
             if emit_enabled:
                 self._frame_emit_last_update = t
 
-            # calculate capture rate
+            # calculate and emit frame rate
             new_framerate = 1 / (t - self._frame_last_update)
             self._frame_rate = new_framerate * 0.5 + self._frame_rate * 0.5 if self._frame_rate is not None else new_framerate
             self._frame_last_update = t
             if emit_enabled:
                 self.emit("frame_rate", self._frame_rate)
 
+            # emit the frame
             if emit_enabled:
                 self.emit("frame", frame)
+
+            # stop further processing if we are not in running state
+            if self.state != self.State.RUNNING:
+                continue
 
             # invoke the image processor
             result = self.processor.process(frame)
@@ -141,6 +148,10 @@ class LaserHarpApp(EventEmitter):
                 self.emit("result", result)
 
             # TODO: generate midi data
+            if any(result.active):
+                debug_led.on()
+            else:
+                debug_led.off()
 
     def _note_to_laser(self, note: int):
         if note == 127: return 127
