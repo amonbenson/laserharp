@@ -20,6 +20,6 @@ export const useLaserharpStore = defineStore("laserharp", {
     disconnect() {
       this.connected = false;
       this.status = "disconnected";
-    }
-  }
+    },
+  },
 });

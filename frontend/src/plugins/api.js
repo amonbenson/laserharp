@@ -78,5 +78,5 @@ export default {
     const api = new Api(options?.baseUrl || "http://localhost:5000/api");
     app.config.globalProperties.$api = api;
     app.provide("api", api);
-  }
-}
+  },
+};
