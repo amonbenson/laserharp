@@ -3,6 +3,7 @@ import logging
 import threading
 import time
 import gpiozero
+import serial
 from .events import EventEmitter
 from .midi import MidiEvent
 from .ipc import IPCController
@@ -49,6 +50,9 @@ class LaserHarpApp(EventEmitter):
         self._frame_last_update = time.time()
         self.frame_emit_rate = 10
         self._frame_emit_last_update = time.time()
+        
+        self._prev_result = None
+        self._midi_serial = serial.Serial("/dev/ttyAMA0", 31250)
 
         self.state = self.State.IDLE
         self.emit("state", self.state)
@@ -147,6 +151,23 @@ class LaserHarpApp(EventEmitter):
                 debug_led.on()
             else:
                 debug_led.off()
+
+            # set the laser brightness
+            for i in range(len(result.active)):
+                note = self._laser_to_note(i)
+                note_on = result.active[i] and not (self._prev_result and self._prev_result.active[i])
+                note_off = not result.active[i] and (self._prev_result and self._prev_result.active[i])
+                
+                if note_on:
+                    print(f"Note on: {note}")
+                    self._midi_serial.write(bytes([0x90, note, 127]))
+                    self._midi_serial.flush()
+                elif note_off:
+                    print(f"Note off: {note}")
+                    self._midi_serial.write(bytes([0x80, note, 0]))
+                    self._midi_serial.flush()
+
+            self._prev_result = result
 
     def _note_to_laser(self, note: int):
         if note == 127: return 127
