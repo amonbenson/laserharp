@@ -115,6 +115,9 @@ onBeforeUnmount(() => {
 
 <template>
   <div class="aspect-[4/3]">
-    <canvas ref="canvas" class="w-full h-full" />
+    <canvas
+      ref="canvas"
+      class="w-full h-full"
+    />
   </div>
 </template>
