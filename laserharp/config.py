@@ -8,19 +8,20 @@ def load_config(filename: str = None, config_logging: bool = True):
         filename = os.path.abspath("config.yaml")
 
     # load the configuration
-    with open(filename, 'r', encoding='utf-8') as f:
+    with open(filename, "r", encoding="utf-8") as f:
         _config = yaml.safe_load(f)
 
     # configure logging
     if config_logging:
         logging.basicConfig(
-            level=_config['log_level'],
-            format='%(asctime)s %(levelname)s %(pathname)s: %(message)s')
+            level=_config["log_level"],
+            format="%(asctime)s %(levelname)s %(pathname)s: %(message)s",
+        )
 
     return _config
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     import json
 
     config = load_config()

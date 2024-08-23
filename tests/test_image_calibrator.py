@@ -12,32 +12,31 @@ from . import OUTPUT_DIRECTORY
 
 class Test_ImageCalibrator(unittest.TestCase):
     def setUp(self):
-        self.ipc = MockIPC(config={
-            'cables': {
-                'laser_array': 3
+        self.ipc = MockIPC(config={"cables": {"laser_array": 3}})
+
+        self.laser_array = LaserArray(self.ipc, config={"size": 3, "translation_table": None})
+
+        self.camera = MockCamera(
+            config={
+                "fov": (50, 45),
+                "mount_angle": 45,
+                "mount_distance": 0.135,
+                "resolution": (640, 480),
+                "framerate": 60,
+                "rotation": 180,
             }
-        })
+        )
 
-        self.laser_array = LaserArray(self.ipc, config={
-            'size': 3,
-            'translation_table': None
-        })
-
-        self.camera = MockCamera(config={
-            'fov': (50, 45),
-            'mount_angle': 45,
-            'mount_distance': 0.135,
-            'resolution': (640, 480),
-            'framerate': 60,
-            'rotation': 180
-        })
-
-        self.image_calibrator = ImageCalibrator(self.laser_array, self.camera, config={
-            'calibration_file': os.path.join(OUTPUT_DIRECTORY, 'calibration.yaml'),
-            'preblur': 17,
-            'threshold': 100,
-            'min_coverage': 0.6
-        })
+        self.image_calibrator = ImageCalibrator(
+            self.laser_array,
+            self.camera,
+            config={
+                "calibration_file": os.path.join(OUTPUT_DIRECTORY, "calibration.yaml"),
+                "preblur": 17,
+                "threshold": 100,
+                "min_coverage": 0.6,
+            },
+        )
 
         self.calibration = None
 
@@ -48,47 +47,53 @@ class Test_ImageCalibrator(unittest.TestCase):
         self.calibration = self.image_calibrator.calibrate()
 
     def test_load_unknown_file(self):
-        self.image_calibrator.filename = 'unknown_something.yaml'
+        self.image_calibrator.filename = "unknown_something.yaml"
         self.assertFalse(self.image_calibrator.load())
 
     def test_load_incompatible(self):
         # write a sample config
-        with open(self.image_calibrator.filename, 'w') as f:
-            yaml.safe_dump({
-                'required_config': {
-                    'laser_array': {
-                        'size': 2, # incompatible
-                        'translation_table': None
+        with open(self.image_calibrator.filename, "w") as f:
+            yaml.safe_dump(
+                {
+                    "required_config": {
+                        "laser_array": {
+                            "size": 2,  # incompatible
+                            "translation_table": None,
+                        },
+                        "camera": {
+                            "fov": (50, 45),
+                            "mount_angle": 45,
+                            "resolution": (640, 480),
+                            "rotation": 180,
+                        },
                     },
-                    'camera': {
-                        'fov': (50, 45),
-                        'mount_angle': 45,
-                        'resolution': (640, 480),
-                        'rotation': 180
-                    }
+                    "calibration": {
+                        "ya": 0,
+                        "yb": 480,
+                        "x0": [200, 300],
+                        "m": [-0.1, 0.1],
+                    },
                 },
-                'calibration': {
-                    'ya': 0,
-                    'yb': 480,
-                    'x0': [200, 300],
-                    'm': [-0.1, 0.1]
-                }
-            }, f)
+                f,
+            )
 
         self.assertFalse(self.image_calibrator.load())
 
     def test_load(self):
         # write a sample config
-        with open(self.image_calibrator.filename, 'w') as f:
-            yaml.safe_dump({
-                'required_config': self.image_calibrator.required_config(),
-                'calibration': {
-                    'ya': -10,
-                    'yb': 200,
-                    'x0': [250, 350, 450],
-                    'm': [-0.2, 0.0, 0.2]
-                }
-            }, f)
+        with open(self.image_calibrator.filename, "w") as f:
+            yaml.safe_dump(
+                {
+                    "required_config": self.image_calibrator.required_config(),
+                    "calibration": {
+                        "ya": -10,
+                        "yb": 200,
+                        "x0": [250, 350, 450],
+                        "m": [-0.2, 0.0, 0.2],
+                    },
+                },
+                f,
+            )
 
         # load the config
         self.assertTrue(self.image_calibrator.load())
@@ -105,27 +110,22 @@ class Test_ImageCalibrator(unittest.TestCase):
 
     def test_save(self):
         # store the config
-        self.image_calibrator.calibration = Calibration(
-            ya=-20,
-            yb=300,
-            x0=[150, 250, 350],
-            m=[-0.3, 0.0, 0.3]
-        )
+        self.image_calibrator.calibration = Calibration(ya=-20, yb=300, x0=[150, 250, 350], m=[-0.3, 0.0, 0.3])
         self.image_calibrator.save()
 
         # check the output file
-        with open(self.image_calibrator.filename, 'r') as f:
+        with open(self.image_calibrator.filename, "r") as f:
             config = yaml.safe_load(f)
-            calibration = config['calibration']
+            calibration = config["calibration"]
 
-            self.assertAlmostEqual(calibration['ya'], -20, delta=0.01)
-            self.assertAlmostEqual(calibration['yb'], 300, delta=0.01)
-            self.assertAlmostEqual(calibration['x0'][0], 150, delta=0.01)
-            self.assertAlmostEqual(calibration['x0'][1], 250, delta=0.01)
-            self.assertAlmostEqual(calibration['x0'][2], 350, delta=0.01)
-            self.assertAlmostEqual(calibration['m'][0], -0.3, delta=0.01)
-            self.assertAlmostEqual(calibration['m'][1], 0.0, delta=0.01)
-            self.assertAlmostEqual(calibration['m'][2], 0.3, delta=0.01)
+            self.assertAlmostEqual(calibration["ya"], -20, delta=0.01)
+            self.assertAlmostEqual(calibration["yb"], 300, delta=0.01)
+            self.assertAlmostEqual(calibration["x0"][0], 150, delta=0.01)
+            self.assertAlmostEqual(calibration["x0"][1], 250, delta=0.01)
+            self.assertAlmostEqual(calibration["x0"][2], 350, delta=0.01)
+            self.assertAlmostEqual(calibration["m"][0], -0.3, delta=0.01)
+            self.assertAlmostEqual(calibration["m"][1], 0.0, delta=0.01)
+            self.assertAlmostEqual(calibration["m"][2], 0.3, delta=0.01)
 
     def test_calibrate(self):
         x0 = np.array([200, 300, 400])
@@ -152,7 +152,7 @@ class Test_ImageCalibrator(unittest.TestCase):
         # draw only a few blobs
         for y in range(0, 480, 100):
             self.camera.draw_blob(x0[0] + m[0] * y, y, 5, 255)
-        self.camera.save(OUTPUT_DIRECTORY / 'test_image_calibrator_0.0.png')
+        self.camera.save(OUTPUT_DIRECTORY / "test_image_calibrator_0.0.png")
 
         # The number of blobs should be less than the required coverage.
         # Therefore, the calibration should not continue and laser 0 should still be active.
@@ -162,7 +162,7 @@ class Test_ImageCalibrator(unittest.TestCase):
         # draw the rest of the blobs. this should now trigger the calibration to continue
         for y in range(0, 480, 15):
             self.camera.draw_blob(x0[0] + m[0] * y, y, 5, 255)
-        self.camera.save(OUTPUT_DIRECTORY / 'test_image_calibrator_0.1.png')
+        self.camera.save(OUTPUT_DIRECTORY / "test_image_calibrator_0.1.png")
 
         # make sure the laser gets turned off within a second
         self.assertTrue(wait_until(lambda: not self.laser_array[0], timeout=2))
@@ -176,7 +176,7 @@ class Test_ImageCalibrator(unittest.TestCase):
             self.camera.clear()
             for y in range(0, 480, 15):
                 self.camera.draw_blob(x0[i] + m[i] * y, y, 5, 255)
-            self.camera.save(OUTPUT_DIRECTORY / f'test_image_calibrator_{i}.png')
+            self.camera.save(OUTPUT_DIRECTORY / f"test_image_calibrator_{i}.png")
 
             # wait until the laser is turned off
             self.assertTrue(wait_until(lambda: not self.laser_array[i], timeout=2))
@@ -190,13 +190,13 @@ class Test_ImageCalibrator(unittest.TestCase):
         self.assertEqual(self.laser_array[2], 100)
 
         # check if the calibration is correct
-        self.assertAlmostEqual(self.calibration.ya, -0.5 * 480, delta=0.5, msg='ya')
-        self.assertAlmostEqual(self.calibration.yb, 1.5 * 480, delta=0.5, msg='yb')
+        self.assertAlmostEqual(self.calibration.ya, -0.5 * 480, delta=0.5, msg="ya")
+        self.assertAlmostEqual(self.calibration.yb, 1.5 * 480, delta=0.5, msg="yb")
 
         for i in range(3):
-            self.assertAlmostEqual(self.calibration.x0[i], x0[i], delta=0.5, msg='x0[{}]'.format(i))
-            self.assertAlmostEqual(self.calibration.m[i], m[i], delta=0.01, msg='m[{}]'.format(i))
+            self.assertAlmostEqual(self.calibration.x0[i], x0[i], delta=0.5, msg="x0[{}]".format(i))
+            self.assertAlmostEqual(self.calibration.m[i], m[i], delta=0.01, msg="m[{}]".format(i))
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

@@ -10,39 +10,28 @@ from . import OUTPUT_DIRECTORY
 
 class Test_ImageProcessor(unittest.TestCase):
     def setUp(self):
-        self.ipc = MockIPC(config={
-            'cables': {
-                'laser_array': 3
-            }
-        })
+        self.ipc = MockIPC(config={"cables": {"laser_array": 3}})
 
-        self.laser_array = LaserArray(self.ipc, config={
-            'size': 3,
-            'translation_table': None
-        })
+        self.laser_array = LaserArray(self.ipc, config={"size": 3, "translation_table": None})
 
-        self.camera = MockCamera(config={
-            'resolution': (640, 480),
-            'framerate': 60,
-            'mount_distance': 0.2
-        })
+        self.camera = MockCamera(config={"resolution": (640, 480), "framerate": 60, "mount_distance": 0.2})
 
-        self.image_processor = ImageProcessor(self.laser_array, self.camera, config={
-            'preblur': 23,
-            'threshold': 10,
-            'length_min': 0.05,
-            'length_max': 2.0,
-            'filter_size': 23,
-            'filter_cutoff': 6,
-            'modulation_gain': 15
-        })
+        self.image_processor = ImageProcessor(
+            self.laser_array,
+            self.camera,
+            config={
+                "preblur": 23,
+                "threshold": 10,
+                "length_min": 0.05,
+                "length_max": 2.0,
+                "filter_size": 23,
+                "filter_cutoff": 6,
+                "modulation_gain": 15,
+            },
+        )
 
         # set the calibration data
-        calibration = Calibration(
-            ya=0,
-            yb=480,
-            x0=[200, 300, 400],
-            m=[-0.1, 0, 0.1])
+        calibration = Calibration(ya=0, yb=480, x0=[200, 300, 400], m=[-0.1, 0, 0.1])
         self.image_processor.set_calibration(calibration)
 
     def tearDown(self):
@@ -73,7 +62,7 @@ class Test_ImageProcessor(unittest.TestCase):
         result = self.image_processor.process(self.camera.capture())
 
         # test for the correct length
-        self.assertTrue(np.isnan(result.length[0])) # not intercepted
+        self.assertTrue(np.isnan(result.length[0]))  # not intercepted
         self.assertAlmostEqual(result.length[1], 0.2, places=3)
         self.assertAlmostEqual(result.length[2], 0.06789, places=3)
 
@@ -91,9 +80,9 @@ class Test_ImageProcessor(unittest.TestCase):
             result = self.image_processor.process(self.camera.capture())
 
         self.assertAlmostEqual(result.modulation[0], 0.0, places=3)
-        self.assertGreater(result.modulation[1], 0.1) # positive modulation
+        self.assertGreater(result.modulation[1], 0.1)  # positive modulation
         self.assertAlmostEqual(result.modulation[2], 0.0, places=3)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

@@ -12,16 +12,18 @@ from .events import Ref
 
 def _compare_config(a: dict, b: dict):
     keys = set(a.keys()) & set(b.keys())
-    a = { k: a[k] for k in keys }
-    b = { k: b[k] for k in keys }
+    a = {k: a[k] for k in keys}
+    b = {k: b[k] for k in keys}
 
     for k in keys:
         va = a[k]
         vb = b[k]
 
         # make sure we can compare tuples and lists
-        if isinstance(va, tuple): va = list(va)
-        if isinstance(vb, tuple): vb = list(vb)
+        if isinstance(va, tuple):
+            va = list(va)
+        if isinstance(vb, tuple):
+            vb = list(vb)
 
         if isinstance(va, dict) and isinstance(vb, dict):
             if not _compare_config(va, vb):
@@ -55,45 +57,39 @@ class Calibration:
         assert len(self.x0) == len(self.m)
 
     def to_dict(self):
-        return ({
-            'ya': float(self.ya),
-            'yb': float(self.yb),
-            'x0': self.x0.tolist(),
-            'm': self.m.tolist()
-        })
+        return {
+            "ya": float(self.ya),
+            "yb": float(self.yb),
+            "x0": self.x0.tolist(),
+            "m": self.m.tolist(),
+        }
 
     @staticmethod
     def from_dict(d):
-        return Calibration(
-            ya=d['ya'],
-            yb=d['yb'],
-            x0=np.array(d['x0']),
-            m=np.array(d['m']))
+        return Calibration(ya=d["ya"], yb=d["yb"], x0=np.array(d["x0"]), m=np.array(d["m"]))
 
 
 class ImageCalibrator:
     def __init__(self, laser_array: LaserArray, camera: Camera, config):
         self.config = config
-        self.state = Ref({
-            "calibration": None
-        })
+        self.state = Ref({"calibration": None})
 
         self.laser_array = laser_array
         self.camera = camera
 
-        self.filename = os.path.abspath(config['calibration_file'])
+        self.filename = os.path.abspath(config["calibration_file"])
         self.calibration = None
 
     def required_config(self):
         # get all configuration values that must be consistent between calibration and runtime
         return {
-            'laser_array': self.laser_array.config,
-            'camera': {
-                'fov': self.camera.config['fov'],
-                'mount_angle': self.camera.config['mount_angle'],
-                'resolution': self.camera.resolution,
-                'rotation': self.camera.config['rotation']
-            }
+            "laser_array": self.laser_array.config,
+            "camera": {
+                "fov": self.camera.config["fov"],
+                "mount_angle": self.camera.config["mount_angle"],
+                "resolution": self.camera.resolution,
+                "rotation": self.camera.config["rotation"],
+            },
         }
 
     def load(self) -> bool:
@@ -101,17 +97,17 @@ class ImageCalibrator:
             logging.warning("No calibration data available")
             return False
 
-        with open(self.filename, 'r', encoding='utf-8') as f:
+        with open(self.filename, "r", encoding="utf-8") as f:
             d = yaml.safe_load(f)
 
             # check if the config is compatible
-            required_config = d['required_config']
+            required_config = d["required_config"]
             if not _compare_config(required_config, self.required_config()):
                 logging.warning("Calibration data is incompatible with current configuration")
                 return False
 
-            self.calibration = Calibration.from_dict(d['calibration'])
-            self.state.update({ "calibration": self.calibration.to_dict() })
+            self.calibration = Calibration.from_dict(d["calibration"])
+            self.state.update({"calibration": self.calibration.to_dict()})
 
         return True
 
@@ -119,38 +115,41 @@ class ImageCalibrator:
         if self.calibration is None:
             raise RuntimeError("Not calibrated yet")
 
-        with open(self.filename, 'w', encoding='utf-8') as f:
-            yaml.safe_dump({
-                'required_config': self.required_config(),
-                'calibration': self.calibration.to_dict()
-            }, f)
+        with open(self.filename, "w", encoding="utf-8") as f:
+            yaml.safe_dump(
+                {
+                    "required_config": self.required_config(),
+                    "calibration": self.calibration.to_dict(),
+                },
+                f,
+            )
 
     def _angle_to_ypos(self, angle: float):
-        fov_y = np.radians(self.camera.config['fov'][1])
+        fov_y = np.radians(self.camera.config["fov"][1])
         height = self.camera.resolution[1]
         return angle / fov_y * height
 
-    def _combined_capture(self, num_frames: int, interval: float, mode='avg'):
+    def _combined_capture(self, num_frames: int, interval: float, mode="avg"):
         result = self.camera.capture().astype(np.float32) / 255.0
 
         for _ in range(num_frames - 1):
             frame = self.camera.capture().astype(np.float32) / 255.0
 
-            if mode == 'avg':
+            if mode == "avg":
                 result += frame
-            elif mode == 'max':
+            elif mode == "max":
                 result = np.maximum(result, frame)
 
             time.sleep(interval)
 
-        if mode == 'avg':
+        if mode == "avg":
             result /= num_frames
 
         return result
 
     def _fit_line(self, img):
         # apply gaussian blur
-        ksize = self.config['preblur']
+        ksize = self.config["preblur"]
         blurred = cv2.GaussianBlur(img, (ksize, ksize), 0)
 
         # get the brightes x coordinate of each row as point estimates
@@ -159,10 +158,10 @@ class ImageCalibrator:
         ys = np.arange(img.shape[0])
 
         # use the threshold mask as weights
-        ws = b > self.config['threshold']
+        ws = b > self.config["threshold"]
 
         # check if the minimum coverage is met
-        if np.sum(ws) / img.shape[0] < self.config['min_coverage']:
+        if np.sum(ws) / img.shape[0] < self.config["min_coverage"]:
             return None, None
 
         # fit a line to the points (swap x and y because we want to fit a vertical line)
@@ -175,8 +174,8 @@ class ImageCalibrator:
         self.laser_array.push_state()
 
         # setup the static calibration data
-        fov_y = np.radians(self.camera.config['fov'][1])
-        mount_angle = np.radians(self.camera.config['mount_angle'])
+        fov_y = np.radians(self.camera.config["fov"][1])
+        mount_angle = np.radians(self.camera.config["mount_angle"])
         camera_bottom = np.pi / 2 - mount_angle - fov_y / 2
         # camera_top = np.pi / 2 - mount_angle + fov_y / 2
 
@@ -188,16 +187,17 @@ class ImageCalibrator:
             ya=ya,
             yb=yb,
             x0=np.zeros(len(self.laser_array), dtype=np.float32),
-            m=np.zeros(len(self.laser_array), dtype=np.float32))
+            m=np.zeros(len(self.laser_array), dtype=np.float32),
+        )
 
         # STEP 1: capture the base image
         logging.info("Capturing base image")
         self.laser_array.set_all(0)
 
-        base_img = self._combined_capture(10, 0.1, mode='max')
+        base_img = self._combined_capture(10, 0.1, mode="max")
 
         if save_debug_images:
-            cv2.imwrite('cap_base.jpg', (base_img * 255).astype(np.uint8))
+            cv2.imwrite("cap_base.jpg", (base_img * 255).astype(np.uint8))
 
         # STEP 2: fit a line to each individual laser's beam path
         for i, _ in enumerate(self.laser_array):
@@ -209,7 +209,7 @@ class ImageCalibrator:
             while True:
                 # capture the laser beam and subtract the base image
                 logging.debug("Start capture")
-                capture = self._combined_capture(30, 0, mode='max')
+                capture = self._combined_capture(30, 0, mode="max")
                 capture = np.clip(capture - base_img, 0, 1)
 
                 # combine all captures
@@ -218,7 +218,7 @@ class ImageCalibrator:
                 # convert to uint8
                 beam_img = (combined_capture * 255).astype(np.uint8)
                 if save_debug_images:
-                    cv2.imwrite(f'cap_laser_{i}.jpg', beam_img)
+                    cv2.imwrite(f"cap_laser_{i}.jpg", beam_img)
 
                 # fit a line to the laser beam
                 logging.debug("Fitting line")
@@ -245,13 +245,15 @@ class ImageCalibrator:
                     x_end = x0 + m * y_end
 
                     rgb = cv2.cvtColor(beam_img, cv2.COLOR_GRAY2RGB)
-                    rgb = cv2.line(rgb,
+                    rgb = cv2.line(
+                        rgb,
                         (int(x_start), int(y_start)),
                         (int(x_end), int(y_end)),
                         (255, 255, 0),
-                        1)
+                        1,
+                    )
 
-                    cv2.imwrite(f'cap_laser_{i}_line.jpg', rgb)
+                    cv2.imwrite(f"cap_laser_{i}_line.jpg", rgb)
 
                 break
 
@@ -266,5 +268,5 @@ class ImageCalibrator:
 
         logging.info("Calibration complete")
         self.calibration = calibration
-        self.state.update({ "calibration": self.calibration.to_dict() })
+        self.state.update({"calibration": self.calibration.to_dict()})
         return calibration

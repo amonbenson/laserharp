@@ -2,6 +2,7 @@
     "recommendations": [
         "ms-python.python",
         "vue.volar",
-        "ms-python.pylint"
+        "ms-python.pylint",
+        "ms-python.black-formatter"
     ]
 }

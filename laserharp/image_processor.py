@@ -7,7 +7,7 @@ from .camera import Camera
 from .events import Ref
 
 
-class ImageProcessor():
+class ImageProcessor:
     @dataclass
     class Result:
         active: np.ndarray
@@ -16,16 +16,14 @@ class ImageProcessor():
 
         def to_dict(self, replace_nan=False):
             return {
-                'active': np.nan_to_num(self.active).tolist(),
-                'length': np.nan_to_num(self.length).tolist() if replace_nan else self.length.tolist(),
-                'modulation': np.nan_to_num(self.modulation).tolist()
+                "active": np.nan_to_num(self.active).tolist(),
+                "length": (np.nan_to_num(self.length).tolist() if replace_nan else self.length.tolist()),
+                "modulation": np.nan_to_num(self.modulation).tolist(),
             }
 
     def __init__(self, laser_array: LaserArray, camera: Camera, config: dict):
         self.config = config
-        self.state = Ref({
-            "result": None
-        })
+        self.state = Ref({"result": None})
 
         self.laser_array = laser_array
         self.camera = camera
@@ -42,12 +40,11 @@ class ImageProcessor():
         self.beam_yv = None
         self.beam_xv = None
 
-
     def _calculate_coeff(self) -> np.ndarray:
         # compute number of taps
         f_sampling = self.camera.framerate
-        f_cutoff = self.config['filter_cutoff']
-        n = self.config['filter_size']
+        f_cutoff = self.config["filter_cutoff"]
+        n = self.config["filter_size"]
 
         # compute sinc filter
         h = np.sinc(2 * f_cutoff / f_sampling * (np.arange(n) - (n - 1) / 2))
@@ -73,7 +70,7 @@ class ImageProcessor():
         y_angle = (y - calibration.ya) / (calibration.yb - calibration.ya) * np.pi / 2
         y_angle = np.clip(y_angle, 0, np.pi / 2 - 0.01)
         y_tan = np.tan(y_angle)
-        self.y_metric = y_tan * self.camera.config['mount_distance']
+        self.y_metric = y_tan * self.camera.config["mount_distance"]
 
         # calculate the grid of beam interception points
         self.beam_yv = np.round(y[:, np.newaxis]).astype(np.int32)
@@ -85,10 +82,10 @@ class ImageProcessor():
 
     def _calculate_beam_length(self, frame: np.ndarray) -> np.ndarray:
         if not self.is_calibrated:
-            raise RuntimeError('No calibration data available')
+            raise RuntimeError("No calibration data available")
 
         # blur the frame
-        ksize = self.config['preblur']
+        ksize = self.config["preblur"]
         frame = cv2.GaussianBlur(frame, (ksize, ksize), 0)
 
         # get the brightness for each beam
@@ -102,9 +99,9 @@ class ImageProcessor():
         length = self.y_metric[position]
 
         # filter out invalid interception points
-        length[strength < self.config['threshold']] = np.nan
-        length[length < self.config['length_min']] = np.nan
-        length[length > self.config['length_max']] = np.nan
+        length[strength < self.config["threshold"]] = np.nan
+        length[length < self.config["length_min"]] = np.nan
+        length[length > self.config["length_max"]] = np.nan
 
         return length
 
@@ -126,12 +123,12 @@ class ImageProcessor():
 
         # store the low frequency content as the actual length
         length = np.nansum(self.filter_taps * self.filter_coeff[:, np.newaxis], axis=0)
-        length[~active] = np.nan # keep NaNs
+        length[~active] = np.nan  # keep NaNs
 
         # store the high frequency content as the modulation
         modulation = raw_length - length
-        modulation = np.tanh(modulation * self.config['modulation_gain'])
-        modulation[~active] = 0 # inactive beams have no modulation
+        modulation = np.tanh(modulation * self.config["modulation_gain"])
+        modulation[~active] = 0  # inactive beams have no modulation
 
         return self.Result(active, length, modulation)
 
@@ -141,8 +138,6 @@ class ImageProcessor():
         result = self._apply_filter(raw_length)
 
         # perform state update
-        self.state.update({
-            "result": result.to_dict(replace_nan=True)
-        })
+        self.state.update({"result": result.to_dict(replace_nan=True)})
 
         return result

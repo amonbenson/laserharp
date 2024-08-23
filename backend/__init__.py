@@ -3,12 +3,11 @@ from flask_cors import CORS
 from flask_socketio import SocketIO
 from laserharp.app import LaserHarpApp
 
+
 def create_backend(laserharp: LaserHarpApp) -> tuple[Flask, callable]:
     app = Flask(__name__)
     socketio = SocketIO(app, cors_allowed_origins="*", path="/ws")
-    CORS(app, resources={
-        r"/api/*": {"origins": "*"}
-    })
+    CORS(app, resources={r"/api/*": {"origins": "*"}})
 
     # send app events via socket connection
     laserharp.on("state", lambda state: socketio.emit("app:state", state.name.lower()))
@@ -21,10 +20,19 @@ def create_backend(laserharp: LaserHarpApp) -> tuple[Flask, callable]:
 
         socketio.emit("app:state", laserharp.state.name.lower())
         socketio.emit("app:config", laserharp.config)
-        socketio.emit("app:calibration", laserharp.calibrator.calibration.to_dict() if laserharp.calibrator.calibration else None)
+        socketio.emit(
+            "app:calibration",
+            (laserharp.calibrator.calibration.to_dict() if laserharp.calibrator.calibration else None),
+        )
 
-        laserharp.processor.state.watch(lambda value: socketio.emit("app:processor", value, to=clientid), immediate=True)
-        laserharp.calibrator.state.watch(lambda value: socketio.emit("app:calibrator", value, to=clientid), immediate=True)
+        laserharp.processor.state.watch(
+            lambda value: socketio.emit("app:processor", value, to=clientid),
+            immediate=True,
+        )
+        laserharp.calibrator.state.watch(
+            lambda value: socketio.emit("app:calibrator", value, to=clientid),
+            immediate=True,
+        )
 
     @socketio.on_error()
     def on_error(e):
@@ -45,8 +53,7 @@ def create_backend(laserharp: LaserHarpApp) -> tuple[Flask, callable]:
                     if frame is None:
                         continue
 
-                    yield (b"--frame\r\n"
-                           b"Content-Type: image/jpeg\r\n\r\n" + frame + b"\r\n")
+                    yield (b"--frame\r\n" b"Content-Type: image/jpeg\r\n\r\n" + frame + b"\r\n")
 
         return Response(generate(), mimetype="multipart/x-mixed-replace; boundary=frame")
 

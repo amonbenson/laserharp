@@ -21,6 +21,7 @@ class EventEmitter:
         for callback in self._events[event]:
             callback(*args, **kwargs)
 
+
 class Ref(EventEmitter):
     def __init__(self, value):
         super().__init__()

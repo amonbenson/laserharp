@@ -9,7 +9,7 @@ from .events import EventEmitter
 class IPCController(EventEmitter):
     BYTE_TIMEOUT = 0.01
 
-    def __init__(self, config: dict, custom_serial = None):
+    def __init__(self, config: dict, custom_serial=None):
         super().__init__()
 
         self.config = config
@@ -18,14 +18,15 @@ class IPCController(EventEmitter):
             self._serial = custom_serial
         else:
             self._serial = serial.Serial(
-                port=config['port'],
-                baudrate=config['baudrate'],
+                port=config["port"],
+                baudrate=config["baudrate"],
                 parity=serial.PARITY_NONE,
                 stopbits=serial.STOPBITS_ONE,
-                bytesize=serial.EIGHTBITS)
+                bytesize=serial.EIGHTBITS,
+            )
 
-        self._cable_map = self.config['cables']
-        self._cn_map = { cn: cable for cable, cn in self._cable_map.items() }
+        self._cable_map = self.config["cables"]
+        self._cn_map = {cn: cable for cable, cn in self._cable_map.items()}
 
     def start(self):
         if not self._serial.is_open:

@@ -56,7 +56,8 @@ class MockIPC(EventEmitter):
 
     def send(self, event: MidiEvent):
         self.event = event
-        self.emit('send', event)
+        self.emit("send", event)
+
 
 class MockCamera:
     def __init__(self, config: dict):
@@ -68,11 +69,11 @@ class MockCamera:
 
     @property
     def resolution(self):
-        return self.config['resolution']
+        return self.config["resolution"]
 
     @property
     def framerate(self):
-        return self.config['framerate']
+        return self.config["framerate"]
 
     def clear(self):
         self.frame = np.zeros_like(self.frame)

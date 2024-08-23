@@ -8,6 +8,7 @@ from . import OUTPUT_DIRECTORY
 
 try:
     import picamera2
+
     picamera2_available = True
 except ImportError:
     picamera2_available = False
@@ -16,17 +17,19 @@ except ImportError:
 @unittest.skipUnless(picamera2_available, "picamera2 is not available")
 class Test_Camera(unittest.TestCase):
     def setUp(self):
-        self.camera = Camera(config={
-            'resolution': (640, 480),
-            'framerate': 50,
-            'rotation': 180,
-            'shutter_speed': 5000,
-            'iso': 10,
-            'brightness': 50,
-            'contrast': 0,
-            'saturation': 0,
-            'sharpness': 0
-        })
+        self.camera = Camera(
+            config={
+                "resolution": (640, 480),
+                "framerate": 50,
+                "rotation": 180,
+                "shutter_speed": 5000,
+                "iso": 10,
+                "brightness": 50,
+                "contrast": 0,
+                "saturation": 0,
+                "sharpness": 0,
+            }
+        )
         self.camera.start()
 
     def tearDown(self):
@@ -51,10 +54,10 @@ class Test_Camera(unittest.TestCase):
         time.sleep(1)
 
         # register the callback and capture for 1 second
-        self.camera.on('frame', callback)
+        self.camera.on("frame", callback)
         time.sleep(1)
 
-        self.camera.off('frame', callback)
+        self.camera.off("frame", callback)
         time.sleep(0.5)
 
         # make sure the callback was called (~60 FPS, accounting for some deviation)
@@ -72,8 +75,8 @@ class Test_Camera(unittest.TestCase):
             logging.warning("Empty frame captured. There might be an issue with the camera.")
 
         # save the frame to a file
-        cv2.imwrite(str(OUTPUT_DIRECTORY / 'test_camera_capture.png'), frame)
+        cv2.imwrite(str(OUTPUT_DIRECTORY / "test_camera_capture.png"), frame)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

@@ -14,6 +14,7 @@ from .image_processor import ImageProcessor
 
 debug_led = gpiozero.LED(17)
 
+
 class LaserHarpApp(EventEmitter):
     class State(Enum):
         IDLE = 0
@@ -36,11 +37,11 @@ class LaserHarpApp(EventEmitter):
         self.config = config
 
         # setup all components
-        self.ipc = IPCController(self.config['ipc'])
-        self.laser_array = LaserArray(self.ipc, self.config['laser_array'])
-        self.camera = Camera(self.config['camera'])
-        self.calibrator = ImageCalibrator(self.laser_array, self.camera, self.config['image_calibrator'])
-        self.processor = ImageProcessor(self.laser_array, self.camera, self.config['image_processor'])
+        self.ipc = IPCController(self.config["ipc"])
+        self.laser_array = LaserArray(self.ipc, self.config["laser_array"])
+        self.camera = Camera(self.config["camera"])
+        self.calibrator = ImageCalibrator(self.laser_array, self.camera, self.config["image_calibrator"])
+        self.processor = ImageProcessor(self.laser_array, self.camera, self.config["image_processor"])
 
         # setup the ipc read process
         self.capture_thread = threading.Thread(target=self._capture_thread, daemon=True)
@@ -171,19 +172,21 @@ class LaserHarpApp(EventEmitter):
     def _note_to_laser(self, note: int):
         if note == 127:
             return 127
-        else: return note - self.config['root_note']
+        else:
+            return note - self.config["root_note"]
 
     def _laser_to_note(self, index: int):
         if index == 127:
             return 127
-        else: return index + self.config['root_note']
+        else:
+            return index + self.config["root_note"]
 
     def _handle_midi_event(self, event: MidiEvent):
         # handle midi note on/off messages from any interface
-        if event.message.type == 'note_on':
+        if event.message.type == "note_on":
             index = self._note_to_laser(event.message.note)
             brightness = event.message.velocity
-        elif event.message.type == 'note_off':
+        elif event.message.type == "note_off":
             index = self._note_to_laser(event.message.note)
             brightness = 0
         else:
@@ -204,7 +207,7 @@ class LaserHarpApp(EventEmitter):
         self._state_change([self.State.RUNNING, self.State.STARTING], self.State.CALIBRATING)
 
         # run the calibrator
-        calibration = self.calibrator.calibrate(save_debug_images=self.config['save_debug_images'])
+        calibration = self.calibrator.calibrate(save_debug_images=self.config["save_debug_images"])
         self.calibrator.save()
 
         # update the processor

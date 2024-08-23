@@ -8,9 +8,11 @@ import numpy as np
 try:
     import libcamera
     import picamera2
+
     PICAMERA2_AVAILABLE = True
 except ImportError:
     PICAMERA2_AVAILABLE = False
+
 
 class Camera:
     class State(Enum):
@@ -42,7 +44,7 @@ class Camera:
 
     def _init_camera(self):
         # convert the rotation to a libcamera transform
-        rotation = self.config.get('rotation', 0)
+        rotation = self.config.get("rotation", 0)
         if rotation == 0:
             transform = libcamera.Transform(hflip=True, vflip=True)
         elif rotation == 180:
@@ -52,30 +54,30 @@ class Camera:
 
         # set camera controls
         controls = {
-            'FrameRate': self.config['framerate'],
-            'ExposureTime': self.config['shutter_speed'],
-            'AnalogueGain': self.config['iso'] / 100,
-            'AeEnable': False,
-            'AeFlickerMode': libcamera.controls.AeFlickerModeEnum.Off,
+            "FrameRate": self.config["framerate"],
+            "ExposureTime": self.config["shutter_speed"],
+            "AnalogueGain": self.config["iso"] / 100,
+            "AeEnable": False,
+            "AeFlickerMode": libcamera.controls.AeFlickerModeEnum.Off,
             # 'AfMode': 'Off',
-            'AwbEnable': False,
+            "AwbEnable": False,
         }
 
         # setup camera
         self.picam = picamera2.Picamera2()
 
         config = self.picam.create_preview_configuration(
-            main={ # use for internal processing
-                'size': tuple(self.config['resolution']),
-                'format': 'YUV420',
-            }, # use for the webserver
+            main={  # use for internal processing
+                "size": tuple(self.config["resolution"]),
+                "format": "YUV420",
+            },  # use for the webserver
             lores={
-                'size': (320, 240),
-                'format': 'RGB888',
+                "size": (320, 240),
+                "format": "RGB888",
             },
             transform=transform,
             controls=controls,
-            buffer_count=1
+            buffer_count=1,
         )
         self.picam.align_configuration(config)
         self.picam.configure(config)
@@ -89,11 +91,11 @@ class Camera:
 
     @property
     def resolution(self):
-        return self.config['resolution']
+        return self.config["resolution"]
 
     @property
     def framerate(self):
-        return self.config['framerate']
+        return self.config["framerate"]
 
     def start(self):
         if not PICAMERA2_AVAILABLE:
@@ -129,7 +131,7 @@ class Camera:
         if self.state != self.State.RUNNING:
             raise RuntimeError("Camera is not running.")
 
-        w, h = self.config['resolution']
+        w, h = self.config["resolution"]
 
         # capture a single frame
         yuv = self.picam.capture_array("main")
@@ -155,26 +157,29 @@ class Camera:
             picamera2.encoders.JpegEncoder(),
             picamera2.outputs.FileOutput(output),
             name="lores",
-            quality=picamera2.encoders.Quality.VERY_HIGH
+            quality=picamera2.encoders.Quality.VERY_HIGH,
         )
 
         return output
 
-if __name__ == '__main__':
-    camera = Camera(config={
-        'resolution': (640, 480),
-        'framerate': 60,
-        'rotation': 180,
-        'shutter_speed': 5000,
-        'iso': 10,
-        'brightness': 50,
-        'contrast': 0,
-        'saturation': 0,
-        'sharpness': 0
-    })
+
+if __name__ == "__main__":
+    camera = Camera(
+        config={
+            "resolution": (640, 480),
+            "framerate": 60,
+            "rotation": 180,
+            "shutter_speed": 5000,
+            "iso": 10,
+            "brightness": 50,
+            "contrast": 0,
+            "saturation": 0,
+            "sharpness": 0,
+        }
+    )
 
     camera.start()
-    camera.on('frame', lambda frame: print(f"got frame of shape {frame.shape}"))
+    camera.on("frame", lambda frame: print(f"got frame of shape {frame.shape}"))
 
     while not camera.running:
         time.sleep(0.1)
