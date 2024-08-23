@@ -1,10 +1,9 @@
 from dataclasses import dataclass
 import time
+import logging
+import os
 import numpy as np
 import cv2
-import logging
-import traceback
-import os
 import yaml
 from .camera import Camera
 from .laser_array import LaserArray
@@ -102,7 +101,7 @@ class ImageCalibrator:
             logging.warning("No calibration data available")
             return False
 
-        with open(self.filename, 'r') as f:
+        with open(self.filename, 'r', encoding='utf-8') as f:
             d = yaml.safe_load(f)
 
             # check if the config is compatible
@@ -120,7 +119,7 @@ class ImageCalibrator:
         if self.calibration is None:
             raise RuntimeError("Not calibrated yet")
 
-        with open(self.filename, 'w') as f:
+        with open(self.filename, 'w', encoding='utf-8') as f:
             yaml.safe_dump({
                 'required_config': self.required_config(),
                 'calibration': self.calibration.to_dict()
@@ -153,7 +152,7 @@ class ImageCalibrator:
         # apply gaussian blur
         ksize = self.config['preblur']
         blurred = cv2.GaussianBlur(img, (ksize, ksize), 0)
-        
+
         # get the brightes x coordinate of each row as point estimates
         b = np.max(blurred, axis=1)
         xs = np.argmax(blurred, axis=1)
@@ -179,7 +178,7 @@ class ImageCalibrator:
         fov_y = np.radians(self.camera.config['fov'][1])
         mount_angle = np.radians(self.camera.config['mount_angle'])
         camera_bottom = np.pi / 2 - mount_angle - fov_y / 2
-        camera_top = np.pi / 2 - mount_angle + fov_y / 2
+        # camera_top = np.pi / 2 - mount_angle + fov_y / 2
 
         # calculate the position of the 0 and 90 degree mark in pixel space
         ya = self._angle_to_ypos(-camera_bottom)
@@ -201,7 +200,7 @@ class ImageCalibrator:
             cv2.imwrite('cap_base.jpg', (base_img * 255).astype(np.uint8))
 
         # STEP 2: fit a line to each individual laser's beam path
-        for i in range(len(self.laser_array)):
+        for i, _ in enumerate(self.laser_array):
             logging.info(f"Capturing laser {i}")
             self.laser_array[i] = 127
 

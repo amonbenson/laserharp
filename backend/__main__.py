@@ -1,6 +1,6 @@
-from . import create_backend
-from laserharp.app import LaserHarpApp
 from laserharp.config import load_config
+from laserharp.app import LaserHarpApp
+from . import create_backend
 
 if __name__ == "__main__":
     laserharp = LaserHarpApp(load_config())

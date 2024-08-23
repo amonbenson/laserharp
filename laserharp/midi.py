@@ -1,5 +1,5 @@
-import mido
 from typing import Union
+import mido
 
 
 class MidiEvent:

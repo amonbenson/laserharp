@@ -37,17 +37,23 @@ class ImageProcessor():
 
         self.beam_active = np.zeros(len(self.laser_array), dtype=bool)
 
+        # values initialized by set_calibration()
+        self.y_metric = None
+        self.beam_yv = None
+        self.beam_xv = None
+
+
     def _calculate_coeff(self) -> np.ndarray:
         # compute number of taps
-        f_S = self.camera.framerate
-        f_L = self.config['filter_cutoff']
-        N = self.config['filter_size']
+        f_sampling = self.camera.framerate
+        f_cutoff = self.config['filter_cutoff']
+        n = self.config['filter_size']
 
         # compute sinc filter
-        h = np.sinc(2 * f_L / f_S * (np.arange(N) - (N - 1) / 2))
+        h = np.sinc(2 * f_cutoff / f_sampling * (np.arange(n) - (n - 1) / 2))
 
         # apply window
-        h *= np.blackman(N)
+        h *= np.blackman(n)
 
         # normalize
         h /= np.sum(h)
@@ -58,9 +64,9 @@ class ImageProcessor():
         self.calibration = calibration
 
         # get all possible y coordinates
-        w, h = self.camera.resolution
+        height = self.camera.resolution[1]
         y_lower = np.maximum(0, calibration.ya)
-        y_upper = np.minimum(h, calibration.yb)
+        y_upper = np.minimum(height, calibration.yb)
         y = np.arange(y_lower, y_upper)
 
         # map each y coordinate to an angle and its corresponding metric height

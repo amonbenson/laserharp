@@ -50,7 +50,7 @@ class LaserHarpApp(EventEmitter):
         self._frame_last_update = time.time()
         self.frame_emit_rate = 10
         self._frame_emit_last_update = time.time()
-        
+
         self._prev_result = None
         self._midi_serial = serial.Serial("/dev/ttyAMA0", 31250)
         self._prev_pitch_bend = 8192
@@ -102,18 +102,6 @@ class LaserHarpApp(EventEmitter):
 
         self._state_change([self.State.STOPPING], self.State.IDLE)
 
-    """
-    def _ipc_read_process(self):
-        while self.state != self.State.IDLE:
-            # read the next event
-            event = self.ipc.read()
-            if event is None:
-                continue
-
-            # process the event
-            self._handle_midi_event(event)
-    """
-
     def _capture_thread(self):
         while self.state != self.State.IDLE:
             # stop if the camera is not running anymore (note: this is the camera state, not the app state)
@@ -154,11 +142,11 @@ class LaserHarpApp(EventEmitter):
                 debug_led.off()
 
             # set the laser brightness
-            for i in range(len(result.active)):
+            for i, active in enumerate(result.active):
                 note = self._laser_to_note(i)
-                note_on = result.active[i] and not (self._prev_result and self._prev_result.active[i])
-                note_off = not result.active[i] and (self._prev_result and self._prev_result.active[i])
-                
+                note_on = active and not (self._prev_result and self._prev_result.active[i])
+                note_off = not active and (self._prev_result and self._prev_result.active[i])
+
                 if note_on:
                     print(f"Note on: {note}")
                     self._midi_serial.write(bytes([0x90, note, 127]))
@@ -171,7 +159,7 @@ class LaserHarpApp(EventEmitter):
             mod_sum = sum(result.modulation)
             mod_avg = mod_sum / num_active if num_active > 0 else 0
             pitch_bend = int(mod_avg * 8192 + 8192)
-            
+
             if pitch_bend != self._prev_pitch_bend:
                 self._midi_serial.write(bytes([0xE0, pitch_bend & 0x7F, pitch_bend >> 7]))
             self._prev_pitch_bend = pitch_bend
@@ -181,11 +169,13 @@ class LaserHarpApp(EventEmitter):
             self._prev_result = result
 
     def _note_to_laser(self, note: int):
-        if note == 127: return 127
+        if note == 127:
+            return 127
         else: return note - self.config['root_note']
 
     def _laser_to_note(self, index: int):
-        if index == 127: return 127
+        if index == 127:
+            return 127
         else: return index + self.config['root_note']
 
     def _handle_midi_event(self, event: MidiEvent):

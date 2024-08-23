@@ -1,5 +1,4 @@
 import numpy as np
-import mido
 from .ipc import IPCController
 from .midi import MidiEvent
 
@@ -32,8 +31,8 @@ class LaserArray():
             self.set(key, value)
 
     def set(self, index: int, brightness: int):
-        assert(0 <= index < len(self))
-        assert(0 <= brightness <= 127)
+        assert 0 <= index < len(self)
+        assert 0 <= brightness <= 127
 
         # return if nothing changed
         if self._state[index] == brightness:

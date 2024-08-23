@@ -1,4 +1,3 @@
-import os
 import logging
 import serial
 import mido
@@ -80,7 +79,7 @@ class IPCController(EventEmitter):
         self._serial.timeout = self.BYTE_TIMEOUT * 3
         data = self._serial.read(3)
         if len(data) != 3:
-            raise ValueError(f"Read timeout")
+            raise ValueError("Read timeout")
 
         logging.debug(f"STM -> RPI: {cn_cid :02x} {data.hex(' ')}")
         return MidiEvent(cable, mido.Message.from_bytes(data))

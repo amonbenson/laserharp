@@ -2,15 +2,15 @@ import io
 import logging
 import time
 import threading
-import numpy as np
 from enum import Enum
+import numpy as np
 
 try:
     import libcamera
     import picamera2
-    picamera2_available = True
+    PICAMERA2_AVAILABLE = True
 except ImportError:
-    picamera2_available = False
+    PICAMERA2_AVAILABLE = False
 
 class Camera:
     class State(Enum):
@@ -32,7 +32,10 @@ class Camera:
     def __init__(self, config: dict):
         self.config = config
 
-        if picamera2_available:
+        self.state = self.State.STOPPED
+        self._frame = None
+
+        if PICAMERA2_AVAILABLE:
             self._init_camera()
 
         picamera2.Picamera2.set_logging(logging.INFO)
@@ -81,39 +84,6 @@ class Camera:
         self.picam.set_controls(controls)
 
         logging.debug(f"Camera configuration: {self.picam.stream_configuration('main')}")
-        print(self.picam.stream_configuration('main'), self.picam.controls)
-
-        """
-        self.picam.set_controls({
-            'AeEnable': False,
-            'AeFlickerMode': libcamera.controls.AeFlickerMode.Off,
-            'AfMode': libcamera.controls.AfMode.Off,
-            'AwbEnable': False
-        })
-        """
-
-        """
-        self.picam.resolution = self.config['resolution']
-        self.picam.framerate = self.config['framerate']
-        self.picam.rotation = self.config['rotation']
-
-        # set manual exposure and white balance
-        self.picam.shutter_speed = self.config['shutter_speed']
-        self.picam.iso = self.config['iso']
-        self.picam.exposure_mode = 'off'
-        self.picam.awb_mode = 'off'
-        self.picam.awb_gains = (1.5, 1.5)
-
-        # image settings
-        self.picam.brightness = self.config['brightness']
-        self.picam.contrast = self.config['contrast']
-        self.picam.saturation = self.config['saturation']
-        self.picam.sharpness = self.config['sharpness']
-        self.picam.exposure_compensation = 0
-        self.picam.meter_mode = 'average'
-
-        self.stream_target = self.StreamTarget(self, self._on_frame)
-        """
 
         self.state = self.State.STOPPED
 
@@ -126,7 +96,7 @@ class Camera:
         return self.config['framerate']
 
     def start(self):
-        if not picamera2_available:
+        if not PICAMERA2_AVAILABLE:
             raise RuntimeError("libcamera2 is not available. Please install it using 'apt-get install python3-picamera2'.")
 
         if self.state != self.State.STOPPED:
@@ -141,7 +111,7 @@ class Camera:
         self.state = self.State.RUNNING
 
     def stop(self):
-        if not picamera2_available:
+        if not PICAMERA2_AVAILABLE:
             raise RuntimeError("libcamera2 is not available. Please install it using 'apt-get install python3-picamera2'.")
 
         if self.state not in (self.State.STARTING, self.State.RUNNING):
@@ -154,7 +124,7 @@ class Camera:
         self.state = self.State.STOPPED
 
     def capture(self) -> np.ndarray:
-        if not picamera2_available:
+        if not PICAMERA2_AVAILABLE:
             raise RuntimeError("libcamera2 is not available. Please install it using 'apt-get install python3-picamera2'.")
         if self.state != self.State.RUNNING:
             raise RuntimeError("Camera is not running.")
@@ -175,7 +145,7 @@ class Camera:
         return self._frame
 
     def start_debug_stream(self) -> "Camera.StreamingOutput":
-        if not picamera2_available:
+        if not PICAMERA2_AVAILABLE:
             raise RuntimeError("libcamera2 is not available. Please install it using 'apt-get install python3-picamera2'.")
         if self.state != self.State.RUNNING:
             raise RuntimeError("Camera is not running.")
