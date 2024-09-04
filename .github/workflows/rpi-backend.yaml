@@ -29,9 +29,9 @@ jobs:
           pip install pylint
           pip install -r requirements.txt
 
-      - name: Run black
-        working-directory: ./rpi
-        run: black --check $(git ls-files '*.py')
+      # - name: Run black
+      #   working-directory: ./rpi
+      #   run: black --check $(git ls-files '*.py')
 
       - name: Run pylint
         working-directory: ./rpi

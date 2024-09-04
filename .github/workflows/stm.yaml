@@ -35,7 +35,7 @@ jobs:
       - name: Setup arm-none-eabi-gcc
         uses: carlosperate/arm-none-eabi-gcc-action@v1
         with:
-          release: 11.3.1
+          release: 13.3.Rel1
 
       - name: Build firmware
         working-directory: ./stm
