@@ -1,0 +1,28 @@
+{
+    "files.associations": {
+        "*.c": "c",
+        "*.h": "cpp",
+        "*.json": "jsonc",
+        "*.lds": "linkerscript",
+        "*.machine": "xml",
+        "*.make": "makefile",
+        "*.perspective": "json",
+        "*.pl": "prolog",
+        "*.sdf": "xml",
+        "*.world": "xml",
+        "*.xaml": "xml",
+        "Makefile.*": "makefile",
+        "*.disasm": "riscv",
+        "limits": "c",
+        "*.tcc": "c",
+        "type_traits": "c"
+    },
+    "cortex-debug.gdbPath": "gdb-multiarch",
+    "C_Cpp.clang_format_style": "file",
+    "editor.rulers": [
+        120
+    ],
+    "editor.formatOnSave": true,
+    "editor.formatOnType": false,
+    "C_Cpp.default.compilerPath": "/opt/st/stm32cubeclt/GNU-tools-for-STM32/bin/arm-none-eabi-gcc",
+}

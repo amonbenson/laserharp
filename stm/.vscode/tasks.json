@@ -1,0 +1,156 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "build",
+            "type": "shell",
+            "command": "make",
+            "windows": {
+                "command": "C:\\Program Files (x86)\\GnuWin32\\bin\\make.exe"
+            },
+            "args": [
+                "-j8",
+                "all"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "presentation": {
+                "clear": true,
+                "reveal": "silent"
+            },
+            "dependsOn": "format"
+        },
+        {
+            "label": "clean",
+            "type": "shell",
+            "command": "make",
+            "windows": {
+                "command": "C:\\Program Files (x86)\\GnuWin32\\bin\\make.exe"
+            },
+            "args": [
+                "clean"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "group": "build",
+            "problemMatcher": [],
+            "presentation": {
+                "clear": true,
+                "reveal": "silent"
+            }
+        },
+        {
+            "label": "flash",
+            "type": "shell",
+            "command": "/opt/st/stm32cubeclt/STM32CubeProgrammer/bin/STM32_Programmer_CLI",
+            "windows": {
+                "command": "C:\\ST\\STM32CubeCLT\\STM32CubeProgrammer\\bin\\STM32_Programmer_CLI.exe",
+            },
+            "args": [
+                "-c",
+                "port=SWD",
+                "-w",
+                "${workspaceFolder}/build/Laserharp.bin",
+                "0x8000000",
+                "-v",
+                "-rst"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "group": "build",
+            "problemMatcher": [],
+            "presentation": {
+                "clear": true,
+                "reveal": "silent"
+            },
+            "dependsOn": "build"
+        },
+        {
+            "label": "monitor",
+            "type": "shell",
+            "command": "pyserial-miniterm",
+            "args": [
+                "--filter=direct",
+                "/dev/ttyACM0",
+                "115200"
+            ],
+            "windows": {
+                "command": "python",
+                "args": [
+                    "-m",
+                    "serial.tools.miniterm",
+                    "--filter=direct",
+                    "COM8",
+                    "115200"
+                ]
+            },
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "problemMatcher": [],
+            "presentation": {
+                "reveal": "always",
+                "panel": "dedicated",
+                "clear": true
+            }
+        },
+        {
+            "label": "cubemx",
+            "type": "shell",
+            "command": "/usr/local/STMicroelectronics/STM32Cube/STM32CubeMX/STM32CubeMX",
+            "windows": {
+                "command": "C:\\Program Files\\STMicroelectronics\\STM32Cube\\STM32CubeMX\\STM32CubeMX.exe"
+            },
+            "args": [
+                "${workspaceFolder}/Laserharp.ioc"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "problemMatcher": [],
+            "presentation": {
+                "reveal": "never",
+                "panel": "dedicated",
+                "close": true
+            }
+        },
+        {
+            "label": "format",
+            "type": "shell",
+            "command": "${env:HOME}/.vscode-server/extensions/ms-vscode.cpptools-*-linux-x64/LLVM/bin/clang-format",
+            "windows": {
+                "command": "${env:USERPROFILE}\\.vscode\\extensions\\ms-vscode.cpptools-*-win32-x64\\LLVM\\bin\\clang-format.exe"
+            },
+            "args": [
+                "--style=file",
+                "--verbose",
+                "-i",
+                "Core/Inc/*.h",
+                "Core/Src/*.c",
+                "Drivers/Laser_Array/Inc/*.h",
+                "Drivers/Laser_Array/Src/*.c",
+                "Drivers/Midi/Inc/*.h",
+                "Drivers/Midi/Src/*.c",
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "problemMatcher": [],
+            "presentation": {
+                "reveal": "never",
+                "panel": "dedicated",
+                "close": true
+            }
+        }
+    ]
+}

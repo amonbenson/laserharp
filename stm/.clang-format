@@ -1,0 +1,24 @@
+BasedOnStyle: WebKit
+
+ColumnLimit: 120
+
+# indentation
+IndentWidth: 4
+IndentAccessModifiers: false # only for plain C
+IndentCaseLabels: true
+
+NamespaceIndentation: All
+FixNamespaceComments: false
+
+# breaking
+BreakBeforeBraces: Custom
+AllowShortFunctionsOnASingleLine: Empty
+AllowShortBlocksOnASingleLine: true
+
+AlignEscapedNewlines: DontAlign
+
+# misc
+SpaceAfterCStyleCast: true
+
+DerivePointerAlignment: false
+PointerAlignment: Right

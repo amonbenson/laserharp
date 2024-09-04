@@ -1,0 +1,22 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "stm32 debug",
+            "type": "cortex-debug",
+            "request": "launch",
+            "servertype": "openocd",
+            "cwd": "${workspaceFolder}",
+            "executable": "${workspaceFolder}/build/${workspaceFolderBasename}.elf",
+            "device": "STM32F103C8",
+            "configFiles": [
+                "interface/stlink-v2.cfg",
+                "target/stm32f1x.cfg"
+                // "${workspaceFolder}/stm32f1x-bluepill.cfg"
+            ],
+            "preLaunchTask": "flash",
+            "showDevDebugOutput": "raw",
+            "gdbPath": "gdb-multiarch"
+        }
+    ]
+}
