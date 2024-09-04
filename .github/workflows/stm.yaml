@@ -39,4 +39,4 @@ jobs:
 
       - name: Build firmware
         working-directory: ./stm
-        run: make
+        run: make -j4 all

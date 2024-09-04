@@ -25,8 +25,7 @@
             "presentation": {
                 "clear": true,
                 "reveal": "silent"
-            },
-            "dependsOn": "format"
+            }
         },
         {
             "label": "clean",
