@@ -1,0 +1,31 @@
+(kicad_sch (version 20211123) (generator eeschema)
+
+  (uuid 1d7217a0-76fb-49f6-af97-541449d677cf)
+
+  (paper "A4")
+
+  (lib_symbols
+  )
+
+
+  (hierarchical_label "DI" (shape input) (at 38.1 38.1 180)
+    (effects (font (size 1.27 1.27)) (justify right))
+    (uuid e065fca1-50c6-41d5-a9b8-cb995d170c2b)
+  )
+
+  (sheet (at 50.8 38.1) (size 12.7 5.08) (fields_autoplaced)
+    (stroke (width 0.1524) (type solid) (color 0 0 0 0))
+    (fill (color 0 0 0 0.0000))
+    (uuid a7e80c8e-9d4a-4e6a-a7d2-8d2797dd7177)
+    (property "Sheet name" "Laser Driver" (id 0) (at 50.8 37.3884 0)
+      (effects (font (size 1.27 1.27)) (justify left bottom))
+    )
+    (property "Sheet file" "Laser_Driver.kicad_sch" (id 1) (at 50.8 43.7646 0)
+      (effects (font (size 1.27 1.27)) (justify left top))
+    )
+    (pin "DI" input (at 50.8 40.64 180)
+      (effects (font (size 1.27 1.27)) (justify left))
+      (uuid 1cf91cf7-02ed-44aa-99c3-1534a90ed95a)
+    )
+  )
+)

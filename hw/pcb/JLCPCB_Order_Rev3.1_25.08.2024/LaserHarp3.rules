@@ -1,0 +1,92 @@
+
+(rules PCB LaserHarp3
+  (snap_angle 
+    fortyfive_degree
+  )
+  (autoroute_settings
+    (fanout off)
+    (autoroute on)
+    (postroute on)
+    (vias on)
+    (via_costs 500)
+    (plane_via_costs 5)
+    (start_ripup_costs 100)
+    (start_pass_no 221)
+    (layer_rule "F.Cu"
+      (active on)
+      (preferred_direction vertical)
+      (preferred_direction_trace_costs 1.0)
+      (against_preferred_direction_trace_costs 2.2)
+    )
+    (layer_rule "B.Cu"
+      (active on)
+      (preferred_direction horizontal)
+      (preferred_direction_trace_costs 1.0)
+      (against_preferred_direction_trace_costs 1.8)
+    )
+  )
+  (rule
+    (width 250.0)
+    (clear 200.2)
+    (clear 125.0 (type smd_to_turn_gap))
+  )
+  (padstack "Via[0-1]_800:400_um"
+    (shape
+      (circle "F.Cu" 800.0 0.0 0.0)
+    )
+    (shape
+      (circle "B.Cu" 800.0 0.0 0.0)
+    )
+    (attach off)
+  )
+  (via 
+    "Via[0-1]_800:400_um" "Via[0-1]_800:400_um" "default"
+  )
+  (via 
+    "Via[0-1]_800:400_um-kicad_default" "Via[0-1]_800:400_um" "kicad_default"
+  )
+  (via_rule
+    "default" "Via[0-1]_800:400_um"
+  )
+  (via_rule
+    "kicad_default" "Via[0-1]_800:400_um-kicad_default"
+  )
+  (class "default"
+    "GND" "+5VP" "/VIN" "/Diode Array/DAR_PWR" "+5V" "+3V3" "RCC_OSC_IN" "RCC_OSC_OUT"
+    "USB_OSC_IN" "USB_OSC_OUT" "BTN_CAL" "RESET" "Net-(D4-Pad1)" "Net-(J1-PadA5)" "USB_D+" "USB_D-"
+    "Net-(J1-PadB5)" "RASPI_TX" "RASPI_RX" "unconnected-(J6-Pad1)" "SWCLK" "SWDIO" "unconnected-(J6-Pad6)" "DEBUG_RX"
+    "DEBUG_TX" "/Diode Array/DO0" "/Diode Array/DO1" "/Diode Array/DO2" "/Diode Array/DO3" "/Diode Array/DO4" "/Diode Array/DO5" "/Diode Array/DO6"
+    "/Diode Array/DO7" "/Diode Array/DO8" "/Diode Array/DO9" "/Diode Array/DO10" "/Diode Array/DO11" "/Diode Array/DO12" "/Diode Array/DO13" "/Diode Array/DO14"
+    "/Diode Array/DO15" "/Diode Array/DO16" "/Diode Array/DO17" "/Diode Array/DO18" "/Diode Array/DO19" "/Diode Array/DO20" "/Diode Array/DO21" "/Diode Array/DO22"
+    "/Diode Array/DO23" "Net-(J9-Pad1)" "Net-(J9-Pad2)" "Net-(J9-Pad3)" "Net-(J9-Pad4)" "Net-(J9-Pad5)" "Net-(J9-Pad6)" "Net-(J9-Pad7)"
+    "Net-(J9-Pad8)" "Net-(J9-Pad9)" "Net-(J9-Pad10)" "Net-(J9-Pad11)" "Net-(J9-Pad12)" "Net-(J9-Pad13)" "Net-(J9-Pad14)" "Net-(J9-Pad15)"
+    "Net-(J9-Pad16)" "Net-(J9-Pad17)" "Net-(J9-Pad18)" "Net-(J9-Pad19)" "Net-(J9-Pad20)" "Net-(J9-Pad21)" "Net-(J9-Pad22)" "Net-(J9-Pad23)"
+    "Net-(J9-Pad24)" "/DAR_DI0" "/DAR_DI1" "/DAR_DI2" "/DAR_DI3" "/DAR_DI4" "/DAR_DI5" "/DAR_DI6"
+    "/DAR_DI7" "/DAR_DI8" "/DAR_DI9" "/DAR_DI10" "/DAR_DI11" "/DAR_DI12" "/DAR_DI13" "/DAR_DI14"
+    "/DAR_DI15" "/DAR_DI16" "/DAR_DI17" "/DAR_DI18" "/DAR_DI19" "/DAR_DI20" "/DAR_DI21" "/DAR_DI22"
+    "/DAR_DI23" "MIDI_RX" "MIDI_TX" "Net-(R8-Pad1)" "BOOT0" "unconnected-(U1-Pad2)" "unconnected-(U1-Pad10)" "unconnected-(U1-Pad11)"
+    "unconnected-(U1-Pad14)" "SR_CLK" "unconnected-(U1-Pad16)" "SR_DS0" "unconnected-(U1-Pad18)" "SR_LATCH" "unconnected-(U1-Pad25)" "unconnected-(U1-Pad26)"
+    "unconnected-(U1-Pad27)" "unconnected-(U1-Pad28)" "unconnected-(U1-Pad29)" "unconnected-(U1-Pad38)" "unconnected-(U1-Pad39)" "unconnected-(U1-Pad40)" "unconnected-(U1-Pad41)" "unconnected-(U1-Pad42)"
+    "unconnected-(U1-Pad43)" "unconnected-(U1-Pad45)" "unconnected-(U1-Pad46)" "unconnected-(U3-Pad1)" "unconnected-(U3-Pad7)" "Net-(U4-Pad9)" "Net-(U5-Pad9)" "unconnected-(U6-Pad9)"
+    "unconnected-(U3-Pad4)" "/MIDI_IN_SNK" "/MIDI_IN_SRC" "/MIDI_OUT_SRC" "/MIDI_OUT_SNK" "Net-(D2-Pad2)" "Net-(R3-Pad2)" "unconnected-(J1-PadA8)"
+    "unconnected-(J1-PadB8)" "/USB_PWR"
+    (clearance_class "default")
+    (via_rule "default")
+    (rule
+      (width 250.0)
+    )
+    (circuit 
+      (use_layer F.Cu B.Cu)
+    )
+  )
+  (class "kicad_default"
+    (clearance_class "kicad_default")
+    (via_rule "kicad_default")
+    (rule
+      (width 250.0)
+    )
+    (circuit 
+      (use_layer F.Cu B.Cu)
+    )
+  )
+)

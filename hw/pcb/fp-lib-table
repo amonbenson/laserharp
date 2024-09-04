@@ -1,0 +1,6 @@
+(fp_lib_table
+  (version 7)
+  (lib (name "USB-C")(type "KiCad")(uri "${KIPRJMOD}/lib/USB-C.pretty")(options "")(descr ""))
+  (lib (name "Eurocad")(type "KiCad")(uri "${KIPRJMOD}/lib/Eurocad.pretty")(options "")(descr ""))
+  (lib (name "w_conn_av")(type "KiCad")(uri "${KIPRJMOD}/lib/w_conn_av.pretty")(options "")(descr ""))
+)

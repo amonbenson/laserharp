@@ -1,0 +1,6950 @@
+(kicad_sch
+	(version 20231120)
+	(generator "eeschema")
+	(generator_version "8.0")
+	(uuid "1d7217a0-76fb-49f6-af97-541449d677cf")
+	(paper "A4")
+	(title_block
+		(title "Laser Harp - Diode Array")
+		(date "2024-08-19")
+		(rev "3.1")
+		(company "Schlegel Flegel")
+	)
+	(lib_symbols
+		(symbol "Diode_Laser:SPL_PL90"
+			(pin_names
+				(offset 1.016) hide)
+			(exclude_from_sim no)
+			(in_bom yes)
+			(on_board yes)
+			(property "Reference" "LD"
+				(at -1.27 4.445 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Value" "SPL_PL90"
+				(at -1.27 -2.54 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Footprint" "LED_THT:LED_D5.0mm"
+				(at -1.524 -4.572 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Datasheet" "http://www.osram-os.com/Graphics/XPic0/00194565_0.pdf/SPL%20PL90.pdf"
+				(at 0.762 -5.08 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Description" "Pulsed Laser Diode in Plastic Package 25W Peak Power"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "ki_keywords" "opto laserdiode"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "ki_fp_filters" "LED*5.0mm*"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(symbol "SPL_PL90_0_1"
+				(polyline
+					(pts
+						(xy -4.064 1.27) (xy -2.54 2.794)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy -4.064 1.778) (xy -2.54 2.286)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy -4.064 2.286) (xy -2.54 1.778)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy -4.064 2.794) (xy -2.54 1.27)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy -3.556 2.794) (xy -3.048 1.27)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy -3.302 2.032) (xy -3.302 1.016)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy -3.302 2.032) (xy -3.302 3.048)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy -3.048 2.794) (xy -3.556 1.27)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy -1.778 2.032) (xy -4.318 2.032)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy -1.524 1.27) (xy -1.524 -1.27)
+					)
+					(stroke
+						(width 0.1524)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 1.27 3.048) (xy 0.762 3.048)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 2.54 0) (xy -5.08 0)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy -0.254 1.524) (xy 1.27 3.048) (xy 1.27 2.54)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 1.016 1.27) (xy -1.524 0) (xy 1.016 -1.27)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type outline)
+					)
+				)
+				(polyline
+					(pts
+						(xy -1.524 1.524) (xy 0 3.048) (xy 0 2.54) (xy 0 3.048) (xy -0.508 3.048)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+			)
+			(symbol "SPL_PL90_1_1"
+				(pin passive line
+					(at -7.62 0 0)
+					(length 2.54)
+					(name "C"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at 5.08 0 180)
+					(length 2.54)
+					(name "A"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "2"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+			)
+		)
+		(symbol "Graphic:SYM_LASER_Large"
+			(exclude_from_sim no)
+			(in_bom no)
+			(on_board no)
+			(property "Reference" "#SYM"
+				(at 0 5.08 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Value" "SYM_LASER_Large"
+				(at 0 -6.731 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Footprint" ""
+				(at -0.254 -4.445 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Datasheet" "~"
+				(at 0.762 -5.08 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Description" "Laser radiation warning symbol, large"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Sim.Enable" "0"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "ki_keywords" "symbol logo laser warning"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(symbol "SYM_LASER_Large_0_1"
+				(polyline
+					(pts
+						(xy -1.905 -2.413) (xy 3.556 -2.413)
+					)
+					(stroke
+						(width 0.254)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy -1.27 -3.683) (xy 1.27 -1.143)
+					)
+					(stroke
+						(width 0.254)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy -1.143 -2.921) (xy 1.143 -1.905)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy -1.143 -2.032) (xy 1.143 -2.794)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy -0.508 -1.27) (xy 0.508 -3.556)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 0 -4.191) (xy 0 -0.508)
+					)
+					(stroke
+						(width 0.254)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 0.508 -1.27) (xy -0.508 -3.556)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 1.397 -3.683) (xy -1.397 -1.143)
+					)
+					(stroke
+						(width 0.254)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy -5.08 -5.08) (xy 5.08 -5.08) (xy 0 3.81) (xy -5.08 -5.08)
+					)
+					(stroke
+						(width 0.508)
+						(type default)
+					)
+					(fill
+						(type background)
+					)
+				)
+			)
+		)
+		(symbol "power:+5VP"
+			(power)
+			(pin_numbers hide)
+			(pin_names
+				(offset 0) hide)
+			(exclude_from_sim no)
+			(in_bom yes)
+			(on_board yes)
+			(property "Reference" "#PWR"
+				(at 0 -3.81 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Value" "+5VP"
+				(at 0 3.556 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Footprint" ""
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Datasheet" ""
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Description" "Power symbol creates a global label with name \"+5VP\""
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "ki_keywords" "global power"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(symbol "+5VP_0_1"
+				(polyline
+					(pts
+						(xy -0.762 1.27) (xy 0 2.54)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 0 0) (xy 0 2.54)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 0 2.54) (xy 0.762 1.27)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+			)
+			(symbol "+5VP_1_1"
+				(pin power_in line
+					(at 0 0 90)
+					(length 0)
+					(name "~"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+			)
+		)
+	)
+	(junction
+		(at 246.38 115.57)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "0b5237e2-5dd4-4efb-9ab9-7281f26cdb2f")
+	)
+	(junction
+		(at 246.38 34.29)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "0c4b29f3-3176-42db-87e8-ea09c9016606")
+	)
+	(junction
+		(at 246.38 49.53)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "100963b5-98bc-422c-bd76-95341edfa45a")
+	)
+	(junction
+		(at 246.38 105.41)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "1563937d-517c-42ec-a987-b11f9487b381")
+	)
+	(junction
+		(at 246.38 100.33)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "31eb3cff-4165-4f84-abb1-8ca05a879507")
+	)
+	(junction
+		(at 246.38 125.73)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "3b7d96f6-28ac-4bdc-8ba0-9210d5b287d3")
+	)
+	(junction
+		(at 246.38 90.17)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "46405c56-ca13-4dc0-992f-d01bc09e15bb")
+	)
+	(junction
+		(at 246.38 85.09)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "4812c3aa-05a7-4dd5-ac7e-9fe17d842627")
+	)
+	(junction
+		(at 246.38 69.85)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "49e6d79e-49fa-4620-b15c-c71ac94a1181")
+	)
+	(junction
+		(at 246.38 54.61)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "4e6ece18-a172-4050-96bb-7f10dfe8cdda")
+	)
+	(junction
+		(at 246.38 80.01)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "5ca7eba1-2b5a-4be9-b756-07e7678e431b")
+	)
+	(junction
+		(at 246.38 95.25)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "6ebf5220-2d13-408b-86ad-4bf15f8e5ef1")
+	)
+	(junction
+		(at 46.99 31.75)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "70b3b713-4977-4d70-adaa-509b7d010bbb")
+	)
+	(junction
+		(at 246.38 59.69)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "773e1e3f-2aeb-4971-8255-bf9da22c8321")
+	)
+	(junction
+		(at 246.38 64.77)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "8a572503-0907-4ce9-b8b7-b3ddbd852de3")
+	)
+	(junction
+		(at 246.38 39.37)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "9300b0ab-6b89-4697-82c5-7e75f68b7b96")
+	)
+	(junction
+		(at 246.38 120.65)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "9b98d015-a5a6-4d3b-a262-f7c1bf8d19e8")
+	)
+	(junction
+		(at 246.38 140.97)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "9ea73b90-070d-4661-a455-984c6e0a836f")
+	)
+	(junction
+		(at 246.38 44.45)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "ae159ddd-8db6-43c2-82e9-3b7d3bb4432b")
+	)
+	(junction
+		(at 246.38 146.05)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "afc4dc68-541d-444f-bb7a-d8fcb48c799e")
+	)
+	(junction
+		(at 246.38 135.89)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "d741cd66-1ba4-4c23-98b4-9f4b81a0ce9b")
+	)
+	(junction
+		(at 246.38 74.93)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "de53e5a1-3d1f-490c-97a6-40d9c1952e85")
+	)
+	(junction
+		(at 246.38 130.81)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "e5c186ca-c2b5-4d36-8d16-fce8a2e42675")
+	)
+	(junction
+		(at 246.38 110.49)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "f8bf647f-d654-49c7-b445-fb804a285310")
+	)
+	(bus_entry
+		(at 46.99 54.61)
+		(size 2.54 2.54)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "02703fdb-1a57-48d7-a04f-e10675618727")
+	)
+	(bus_entry
+		(at 97.79 100.33)
+		(size 2.54 2.54)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "12e3ff1f-dd78-4f7c-a770-f13421d14b67")
+	)
+	(bus_entry
+		(at 97.79 123.19)
+		(size 2.54 2.54)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "143f2fe8-17a3-4942-8360-79882498757e")
+	)
+	(bus_entry
+		(at 46.99 100.33)
+		(size 2.54 2.54)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "2127434d-237e-4423-b58e-0881067bac73")
+	)
+	(bus_entry
+		(at 97.79 43.18)
+		(size 2.54 2.54)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "242cb88a-0332-4c1e-81a9-59dd53f9110f")
+	)
+	(bus_entry
+		(at 46.99 123.19)
+		(size 2.54 2.54)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "2de72b9a-86f4-4e99-806e-0e0a2e95825a")
+	)
+	(bus_entry
+		(at 97.79 54.61)
+		(size 2.54 2.54)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "2f648c0b-af8e-4daf-b312-5acfc3417868")
+	)
+	(bus_entry
+		(at 97.79 111.76)
+		(size 2.54 2.54)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "3c134fb2-7305-4c23-a7f4-50d4be89673c")
+	)
+	(bus_entry
+		(at 97.79 168.91)
+		(size 2.54 2.54)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "4bef5459-9e6e-48db-8c32-055b2b3cc7a2")
+	)
+	(bus_entry
+		(at 46.99 111.76)
+		(size 2.54 2.54)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "4c892f1c-356a-4f86-942e-5607c9a73f40")
+	)
+	(bus_entry
+		(at 46.99 88.9)
+		(size 2.54 2.54)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "50e1414d-2121-43fb-9b84-1acf899588a6")
+	)
+	(bus_entry
+		(at 97.79 134.62)
+		(size 2.54 2.54)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "5cd893ec-58c4-4fbc-a032-0dda781c73d2")
+	)
+	(bus_entry
+		(at 97.79 146.05)
+		(size 2.54 2.54)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "67d6f876-fcc9-4ac3-a319-510881a3020c")
+	)
+	(bus_entry
+		(at 97.79 77.47)
+		(size 2.54 2.54)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "7455fb5d-fed5-45f8-8aeb-1d9db7c3b796")
+	)
+	(bus_entry
+		(at 97.79 157.48)
+		(size 2.54 2.54)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "776aab99-cd09-49d2-b6b5-cb664bb2bcf8")
+	)
+	(bus_entry
+		(at 46.99 168.91)
+		(size 2.54 2.54)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "80c8a257-ff56-4bfb-b40d-7ee36f3ddb1b")
+	)
+	(bus_entry
+		(at 46.99 66.04)
+		(size 2.54 2.54)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "a491f0af-0242-4355-86b2-9ef6401de635")
+	)
+	(bus_entry
+		(at 46.99 146.05)
+		(size 2.54 2.54)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "a9dc52df-be67-44b5-97e4-56f7b2d99ab4")
+	)
+	(bus_entry
+		(at 46.99 77.47)
+		(size 2.54 2.54)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "b178c4df-06af-4a44-8ed1-2cd7c5d275b4")
+	)
+	(bus_entry
+		(at 97.79 66.04)
+		(size 2.54 2.54)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "b9ef1bd9-87fc-49db-a952-1b64b8436873")
+	)
+	(bus_entry
+		(at 46.99 134.62)
+		(size 2.54 2.54)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "cf12b8d3-ff5c-4a00-9cda-e5da5d844394")
+	)
+	(bus_entry
+		(at 46.99 157.48)
+		(size 2.54 2.54)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "e4927126-1e30-47d4-8a88-db097563914d")
+	)
+	(bus_entry
+		(at 46.99 43.18)
+		(size 2.54 2.54)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "eb6c4e17-00b0-40d0-9faa-2446b1ca408d")
+	)
+	(bus_entry
+		(at 97.79 88.9)
+		(size 2.54 2.54)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "ee61b369-c65b-4eff-9f22-6d5cfac18ef5")
+	)
+	(wire
+		(pts
+			(xy 246.38 64.77) (xy 237.49 64.77)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "0005701d-bc89-480a-8d24-95a50f4bf63f")
+	)
+	(wire
+		(pts
+			(xy 246.38 44.45) (xy 237.49 44.45)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "0057458a-124d-49ae-9697-b66c60aafd86")
+	)
+	(wire
+		(pts
+			(xy 217.17 80.01) (xy 217.17 86.36)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "00a5dd0f-b4a0-4e2d-b506-8e62c8bc9b1f")
+	)
+	(wire
+		(pts
+			(xy 246.38 54.61) (xy 237.49 54.61)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "01731670-3ac7-4b68-be61-a0aaf2862e28")
+	)
+	(bus
+		(pts
+			(xy 97.79 157.48) (xy 97.79 168.91)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "020eccc8-35c9-4aaf-af87-aa3626729c96")
+	)
+	(wire
+		(pts
+			(xy 224.79 135.89) (xy 201.93 135.89)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "05f71d6a-567e-48f1-8107-182c6e8a7002")
+	)
+	(bus
+		(pts
+			(xy 97.79 134.62) (xy 97.79 146.05)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "08342cd2-9154-4508-a03f-9667b5ebc947")
+	)
+	(wire
+		(pts
+			(xy 246.38 115.57) (xy 246.38 120.65)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "0a76e5f2-4394-4c1b-962f-3d67fab688cf")
+	)
+	(wire
+		(pts
+			(xy 246.38 135.89) (xy 237.49 135.89)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "0be32d6d-fec8-48a5-be8e-7de21270ad57")
+	)
+	(wire
+		(pts
+			(xy 100.33 125.73) (xy 107.95 125.73)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "0d3f1482-e169-4fc1-a9db-e293e3655f7b")
+	)
+	(wire
+		(pts
+			(xy 49.53 80.01) (xy 57.15 80.01)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "0da8d75d-805b-41b2-9b2f-caeb19fc5e4e")
+	)
+	(wire
+		(pts
+			(xy 120.65 137.16) (xy 127 137.16)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "0ed4b81c-5026-47e3-a6f3-70a8eff5626c")
+	)
+	(wire
+		(pts
+			(xy 224.79 151.13) (xy 194.31 151.13)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "13821d48-1f76-41df-b39f-5b5b775fc102")
+	)
+	(wire
+		(pts
+			(xy 69.85 45.72) (xy 76.2 45.72)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "147779f8-012a-4b45-ade1-767aaa155eb1")
+	)
+	(wire
+		(pts
+			(xy 189.23 63.5) (xy 194.31 63.5)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "147d02f0-4389-42d4-be47-930689f439fc")
+	)
+	(wire
+		(pts
+			(xy 189.23 91.44) (xy 222.25 91.44)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "17957c90-ad5c-44d1-93f5-1346770e63a6")
+	)
+	(wire
+		(pts
+			(xy 120.65 171.45) (xy 127 171.45)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "1b0ed6d8-7e8f-4702-94ce-fc2616f26824")
+	)
+	(wire
+		(pts
+			(xy 189.23 119.38) (xy 196.85 119.38)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "1ba1d49a-d0d6-4dc8-bf83-a178bf4469a2")
+	)
+	(wire
+		(pts
+			(xy 246.38 80.01) (xy 237.49 80.01)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "1c792a5a-3bbb-4ead-b0f6-b328f8bae10b")
+	)
+	(wire
+		(pts
+			(xy 224.79 120.65) (xy 209.55 120.65)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "1d28e17b-46f4-4e82-b404-bf5fc16cf8a7")
+	)
+	(wire
+		(pts
+			(xy 246.38 54.61) (xy 246.38 59.69)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "1f7a9502-4ce3-486a-9184-9d86b37bd564")
+	)
+	(wire
+		(pts
+			(xy 49.53 68.58) (xy 57.15 68.58)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "1fdfb65a-ed5a-46ac-9cf9-0752868e97cc")
+	)
+	(wire
+		(pts
+			(xy 246.38 59.69) (xy 237.49 59.69)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "2233a9fd-33dc-48fc-aeca-fe86804bcdfc")
+	)
+	(wire
+		(pts
+			(xy 189.23 106.68) (xy 209.55 106.68)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "22a71776-0e27-4ec2-b0e0-c09f52dcc6ed")
+	)
+	(wire
+		(pts
+			(xy 224.79 90.17) (xy 222.25 90.17)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "22a94cf6-76f9-48ca-820e-0fd1c7f84ee8")
+	)
+	(wire
+		(pts
+			(xy 49.53 171.45) (xy 57.15 171.45)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "24c350d3-8387-4382-87c5-bc556d224a44")
+	)
+	(wire
+		(pts
+			(xy 189.23 78.74) (xy 209.55 78.74)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "252f61ac-b53b-47fc-8392-09f2a86341d2")
+	)
+	(wire
+		(pts
+			(xy 189.23 99.06) (xy 217.17 99.06)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "25cf4b69-1133-4ecc-9a85-79c979d204ac")
+	)
+	(wire
+		(pts
+			(xy 189.23 104.14) (xy 212.09 104.14)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "2a0e046a-274c-437b-97d6-03ea3e921fe8")
+	)
+	(wire
+		(pts
+			(xy 189.23 88.9) (xy 219.71 88.9)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "2b6cf660-c3ab-45f9-b193-87c77c51d7b6")
+	)
+	(bus
+		(pts
+			(xy 46.99 77.47) (xy 46.99 88.9)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "2bbcf190-6abb-4e83-9a61-48156713f38d")
+	)
+	(wire
+		(pts
+			(xy 100.33 45.72) (xy 107.95 45.72)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "2bd7f5a4-40fe-4bca-8157-3c0c965c03dd")
+	)
+	(wire
+		(pts
+			(xy 246.38 34.29) (xy 237.49 34.29)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "2c99c5f6-1bb9-4203-85df-d382d99f1ad1")
+	)
+	(wire
+		(pts
+			(xy 246.38 85.09) (xy 237.49 85.09)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "2df1d7c0-d67f-41b8-a8db-dca8e3d77395")
+	)
+	(wire
+		(pts
+			(xy 224.79 140.97) (xy 199.39 140.97)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "2e096b77-6af3-43b4-a309-13cd93e65aa7")
+	)
+	(wire
+		(pts
+			(xy 224.79 74.93) (xy 214.63 74.93)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "2eb6edf6-8132-436d-b087-9ac50674c3e3")
+	)
+	(wire
+		(pts
+			(xy 100.33 68.58) (xy 107.95 68.58)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "2fb8c982-f6f7-4736-a9c0-36b88bd50b7f")
+	)
+	(wire
+		(pts
+			(xy 120.65 91.44) (xy 127 91.44)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "308f07af-8182-46cf-9062-6bfe637105df")
+	)
+	(wire
+		(pts
+			(xy 207.01 125.73) (xy 207.01 109.22)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "321f0299-93e9-4df8-9e08-c36767b962bf")
+	)
+	(wire
+		(pts
+			(xy 189.23 114.3) (xy 201.93 114.3)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "325fdb1c-6575-4662-9bea-b6e921eaeba0")
+	)
+	(bus
+		(pts
+			(xy 46.99 157.48) (xy 46.99 168.91)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "32a4c2fe-40cd-413e-bbf6-9a0973013c53")
+	)
+	(wire
+		(pts
+			(xy 100.33 137.16) (xy 107.95 137.16)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "333bcebd-47dc-4a74-bede-8ea93b28d289")
+	)
+	(wire
+		(pts
+			(xy 219.71 100.33) (xy 219.71 96.52)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "34b4c22b-547d-4808-b3c0-b4a079ca5277")
+	)
+	(wire
+		(pts
+			(xy 69.85 68.58) (xy 76.2 68.58)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "368d0c97-00c2-4cf1-8187-f9e92446ad12")
+	)
+	(wire
+		(pts
+			(xy 207.01 59.69) (xy 207.01 76.2)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "376a694d-fbdf-4d07-aeca-36c590797c2f")
+	)
+	(wire
+		(pts
+			(xy 100.33 171.45) (xy 107.95 171.45)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "392d46f7-11ce-4caf-84cc-b61eb304dd5b")
+	)
+	(wire
+		(pts
+			(xy 189.23 96.52) (xy 219.71 96.52)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "3949df4a-2b34-4932-a3e8-0434b31bd1f6")
+	)
+	(wire
+		(pts
+			(xy 224.79 44.45) (xy 199.39 44.45)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "3a7f9072-15c3-4387-9220-aab41b60b53d")
+	)
+	(wire
+		(pts
+			(xy 100.33 148.59) (xy 107.95 148.59)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "3bf776f4-6340-491f-96fd-a1a30daaeb1d")
+	)
+	(wire
+		(pts
+			(xy 246.38 74.93) (xy 246.38 80.01)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "3c2ce470-643b-4e03-a38c-f7d59feb1f92")
+	)
+	(wire
+		(pts
+			(xy 120.65 45.72) (xy 127 45.72)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "3f0d1a92-741d-4299-8cb3-1a308205e553")
+	)
+	(wire
+		(pts
+			(xy 222.25 95.25) (xy 224.79 95.25)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "3f23132b-82ea-4fc6-90ac-171c415de50a")
+	)
+	(wire
+		(pts
+			(xy 49.53 91.44) (xy 57.15 91.44)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "3fe3a8b0-9b8d-4541-9efd-563777cc27c9")
+	)
+	(wire
+		(pts
+			(xy 246.38 140.97) (xy 246.38 146.05)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "41d41528-9dfd-4f34-bff2-d6a6592e674a")
+	)
+	(wire
+		(pts
+			(xy 189.23 109.22) (xy 207.01 109.22)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "45171c89-53eb-4a90-9706-0d03fd7af5ba")
+	)
+	(wire
+		(pts
+			(xy 49.53 57.15) (xy 57.15 57.15)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "45de22ee-944e-4c53-95c5-bb537851a87c")
+	)
+	(bus
+		(pts
+			(xy 46.99 100.33) (xy 46.99 111.76)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "470adf5b-9383-4f5f-b4ed-b40c993e58d4")
+	)
+	(wire
+		(pts
+			(xy 224.79 146.05) (xy 196.85 146.05)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "47c0ee75-652d-409c-a015-b79f8a0e773c")
+	)
+	(wire
+		(pts
+			(xy 49.53 125.73) (xy 57.15 125.73)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "49d0c600-be06-4bcd-9f1a-6a09f534b479")
+	)
+	(wire
+		(pts
+			(xy 100.33 160.02) (xy 107.95 160.02)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "4a7742c7-fb41-4baf-a6b6-7113f4a8f308")
+	)
+	(wire
+		(pts
+			(xy 189.23 93.98) (xy 222.25 93.98)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "4d20432e-b341-425e-a5b3-731250aa0891")
+	)
+	(wire
+		(pts
+			(xy 222.25 93.98) (xy 222.25 95.25)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "4e7662bd-d48d-4623-a54d-a613fe1ad356")
+	)
+	(wire
+		(pts
+			(xy 224.79 125.73) (xy 207.01 125.73)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "4f13c55e-5247-452b-9f40-94a937fec011")
+	)
+	(wire
+		(pts
+			(xy 189.23 116.84) (xy 199.39 116.84)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "50434f90-eb20-4f86-8d0d-4e2864318399")
+	)
+	(wire
+		(pts
+			(xy 246.38 110.49) (xy 246.38 115.57)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "50ceaf04-6b63-49f6-bfc7-ffdaff0f20e8")
+	)
+	(wire
+		(pts
+			(xy 189.23 101.6) (xy 214.63 101.6)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "52d9b8f2-39f4-4895-95e1-0e5a9e35936a")
+	)
+	(bus
+		(pts
+			(xy 46.99 88.9) (xy 46.99 100.33)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "52fdab45-745e-4bbf-a8fb-2e67fb4714f2")
+	)
+	(wire
+		(pts
+			(xy 217.17 105.41) (xy 217.17 99.06)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "5425a55a-d9ae-40b4-ac16-17deec169548")
+	)
+	(wire
+		(pts
+			(xy 69.85 171.45) (xy 76.2 171.45)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "547b0a11-94ba-4f39-b6fd-3d59eb2cf1d6")
+	)
+	(wire
+		(pts
+			(xy 196.85 39.37) (xy 196.85 66.04)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "5555d71b-d129-41ab-9467-b451880bec7d")
+	)
+	(wire
+		(pts
+			(xy 69.85 137.16) (xy 76.2 137.16)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "5579e752-eb72-4b8b-8400-434bb9fcb02a")
+	)
+	(wire
+		(pts
+			(xy 120.65 125.73) (xy 127 125.73)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "572cacdc-ddf9-41dd-b564-25cc92f237a2")
+	)
+	(bus
+		(pts
+			(xy 97.79 123.19) (xy 97.79 134.62)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "579c7dd0-0cd9-4657-beeb-445a83e1271f")
+	)
+	(wire
+		(pts
+			(xy 212.09 69.85) (xy 212.09 81.28)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "5911d83d-3fcb-4d72-bcd4-0a21c8d4e44f")
+	)
+	(bus
+		(pts
+			(xy 46.99 43.18) (xy 46.99 54.61)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "59654cf2-95e2-45ea-9529-2bf2fa052fba")
+	)
+	(wire
+		(pts
+			(xy 100.33 80.01) (xy 107.95 80.01)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "5a96fe30-e001-4773-98b8-c386b5bb3d47")
+	)
+	(bus
+		(pts
+			(xy 97.79 31.75) (xy 97.79 43.18)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "5af3dabe-7028-4ec1-9c41-c1574fa82421")
+	)
+	(bus
+		(pts
+			(xy 97.79 111.76) (xy 97.79 123.19)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "5b7b4136-3a27-4cae-9614-d356dc844355")
+	)
+	(bus
+		(pts
+			(xy 97.79 100.33) (xy 97.79 111.76)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "5e5f545f-0bb7-4aff-ae47-e8c16228fbd2")
+	)
+	(wire
+		(pts
+			(xy 120.65 114.3) (xy 127 114.3)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "5e982d47-f3bc-4049-81ae-93e9399448cd")
+	)
+	(wire
+		(pts
+			(xy 69.85 114.3) (xy 76.2 114.3)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "6017ae63-d74e-4719-8741-f998ceae0081")
+	)
+	(wire
+		(pts
+			(xy 224.79 39.37) (xy 196.85 39.37)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "609ecf80-8afb-404a-a6f1-17431c57eb01")
+	)
+	(wire
+		(pts
+			(xy 120.65 57.15) (xy 127 57.15)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "638c35d3-5766-439a-bdfb-9c0c56231caa")
+	)
+	(wire
+		(pts
+			(xy 246.38 44.45) (xy 246.38 49.53)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "64311007-c0a3-4a41-913d-354c6b9100f4")
+	)
+	(wire
+		(pts
+			(xy 189.23 121.92) (xy 194.31 121.92)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "65300b0b-719e-41f0-b6e4-29f2b5cf4334")
+	)
+	(wire
+		(pts
+			(xy 246.38 100.33) (xy 237.49 100.33)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "664296be-4c6d-4590-8bd1-0a3b536a224f")
+	)
+	(wire
+		(pts
+			(xy 246.38 130.81) (xy 246.38 135.89)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "667f16e2-0526-46bc-a0ec-4fcf28b26c51")
+	)
+	(wire
+		(pts
+			(xy 69.85 160.02) (xy 76.2 160.02)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "6ac0c232-8e0b-4b82-95d7-2fbaa8541834")
+	)
+	(wire
+		(pts
+			(xy 246.38 130.81) (xy 237.49 130.81)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "6b2e7289-5da4-458f-b905-d95615587aa9")
+	)
+	(wire
+		(pts
+			(xy 49.53 45.72) (xy 57.15 45.72)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "6c674e98-2847-4188-a7b1-368de353c7b0")
+	)
+	(bus
+		(pts
+			(xy 97.79 43.18) (xy 97.79 54.61)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "6c7f3d07-40a7-4fa4-bb6c-edfb2ed8f233")
+	)
+	(wire
+		(pts
+			(xy 224.79 130.81) (xy 204.47 130.81)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "728d54ff-22c5-42f7-9e64-cd10964b569c")
+	)
+	(wire
+		(pts
+			(xy 246.38 140.97) (xy 237.49 140.97)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "7333b898-f9da-44ca-986e-06e1320960c9")
+	)
+	(wire
+		(pts
+			(xy 246.38 49.53) (xy 246.38 54.61)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "74c4eb20-b975-412d-86c9-423c3f968b95")
+	)
+	(wire
+		(pts
+			(xy 49.53 137.16) (xy 57.15 137.16)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "74f547d0-aeba-465e-8e0d-25d1e4bd84a6")
+	)
+	(bus
+		(pts
+			(xy 97.79 88.9) (xy 97.79 100.33)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "77db5602-9b4b-42ad-b5a0-faec2937cf22")
+	)
+	(wire
+		(pts
+			(xy 69.85 148.59) (xy 76.2 148.59)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "78028182-7294-49d3-a6d4-8a56f6694b02")
+	)
+	(bus
+		(pts
+			(xy 97.79 146.05) (xy 97.79 157.48)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "789d9431-ede6-49c1-af5b-8b755f9c4a75")
+	)
+	(wire
+		(pts
+			(xy 224.79 64.77) (xy 209.55 64.77)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "79c41420-fa4c-402f-a415-252d63f35124")
+	)
+	(wire
+		(pts
+			(xy 246.38 125.73) (xy 246.38 130.81)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "7eb0b823-7f55-4d6b-ae62-b4b23fbeb2de")
+	)
+	(wire
+		(pts
+			(xy 246.38 90.17) (xy 246.38 95.25)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "80440ee0-9de4-49eb-bcd9-fe888765b06c")
+	)
+	(wire
+		(pts
+			(xy 204.47 54.61) (xy 204.47 73.66)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "81fa63e7-88e6-4b46-ac11-fd748192aefe")
+	)
+	(wire
+		(pts
+			(xy 246.38 105.41) (xy 237.49 105.41)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "833e214a-d03f-4221-bd85-04043f367c87")
+	)
+	(wire
+		(pts
+			(xy 224.79 80.01) (xy 217.17 80.01)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "84b7d42f-3b0c-40e2-b8b9-906917bcb356")
+	)
+	(wire
+		(pts
+			(xy 69.85 91.44) (xy 76.2 91.44)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "84ea3229-cb0a-4b61-93e4-724b1ba76168")
+	)
+	(wire
+		(pts
+			(xy 246.38 95.25) (xy 246.38 100.33)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "858d66c2-0f6d-4af6-b2e7-a61409dea71b")
+	)
+	(wire
+		(pts
+			(xy 194.31 151.13) (xy 194.31 121.92)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "865797f0-ac85-446b-8226-0db69f4c3baf")
+	)
+	(wire
+		(pts
+			(xy 246.38 115.57) (xy 237.49 115.57)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "86935b8f-78ca-4e99-adcc-146b409c3080")
+	)
+	(wire
+		(pts
+			(xy 69.85 125.73) (xy 76.2 125.73)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "869aede4-8282-49be-94ca-2c60ef088acb")
+	)
+	(wire
+		(pts
+			(xy 246.38 69.85) (xy 246.38 74.93)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "88d8739e-172a-4dde-9f99-b06d25fdbab2")
+	)
+	(wire
+		(pts
+			(xy 120.65 160.02) (xy 127 160.02)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "8b645f77-fce4-4f09-abe5-97f9d851f9c7")
+	)
+	(wire
+		(pts
+			(xy 224.79 59.69) (xy 207.01 59.69)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "8e45fac0-4661-471b-80cb-5249f46af227")
+	)
+	(wire
+		(pts
+			(xy 209.55 64.77) (xy 209.55 78.74)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "8f4d5c92-a4e5-40bc-9225-90f59e03bcd3")
+	)
+	(wire
+		(pts
+			(xy 214.63 74.93) (xy 214.63 83.82)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "8f7cc745-8e88-44ec-a62c-fa14c267c345")
+	)
+	(wire
+		(pts
+			(xy 196.85 146.05) (xy 196.85 119.38)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "90948eef-14ae-492f-88b7-4f89e5477d56")
+	)
+	(wire
+		(pts
+			(xy 120.65 68.58) (xy 127 68.58)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "90c03d83-cb73-4bc0-99c1-8b2eb8239ed4")
+	)
+	(wire
+		(pts
+			(xy 49.53 102.87) (xy 57.15 102.87)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "911f67d6-ba7b-4f64-b44f-80a720d8affb")
+	)
+	(wire
+		(pts
+			(xy 246.38 39.37) (xy 246.38 44.45)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "91ba8d71-6adf-474f-9fde-da4e4a95d97c")
+	)
+	(wire
+		(pts
+			(xy 100.33 57.15) (xy 107.95 57.15)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "92e46e4a-5fa9-491c-8e5e-eb11d625046d")
+	)
+	(wire
+		(pts
+			(xy 246.38 69.85) (xy 237.49 69.85)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "951ab3d9-82a1-4d53-80dc-80cebe66539e")
+	)
+	(bus
+		(pts
+			(xy 97.79 54.61) (xy 97.79 66.04)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "95ca90b5-4986-45af-8f51-c50bff5e56f3")
+	)
+	(bus
+		(pts
+			(xy 46.99 134.62) (xy 46.99 146.05)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "95f88847-53b6-412d-9007-d0031772c19f")
+	)
+	(wire
+		(pts
+			(xy 246.38 146.05) (xy 237.49 146.05)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "99f8d195-3674-47bb-ba49-9e666c292725")
+	)
+	(wire
+		(pts
+			(xy 204.47 130.81) (xy 204.47 111.76)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "9a61e71e-b83c-4b0a-aeb3-1c7234d3e02b")
+	)
+	(wire
+		(pts
+			(xy 120.65 80.01) (xy 127 80.01)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "9c8a99e8-ccb1-48aa-a959-1ddebd01cb26")
+	)
+	(wire
+		(pts
+			(xy 224.79 54.61) (xy 204.47 54.61)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "9daa772a-1730-4f39-81ac-e8745124a9bd")
+	)
+	(wire
+		(pts
+			(xy 246.38 120.65) (xy 246.38 125.73)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "9e937db5-16cf-495a-a592-0d73894b6180")
+	)
+	(wire
+		(pts
+			(xy 246.38 29.21) (xy 246.38 34.29)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "9f113c79-343d-46a6-87cd-3ab4f3626e34")
+	)
+	(wire
+		(pts
+			(xy 246.38 59.69) (xy 246.38 64.77)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "9fb17ed4-aac1-4ebd-aa5b-2853e819877c")
+	)
+	(wire
+		(pts
+			(xy 214.63 110.49) (xy 214.63 101.6)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "9fc63ded-0fbe-40df-8c16-789cb328e3fa")
+	)
+	(wire
+		(pts
+			(xy 100.33 114.3) (xy 107.95 114.3)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "a9053abe-246a-45ae-b2c4-5b4f8382b2da")
+	)
+	(wire
+		(pts
+			(xy 189.23 68.58) (xy 199.39 68.58)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "aaf69b1f-f256-4666-9e79-3abd2f76936e")
+	)
+	(wire
+		(pts
+			(xy 246.38 125.73) (xy 237.49 125.73)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "abb6f9c2-6418-43c5-900f-fc647014c7e4")
+	)
+	(wire
+		(pts
+			(xy 246.38 151.13) (xy 237.49 151.13)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "ac67ffc5-deee-4cc7-a940-0a667f103977")
+	)
+	(wire
+		(pts
+			(xy 120.65 102.87) (xy 127 102.87)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "ac7dda49-6360-4d7f-975a-8262aa981a05")
+	)
+	(wire
+		(pts
+			(xy 246.38 80.01) (xy 246.38 85.09)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "af33f511-8d18-4ae0-b1d2-b251170fa46b")
+	)
+	(wire
+		(pts
+			(xy 189.23 81.28) (xy 212.09 81.28)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "b1386f5d-765e-4704-9241-8946371bc405")
+	)
+	(wire
+		(pts
+			(xy 246.38 105.41) (xy 246.38 110.49)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "b1c07a10-72ac-4d7f-b74a-24138abe8842")
+	)
+	(wire
+		(pts
+			(xy 224.79 115.57) (xy 212.09 115.57)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "b30e4e4f-0e0f-42eb-ac57-547e72b8ad1f")
+	)
+	(bus
+		(pts
+			(xy 97.79 77.47) (xy 97.79 88.9)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "b3a796dd-7b1e-4e3a-b10d-fa4768ab0c41")
+	)
+	(bus
+		(pts
+			(xy 46.99 31.75) (xy 46.99 43.18)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "b4db68a1-b6e4-41de-954e-f31cf1d2f169")
+	)
+	(wire
+		(pts
+			(xy 199.39 44.45) (xy 199.39 68.58)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "b5db3817-bbfd-4750-94f2-50f4b5590392")
+	)
+	(wire
+		(pts
+			(xy 49.53 160.02) (xy 57.15 160.02)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "b62140e4-3e78-401d-bbfe-416271bda1ca")
+	)
+	(wire
+		(pts
+			(xy 209.55 120.65) (xy 209.55 106.68)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "b674a17a-d86f-4b2e-8475-aa61ce03a375")
+	)
+	(wire
+		(pts
+			(xy 189.23 66.04) (xy 196.85 66.04)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "b9632f7f-0127-4644-bbed-de1d9f008953")
+	)
+	(bus
+		(pts
+			(xy 34.29 31.75) (xy 46.99 31.75)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "ba2e525b-f01e-4a4c-b6a9-daa66c95d6f2")
+	)
+	(wire
+		(pts
+			(xy 189.23 73.66) (xy 204.47 73.66)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "ba382506-7a49-4de5-aa39-f165d3184372")
+	)
+	(wire
+		(pts
+			(xy 69.85 80.01) (xy 76.2 80.01)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "ba740934-9c1f-4858-807e-263027bdc6e0")
+	)
+	(wire
+		(pts
+			(xy 189.23 86.36) (xy 217.17 86.36)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "bd0d5827-3afa-426f-8a3c-74a1a6a20887")
+	)
+	(bus
+		(pts
+			(xy 46.99 123.19) (xy 46.99 134.62)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "be6c94db-4e99-4948-abf4-2ab0abe63e97")
+	)
+	(wire
+		(pts
+			(xy 224.79 100.33) (xy 219.71 100.33)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "bf3bda61-4f67-4baa-b562-940940d9a9f9")
+	)
+	(wire
+		(pts
+			(xy 199.39 140.97) (xy 199.39 116.84)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "bf61b3aa-8de6-477b-a471-9dd3e073a54a")
+	)
+	(wire
+		(pts
+			(xy 201.93 135.89) (xy 201.93 114.3)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "bfe9e53d-1c87-4e67-aae1-20a428cbab77")
+	)
+	(wire
+		(pts
+			(xy 246.38 74.93) (xy 237.49 74.93)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "c01bd1b7-ea09-414a-b1fd-2a5c5048b210")
+	)
+	(wire
+		(pts
+			(xy 224.79 69.85) (xy 212.09 69.85)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "c0a8eccf-6d43-4d27-ac38-fd7f27387a4d")
+	)
+	(wire
+		(pts
+			(xy 189.23 71.12) (xy 201.93 71.12)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "c18010c8-341b-4669-9275-239d674cf860")
+	)
+	(wire
+		(pts
+			(xy 224.79 85.09) (xy 219.71 85.09)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "c219b84f-3b21-48af-9fc6-df96d03779b6")
+	)
+	(wire
+		(pts
+			(xy 246.38 100.33) (xy 246.38 105.41)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "c8247cb7-9b2b-4c79-aa50-41bab5983b7b")
+	)
+	(wire
+		(pts
+			(xy 69.85 102.87) (xy 76.2 102.87)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "c88d52fe-8559-4830-8ecf-f4249eb5d7d2")
+	)
+	(wire
+		(pts
+			(xy 224.79 105.41) (xy 217.17 105.41)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "c98203da-3456-42a3-9580-4b4e38dd16ad")
+	)
+	(wire
+		(pts
+			(xy 49.53 148.59) (xy 57.15 148.59)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "cd98a7df-b1b9-4e30-8775-f026ad6ca1ab")
+	)
+	(wire
+		(pts
+			(xy 120.65 148.59) (xy 127 148.59)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "ce975e41-a594-4b93-bd37-4f2d9308427d")
+	)
+	(wire
+		(pts
+			(xy 246.38 85.09) (xy 246.38 90.17)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "d031fb47-b812-447c-bf4e-25795ef6b265")
+	)
+	(bus
+		(pts
+			(xy 97.79 66.04) (xy 97.79 77.47)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "d0ed7226-67d0-45ad-9036-879f219414eb")
+	)
+	(wire
+		(pts
+			(xy 246.38 135.89) (xy 246.38 140.97)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "d134b088-1df5-4c32-abc7-4cb86a83ad87")
+	)
+	(wire
+		(pts
+			(xy 69.85 57.15) (xy 76.2 57.15)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "d32a1b1f-140f-4f33-b6e3-ac6b92ce79df")
+	)
+	(wire
+		(pts
+			(xy 246.38 64.77) (xy 246.38 69.85)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "dc0f9f3a-8b95-4650-ac26-6f032fd5823a")
+	)
+	(wire
+		(pts
+			(xy 189.23 76.2) (xy 207.01 76.2)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "de6abee6-7cdc-410a-9bcd-b222ece927c1")
+	)
+	(wire
+		(pts
+			(xy 246.38 39.37) (xy 237.49 39.37)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "df08d293-6c57-4685-b0ef-342a42150040")
+	)
+	(wire
+		(pts
+			(xy 246.38 90.17) (xy 237.49 90.17)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "e0ac7446-3a13-46a4-89a0-6e2994b65b90")
+	)
+	(bus
+		(pts
+			(xy 46.99 54.61) (xy 46.99 66.04)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "e14fd81e-6e5b-49be-9ab6-fa7de23d3311")
+	)
+	(wire
+		(pts
+			(xy 246.38 49.53) (xy 237.49 49.53)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "e15da3e6-7348-4b65-8c5b-596beefa2053")
+	)
+	(wire
+		(pts
+			(xy 222.25 90.17) (xy 222.25 91.44)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "e32ee3e7-2c90-4485-9b6c-acae4114c570")
+	)
+	(wire
+		(pts
+			(xy 224.79 34.29) (xy 194.31 34.29)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "e3d85911-6401-4396-859d-e993fd2b8f44")
+	)
+	(wire
+		(pts
+			(xy 189.23 111.76) (xy 204.47 111.76)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "e4e6d719-edc0-4aec-b6b4-c6798cb0580c")
+	)
+	(wire
+		(pts
+			(xy 224.79 110.49) (xy 214.63 110.49)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "e621d02e-bfe4-4a4f-a179-931e2eec21ee")
+	)
+	(bus
+		(pts
+			(xy 46.99 31.75) (xy 97.79 31.75)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "e76cc049-faa9-4ca2-9c85-f5aa4c22c090")
+	)
+	(wire
+		(pts
+			(xy 246.38 95.25) (xy 237.49 95.25)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "e80c86ff-f4a1-45c3-8f4b-f6b0e7945119")
+	)
+	(wire
+		(pts
+			(xy 246.38 34.29) (xy 246.38 39.37)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "e8afb01c-e0f1-4fe7-89ad-04d94994599e")
+	)
+	(wire
+		(pts
+			(xy 201.93 49.53) (xy 201.93 71.12)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "e8cf992c-f425-4828-9ea3-89d015dd16a4")
+	)
+	(wire
+		(pts
+			(xy 49.53 114.3) (xy 57.15 114.3)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "e9221b53-0053-4455-bd9d-466777f2f967")
+	)
+	(bus
+		(pts
+			(xy 46.99 111.76) (xy 46.99 123.19)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "eb23519a-e4ec-49d2-87ed-b1b7a8e47922")
+	)
+	(wire
+		(pts
+			(xy 212.09 115.57) (xy 212.09 104.14)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "eb69ee8e-d490-4e40-b469-004a26611aa8")
+	)
+	(wire
+		(pts
+			(xy 246.38 146.05) (xy 246.38 151.13)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "ebd3b8fc-de7b-4bce-a884-25ef79a7547b")
+	)
+	(wire
+		(pts
+			(xy 194.31 34.29) (xy 194.31 63.5)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "ed0738cb-9de0-46c3-81b8-521d96648889")
+	)
+	(wire
+		(pts
+			(xy 224.79 49.53) (xy 201.93 49.53)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "eec9a485-3d36-47bc-aa89-ed13dcc4e1d2")
+	)
+	(wire
+		(pts
+			(xy 100.33 91.44) (xy 107.95 91.44)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "f066d0cd-7b35-46ad-b49b-1a864393e00c")
+	)
+	(bus
+		(pts
+			(xy 46.99 66.04) (xy 46.99 77.47)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "f104e6fc-0ac8-4040-9a40-561ecfde8b47")
+	)
+	(wire
+		(pts
+			(xy 246.38 110.49) (xy 237.49 110.49)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "f18e0b13-1dda-4d09-bbdc-0b64fd85e8b6")
+	)
+	(wire
+		(pts
+			(xy 219.71 85.09) (xy 219.71 88.9)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "f2106520-d49b-4364-ae3b-8d67caaecf9f")
+	)
+	(wire
+		(pts
+			(xy 246.38 120.65) (xy 237.49 120.65)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "f2422f7a-2120-4aa3-96e7-6d2c4b00b71c")
+	)
+	(wire
+		(pts
+			(xy 189.23 83.82) (xy 214.63 83.82)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "f9d44511-71c6-49f2-aacd-45c4b0622a74")
+	)
+	(bus
+		(pts
+			(xy 46.99 146.05) (xy 46.99 157.48)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "fa277097-2340-4cb7-9356-975621a0957e")
+	)
+	(polyline
+		(pts
+			(xy 156.21 12.7) (xy 156.21 198.12)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "fc46c20f-2afb-4aa2-84c6-8896f532674b")
+	)
+	(wire
+		(pts
+			(xy 100.33 102.87) (xy 107.95 102.87)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "ff30f0c3-268c-49c6-a2b8-bef037677984")
+	)
+	(text "Diodes"
+		(exclude_from_sim no)
+		(at 158.75 17.78 0)
+		(effects
+			(font
+				(size 2.54 2.54)
+			)
+			(justify left bottom)
+		)
+		(uuid "1367d9a7-d3eb-453d-a423-40761df08214")
+	)
+	(text "Diode Drivers"
+		(exclude_from_sim no)
+		(at 13.97 17.78 0)
+		(effects
+			(font
+				(size 2.54 2.54)
+			)
+			(justify left bottom)
+		)
+		(uuid "17cef1c7-2932-4b09-8386-1b3cf75ad1d0")
+	)
+	(text "approx. 30 mA\nper diode"
+		(exclude_from_sim no)
+		(at 218.44 27.94 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "6aa32ee7-3f59-4b04-a1f6-7f02c422af32")
+	)
+	(label "DO10"
+		(at 189.23 88.9 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "07d7d676-7fb5-4ee4-9d3a-458eaa23de2d")
+	)
+	(label "DO22"
+		(at 127 160.02 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "0e4ac517-bf99-4abd-9204-85ba3e4247cd")
+	)
+	(label "DO4"
+		(at 189.23 73.66 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "19d62a1d-4eca-475f-9d7a-18ef140a73ec")
+	)
+	(label "DO15"
+		(at 127 80.01 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "1d9befd0-4167-48e1-ace2-a78784738471")
+	)
+	(label "DO12"
+		(at 127 45.72 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "203c8e51-7066-43ee-b327-6a58a2db6ebc")
+	)
+	(label "DI22"
+		(at 106.68 160.02 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "20eb757e-ad43-463c-ad87-31461fcb38f2")
+	)
+	(label "DO7"
+		(at 76.2 125.73 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "2885dfe2-e309-47e3-a4ce-4441ca1462a3")
+	)
+	(label "DI2"
+		(at 55.88 68.58 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "2b5e484b-e18c-4f87-8a10-8aea299aa78d")
+	)
+	(label "DO3"
+		(at 76.2 80.01 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "2d96d28c-ac56-44bf-8ed6-601085f2b205")
+	)
+	(label "DO17"
+		(at 189.23 106.68 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "2e828bae-c53b-45b5-be03-a5712268649f")
+	)
+	(label "DI1"
+		(at 55.88 57.15 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "301a28f2-7814-4d3a-8f20-0b6947f6f32b")
+	)
+	(label "DO13"
+		(at 127 57.15 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "30e6a133-6167-4324-8a5f-7c049046d2d0")
+	)
+	(label "DO20"
+		(at 189.23 114.3 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "35644c85-5da6-41d4-8e1f-6dcf0c32eda1")
+	)
+	(label "DI13"
+		(at 106.68 57.15 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "41f4c0c3-1af1-4a27-a567-6d6d1eaa42ef")
+	)
+	(label "DI10"
+		(at 55.88 160.02 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "441cebc1-b5a7-47c7-919a-0d9325b434a0")
+	)
+	(label "DO10"
+		(at 76.2 160.02 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "4b3eb095-bf33-4b6d-8be2-34f694eacd3f")
+	)
+	(label "DO2"
+		(at 189.23 68.58 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "4d6e20bc-d051-44bd-bb27-c9833034ad3d")
+	)
+	(label "DO14"
+		(at 189.23 99.06 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "4f00628e-e693-48ab-8510-71840c7e6c03")
+	)
+	(label "DO0"
+		(at 76.2 45.72 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "4f16c305-ef7f-4f4a-8376-9c26aef8dfb5")
+	)
+	(label "DO5"
+		(at 76.2 102.87 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "545c1ef6-142e-4196-b3cc-05b1e196ee70")
+	)
+	(label "DO12"
+		(at 189.23 93.98 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "57038c0c-0f94-4fe7-a2da-b4e651559fb9")
+	)
+	(label "DI5"
+		(at 55.88 102.87 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "5848588c-8558-49e2-a367-d5161c41dc60")
+	)
+	(label "DO13"
+		(at 189.23 96.52 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "59e3f760-58b0-4004-8069-c0f88a2979d7")
+	)
+	(label "DO8"
+		(at 76.2 137.16 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "5ac630d7-259f-4dd2-bf4c-630dc473bc05")
+	)
+	(label "DI14"
+		(at 106.68 68.58 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "6470afce-9dfb-414a-8116-fb4c42ee85e6")
+	)
+	(label "DI8"
+		(at 55.88 137.16 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "68816a19-9b31-4507-892f-24e4c5e307f7")
+	)
+	(label "DO11"
+		(at 189.23 91.44 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "6e34d79a-1ff5-40b2-bd54-82c378a9555c")
+	)
+	(label "DI6"
+		(at 55.88 114.3 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "6e447242-952d-4134-8f65-2ddccbddeff5")
+	)
+	(label "DI20"
+		(at 106.68 137.16 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "73c68f44-fd76-453f-82e1-5749590d0559")
+	)
+	(label "DI11"
+		(at 55.88 171.45 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "74641d19-92a8-41cd-a20f-7b376632cba4")
+	)
+	(label "DI19"
+		(at 106.68 125.73 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "76bcd995-3162-451d-9476-ae1c5653b2ef")
+	)
+	(label "DO7"
+		(at 189.23 81.28 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "77d8d991-37c7-428a-9992-650ca7f186d6")
+	)
+	(label "DO6"
+		(at 189.23 78.74 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "77ea4b91-4c25-444f-8e79-f1b4abc20c10")
+	)
+	(label "DI3"
+		(at 55.88 80.01 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "7d04ed47-aace-4865-a0f7-2a311919693c")
+	)
+	(label "DO23"
+		(at 189.23 121.92 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "7dbffef6-a10c-44c9-9028-b356f36b739b")
+	)
+	(label "DI4"
+		(at 55.88 91.44 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "876191fa-f977-4ba0-82a3-60b4756e74fd")
+	)
+	(label "DO5"
+		(at 189.23 76.2 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "882ff415-eba9-4fc6-a52c-658ceb8a9eef")
+	)
+	(label "DI0"
+		(at 55.88 45.72 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "8aac3115-f779-4aa6-a494-7f8a58c57e45")
+	)
+	(label "DO22"
+		(at 189.23 119.38 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "921eb3c1-b7f5-4b54-b8d2-23bf53957a43")
+	)
+	(label "DI12"
+		(at 106.68 45.72 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "934fe8e0-1761-424e-987e-1c6ed6874bf5")
+	)
+	(label "DI21"
+		(at 106.68 148.59 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "97ecfd8b-d6ae-4467-a64e-63ecca216f00")
+	)
+	(label "DO2"
+		(at 76.2 68.58 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "99aeb027-252a-4009-bfff-82ddcb2d2879")
+	)
+	(label "DO6"
+		(at 76.2 114.3 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "9ae24e53-52ca-4d03-9500-6f77ffbf393a")
+	)
+	(label "DO18"
+		(at 127 114.3 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "ab6036c4-2a53-4772-b6e9-2931b320d23d")
+	)
+	(label "DO18"
+		(at 189.23 109.22 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "acb8fa65-361c-4b5c-9aa2-17367ae640f1")
+	)
+	(label "DO1"
+		(at 76.2 57.15 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "af7028d1-b38d-41c9-84dc-5d4b63e591cb")
+	)
+	(label "DO9"
+		(at 76.2 148.59 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "aff04b1a-8738-47c3-9a52-fdff4945fa6d")
+	)
+	(label "DO11"
+		(at 76.2 171.45 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "b0fb5afa-2d41-4ef8-8607-53d0fff3cbbb")
+	)
+	(label "DO19"
+		(at 189.23 111.76 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "b10d70c6-a7e6-478f-9c6c-6f0eb3b951e7")
+	)
+	(label "DO20"
+		(at 127 137.16 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "b8f78245-bdba-4a29-b21b-98d3c2ec0e96")
+	)
+	(label "DO19"
+		(at 127 125.73 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "b9a89cfa-2d4c-4772-878e-f54777782b6f")
+	)
+	(label "DI16"
+		(at 106.68 91.44 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "b9aae155-5cd7-4587-a4c6-e7a600395033")
+	)
+	(label "DO21"
+		(at 127 148.59 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "bb256c44-ddb8-41bf-8d58-4bb660a2cc4f")
+	)
+	(label "DI7"
+		(at 55.88 125.73 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "bda60e55-8810-42da-8e33-a98a8abd9955")
+	)
+	(label "DO0"
+		(at 189.23 63.5 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "bf994097-ffbb-488e-a748-906ce04171a4")
+	)
+	(label "DO4"
+		(at 76.2 91.44 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "c06bb47c-0060-4014-89fa-12f20c70bc21")
+	)
+	(label "DO17"
+		(at 127 102.87 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "c4e69f55-59ef-4e86-9d84-1f402f454876")
+	)
+	(label "DO16"
+		(at 127 91.44 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "c81930a1-11f1-458f-854c-b3485112a480")
+	)
+	(label "DI17"
+		(at 106.68 102.87 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "cefa4246-d35d-4e78-92a9-506b7dd75171")
+	)
+	(label "DI15"
+		(at 106.68 80.01 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "cfffd38a-ec64-40dc-b25a-e3780b011605")
+	)
+	(label "DO14"
+		(at 127 68.58 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "d31863f4-092c-49e6-b640-27fb1fc2bb9c")
+	)
+	(label "DO16"
+		(at 189.23 104.14 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "d350c369-8d8a-418e-8d8a-848f34801b86")
+	)
+	(label "DO21"
+		(at 189.23 116.84 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "d6ab1d54-f7e6-40eb-a0bf-3a9297edcefc")
+	)
+	(label "DO9"
+		(at 189.23 86.36 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "d8013c2c-9129-409a-965e-720b8eff3349")
+	)
+	(label "DI23"
+		(at 106.68 171.45 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "d857e920-d10b-451a-99d2-a3be32827ef2")
+	)
+	(label "DO3"
+		(at 189.23 71.12 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "e0e6162e-d5b6-442a-908e-5fc73cc2dcc6")
+	)
+	(label "DO23"
+		(at 127 171.45 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "e7f3c965-bed1-4245-8648-11dcb0e59d5f")
+	)
+	(label "DI18"
+		(at 106.68 114.3 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "eb8d9a03-b955-487b-a8af-fb0a383cfd0a")
+	)
+	(label "DO1"
+		(at 189.23 66.04 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "f5191bba-ea4a-4f1d-94a5-30799c03a138")
+	)
+	(label "DO15"
+		(at 189.23 101.6 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "f5ead4ce-b96e-421b-9c45-bca1d2f0cb6a")
+	)
+	(label "DO8"
+		(at 189.23 83.82 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "f7a0dbb6-96e3-445c-baca-c1c2442044c3")
+	)
+	(label "DI9"
+		(at 55.88 148.59 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "fbf218a3-b9d3-4169-b065-3a936878866a")
+	)
+	(hierarchical_label "DI[0..23]"
+		(shape input)
+		(at 34.29 31.75 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "e065fca1-50c6-41d5-a9b8-cb995d170c2b")
+	)
+	(symbol
+		(lib_id "Diode_Laser:SPL_PL90")
+		(at 232.41 34.29 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "0a55076a-09c3-4ab0-a7e8-df3e6adc846e")
+		(property "Reference" "LD1"
+			(at 231.14 26.67 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "Laser_Diode"
+			(at 231.14 29.21 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Footprint" "LED_THT:LED_D5.0mm"
+			(at 230.886 38.862 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 233.172 39.37 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 232.41 34.29 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "a3130daf-1a77-4350-b1be-e582ede76f68")
+		)
+		(pin "2"
+			(uuid "2fbfd3df-4f49-451b-b61c-4a29ef0c16bd")
+		)
+		(instances
+			(project "LaserHarp3"
+				(path "/d4c5eff8-4e6c-4590-8dfd-9a1f7164c842/f7df11ad-3b0b-472c-ac1e-92260b595010"
+					(reference "LD1")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Diode_Laser:SPL_PL90")
+		(at 232.41 120.65 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "0dfffec4-6b51-42f8-956c-f4b6b358170d")
+		(property "Reference" "LD18"
+			(at 231.14 113.03 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "Laser_Diode"
+			(at 231.14 115.57 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Footprint" "LED_THT:LED_D5.0mm"
+			(at 230.886 125.222 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 233.172 125.73 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 232.41 120.65 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "f2252620-e429-4256-97ed-aa00789fb646")
+		)
+		(pin "2"
+			(uuid "11ee96ec-5e8a-46fa-af7c-1e6d36a377d0")
+		)
+		(instances
+			(project "LaserHarp3"
+				(path "/d4c5eff8-4e6c-4590-8dfd-9a1f7164c842/f7df11ad-3b0b-472c-ac1e-92260b595010"
+					(reference "LD18")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Graphic:SYM_LASER_Large")
+		(at 212.09 25.4 0)
+		(unit 1)
+		(exclude_from_sim yes)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "0f817d09-c044-4a61-b32a-75d0f93d10a6")
+		(property "Reference" "#SYM1"
+			(at 212.09 20.32 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "SYM_LASER_Large"
+			(at 212.09 32.131 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Footprint" ""
+			(at 211.836 29.845 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 212.852 30.48 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Laser radiation warning symbol, large"
+			(at 212.09 25.4 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(instances
+			(project "LaserHarp3"
+				(path "/d4c5eff8-4e6c-4590-8dfd-9a1f7164c842/f7df11ad-3b0b-472c-ac1e-92260b595010"
+					(reference "#SYM1")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "power:+5VP")
+		(at 246.38 29.21 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "15ef069f-86dc-4414-a0a7-9109ea1c753b")
+		(property "Reference" "#PWR04"
+			(at 246.38 33.02 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "+5VP"
+			(at 246.38 24.13 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 246.38 29.21 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 246.38 29.21 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \"+5VP\""
+			(at 246.38 29.21 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "751492ed-3886-4faa-a73e-22384d6bf538")
+		)
+		(instances
+			(project "LaserHarp3"
+				(path "/d4c5eff8-4e6c-4590-8dfd-9a1f7164c842/f7df11ad-3b0b-472c-ac1e-92260b595010"
+					(reference "#PWR04")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Diode_Laser:SPL_PL90")
+		(at 232.41 69.85 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "23cbf57c-f063-4cc7-861a-0c3b7ce9228a")
+		(property "Reference" "LD8"
+			(at 231.14 62.23 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "Laser_Diode"
+			(at 231.14 64.77 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Footprint" "LED_THT:LED_D5.0mm"
+			(at 230.886 74.422 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 233.172 74.93 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 232.41 69.85 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "78187aa5-809a-46e6-8fb8-ea30197ff4e8")
+		)
+		(pin "2"
+			(uuid "eee6e5cf-38c2-4c1b-b251-afb143953eda")
+		)
+		(instances
+			(project "LaserHarp3"
+				(path "/d4c5eff8-4e6c-4590-8dfd-9a1f7164c842/f7df11ad-3b0b-472c-ac1e-92260b595010"
+					(reference "LD8")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Diode_Laser:SPL_PL90")
+		(at 232.41 80.01 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "286f1a9c-0e81-4724-a8ac-f9d5a083e8c2")
+		(property "Reference" "LD10"
+			(at 231.14 72.39 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "Laser_Diode"
+			(at 231.14 74.93 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Footprint" "LED_THT:LED_D5.0mm"
+			(at 230.886 84.582 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 233.172 85.09 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 232.41 80.01 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "8ed920ca-240e-4156-b757-6fcfce71c33e")
+		)
+		(pin "2"
+			(uuid "adaf1012-dd84-4bd4-b758-8258fce6fb92")
+		)
+		(instances
+			(project "LaserHarp3"
+				(path "/d4c5eff8-4e6c-4590-8dfd-9a1f7164c842/f7df11ad-3b0b-472c-ac1e-92260b595010"
+					(reference "LD10")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Diode_Laser:SPL_PL90")
+		(at 232.41 105.41 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "291330a8-ec1f-4a13-9aad-bf076861cf37")
+		(property "Reference" "LD15"
+			(at 231.14 97.79 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "Laser_Diode"
+			(at 231.14 100.33 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Footprint" "LED_THT:LED_D5.0mm"
+			(at 230.886 109.982 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 233.172 110.49 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 232.41 105.41 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "86ace98b-1769-4816-8e0a-9aae85d14818")
+		)
+		(pin "2"
+			(uuid "69ad3205-c4db-446d-9428-33466d888d0c")
+		)
+		(instances
+			(project "LaserHarp3"
+				(path "/d4c5eff8-4e6c-4590-8dfd-9a1f7164c842/f7df11ad-3b0b-472c-ac1e-92260b595010"
+					(reference "LD15")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Diode_Laser:SPL_PL90")
+		(at 232.41 49.53 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "2f95861b-851c-43be-b3e7-73f1b9ccf7ec")
+		(property "Reference" "LD4"
+			(at 231.14 41.91 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "Laser_Diode"
+			(at 231.14 44.45 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Footprint" "LED_THT:LED_D5.0mm"
+			(at 230.886 54.102 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 233.172 54.61 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 232.41 49.53 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "bbe29a71-f826-4b7b-b71b-2ec62ddca623")
+		)
+		(pin "2"
+			(uuid "5f66d6ff-d341-4f66-bebe-e3907570e22e")
+		)
+		(instances
+			(project "LaserHarp3"
+				(path "/d4c5eff8-4e6c-4590-8dfd-9a1f7164c842/f7df11ad-3b0b-472c-ac1e-92260b595010"
+					(reference "LD4")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Diode_Laser:SPL_PL90")
+		(at 232.41 95.25 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "397d961e-abe4-422b-b12e-4352f24a5621")
+		(property "Reference" "LD13"
+			(at 231.14 87.63 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "Laser_Diode"
+			(at 231.14 90.17 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Footprint" "LED_THT:LED_D5.0mm"
+			(at 230.886 99.822 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 233.172 100.33 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 232.41 95.25 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "04fe4d71-c823-4012-9741-67b567e795a9")
+		)
+		(pin "2"
+			(uuid "e8e49fcd-0223-4ed9-9214-8e98737adcb9")
+		)
+		(instances
+			(project "LaserHarp3"
+				(path "/d4c5eff8-4e6c-4590-8dfd-9a1f7164c842/f7df11ad-3b0b-472c-ac1e-92260b595010"
+					(reference "LD13")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Diode_Laser:SPL_PL90")
+		(at 232.41 140.97 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "53f3ca52-4f2f-46c4-b9ed-b5279b74d968")
+		(property "Reference" "LD22"
+			(at 231.14 133.35 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "Laser_Diode"
+			(at 231.14 135.89 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Footprint" "LED_THT:LED_D5.0mm"
+			(at 230.886 145.542 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 233.172 146.05 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 232.41 140.97 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "83f3663a-8daa-40f7-99d1-012b1577f69e")
+		)
+		(pin "2"
+			(uuid "d5e5af9c-f5ba-41e1-b04f-6ffdd1df6133")
+		)
+		(instances
+			(project "LaserHarp3"
+				(path "/d4c5eff8-4e6c-4590-8dfd-9a1f7164c842/f7df11ad-3b0b-472c-ac1e-92260b595010"
+					(reference "LD22")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Diode_Laser:SPL_PL90")
+		(at 232.41 146.05 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "6caf627d-f3d3-44a6-a591-0262224008b8")
+		(property "Reference" "LD23"
+			(at 231.14 138.43 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "Laser_Diode"
+			(at 231.14 140.97 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Footprint" "LED_THT:LED_D5.0mm"
+			(at 230.886 150.622 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 233.172 151.13 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 232.41 146.05 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "cc89b549-5f5b-4790-b4a5-2736006fb8c9")
+		)
+		(pin "2"
+			(uuid "697b7129-4d21-493e-b647-7214821ea067")
+		)
+		(instances
+			(project "LaserHarp3"
+				(path "/d4c5eff8-4e6c-4590-8dfd-9a1f7164c842/f7df11ad-3b0b-472c-ac1e-92260b595010"
+					(reference "LD23")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Diode_Laser:SPL_PL90")
+		(at 232.41 115.57 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "8138f9a2-073b-4d99-8a47-e9416c94a35e")
+		(property "Reference" "LD17"
+			(at 231.14 107.95 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "Laser_Diode"
+			(at 231.14 110.49 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Footprint" "LED_THT:LED_D5.0mm"
+			(at 230.886 120.142 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 233.172 120.65 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 232.41 115.57 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "391da6a0-d8ec-4ac7-a3fe-d1a7d4ab0993")
+		)
+		(pin "2"
+			(uuid "29dbda7a-46b7-45f1-aa9d-fd660fb53cb2")
+		)
+		(instances
+			(project "LaserHarp3"
+				(path "/d4c5eff8-4e6c-4590-8dfd-9a1f7164c842/f7df11ad-3b0b-472c-ac1e-92260b595010"
+					(reference "LD17")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Diode_Laser:SPL_PL90")
+		(at 232.41 85.09 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "8597850c-8006-4279-9213-3697c708a321")
+		(property "Reference" "LD11"
+			(at 231.14 77.47 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "Laser_Diode"
+			(at 231.14 80.01 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Footprint" "LED_THT:LED_D5.0mm"
+			(at 230.886 89.662 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 233.172 90.17 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 232.41 85.09 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "1885a3f5-8886-42ca-9593-39ec8d7b0d22")
+		)
+		(pin "2"
+			(uuid "94688a16-c716-410c-a4ff-df29f45ef9af")
+		)
+		(instances
+			(project "LaserHarp3"
+				(path "/d4c5eff8-4e6c-4590-8dfd-9a1f7164c842/f7df11ad-3b0b-472c-ac1e-92260b595010"
+					(reference "LD11")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Diode_Laser:SPL_PL90")
+		(at 232.41 74.93 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "8a715d9f-ecfc-46fe-ab96-ced26c6363e9")
+		(property "Reference" "LD9"
+			(at 231.14 67.31 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "Laser_Diode"
+			(at 231.14 69.85 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Footprint" "LED_THT:LED_D5.0mm"
+			(at 230.886 79.502 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 233.172 80.01 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 232.41 74.93 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "7c617b21-9873-48be-99c3-3e60218e310b")
+		)
+		(pin "2"
+			(uuid "c62ca89f-5d48-472b-aab9-e594de63c35f")
+		)
+		(instances
+			(project "LaserHarp3"
+				(path "/d4c5eff8-4e6c-4590-8dfd-9a1f7164c842/f7df11ad-3b0b-472c-ac1e-92260b595010"
+					(reference "LD9")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Diode_Laser:SPL_PL90")
+		(at 232.41 54.61 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "9f784a22-7a25-4f83-967c-ff3f011ed935")
+		(property "Reference" "LD5"
+			(at 231.14 46.99 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "Laser_Diode"
+			(at 231.14 49.53 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Footprint" "LED_THT:LED_D5.0mm"
+			(at 230.886 59.182 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 233.172 59.69 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 232.41 54.61 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "5eb45d8c-7b48-484f-b21a-204f7e34b5c2")
+		)
+		(pin "2"
+			(uuid "b1a8a12c-e134-4beb-82b8-22c8e7fb5888")
+		)
+		(instances
+			(project "LaserHarp3"
+				(path "/d4c5eff8-4e6c-4590-8dfd-9a1f7164c842/f7df11ad-3b0b-472c-ac1e-92260b595010"
+					(reference "LD5")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Diode_Laser:SPL_PL90")
+		(at 232.41 130.81 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "bd7b0971-ac22-4b9a-8c4f-2f6b54528872")
+		(property "Reference" "LD20"
+			(at 231.14 123.19 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "Laser_Diode"
+			(at 231.14 125.73 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Footprint" "LED_THT:LED_D5.0mm"
+			(at 230.886 135.382 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 233.172 135.89 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 232.41 130.81 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "fc2b43f0-a2ba-433f-a030-e3048fae097a")
+		)
+		(pin "2"
+			(uuid "4aac4250-d94a-4d28-a047-623e9ed15d7b")
+		)
+		(instances
+			(project "LaserHarp3"
+				(path "/d4c5eff8-4e6c-4590-8dfd-9a1f7164c842/f7df11ad-3b0b-472c-ac1e-92260b595010"
+					(reference "LD20")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Diode_Laser:SPL_PL90")
+		(at 232.41 59.69 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "c01c5d17-a1db-4321-883b-475ef401c804")
+		(property "Reference" "LD6"
+			(at 231.14 52.07 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "Laser_Diode"
+			(at 231.14 54.61 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Footprint" "LED_THT:LED_D5.0mm"
+			(at 230.886 64.262 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 233.172 64.77 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 232.41 59.69 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "810991fa-cf31-4aca-8c32-3555b0aa6ce5")
+		)
+		(pin "2"
+			(uuid "f7a19255-84d9-479d-a8e8-c1772c2c464f")
+		)
+		(instances
+			(project "LaserHarp3"
+				(path "/d4c5eff8-4e6c-4590-8dfd-9a1f7164c842/f7df11ad-3b0b-472c-ac1e-92260b595010"
+					(reference "LD6")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Diode_Laser:SPL_PL90")
+		(at 232.41 90.17 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "c1e3996e-2ffd-4abf-95c7-24c674e4d1f2")
+		(property "Reference" "LD12"
+			(at 231.14 82.55 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "Laser_Diode"
+			(at 231.14 85.09 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Footprint" "LED_THT:LED_D5.0mm"
+			(at 230.886 94.742 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 233.172 95.25 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 232.41 90.17 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "a14b4ad7-3742-4f94-a7c1-83166a43a417")
+		)
+		(pin "2"
+			(uuid "88f57775-6ff2-4145-b857-be7c3ae6e318")
+		)
+		(instances
+			(project "LaserHarp3"
+				(path "/d4c5eff8-4e6c-4590-8dfd-9a1f7164c842/f7df11ad-3b0b-472c-ac1e-92260b595010"
+					(reference "LD12")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Diode_Laser:SPL_PL90")
+		(at 232.41 44.45 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "c5d89289-4c6d-4e96-b36d-0599a87aa00c")
+		(property "Reference" "LD3"
+			(at 231.14 36.83 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "Laser_Diode"
+			(at 231.14 39.37 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Footprint" "LED_THT:LED_D5.0mm"
+			(at 230.886 49.022 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 233.172 49.53 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 232.41 44.45 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "73257c6a-fdad-41e6-8670-992cb2ae0ec0")
+		)
+		(pin "2"
+			(uuid "32d87ac2-5d64-4a36-8046-80cde615a60e")
+		)
+		(instances
+			(project "LaserHarp3"
+				(path "/d4c5eff8-4e6c-4590-8dfd-9a1f7164c842/f7df11ad-3b0b-472c-ac1e-92260b595010"
+					(reference "LD3")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Diode_Laser:SPL_PL90")
+		(at 232.41 39.37 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "d1ad8561-0c3b-40fd-9934-10ba827d8eaa")
+		(property "Reference" "LD2"
+			(at 231.14 31.75 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "Laser_Diode"
+			(at 231.14 34.29 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Footprint" "LED_THT:LED_D5.0mm"
+			(at 230.886 43.942 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 233.172 44.45 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 232.41 39.37 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "25b1f54c-520a-41a1-bd0f-4c5813841501")
+		)
+		(pin "2"
+			(uuid "26ace2af-1782-4b21-961e-95b7e2616a60")
+		)
+		(instances
+			(project "LaserHarp3"
+				(path "/d4c5eff8-4e6c-4590-8dfd-9a1f7164c842/f7df11ad-3b0b-472c-ac1e-92260b595010"
+					(reference "LD2")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Diode_Laser:SPL_PL90")
+		(at 232.41 135.89 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "e0115671-d142-44df-963b-694c14e87902")
+		(property "Reference" "LD21"
+			(at 231.14 128.27 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "Laser_Diode"
+			(at 231.14 130.81 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Footprint" "LED_THT:LED_D5.0mm"
+			(at 230.886 140.462 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 233.172 140.97 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 232.41 135.89 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "56f9ade3-6676-4419-947d-4c53b62b5783")
+		)
+		(pin "2"
+			(uuid "de63158d-b5e6-4e12-a031-17b319213103")
+		)
+		(instances
+			(project "LaserHarp3"
+				(path "/d4c5eff8-4e6c-4590-8dfd-9a1f7164c842/f7df11ad-3b0b-472c-ac1e-92260b595010"
+					(reference "LD21")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Diode_Laser:SPL_PL90")
+		(at 232.41 125.73 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "e1ac774d-5303-4f09-910f-6ffb899aa948")
+		(property "Reference" "LD19"
+			(at 231.14 118.11 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "Laser_Diode"
+			(at 231.14 120.65 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Footprint" "LED_THT:LED_D5.0mm"
+			(at 230.886 130.302 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 233.172 130.81 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 232.41 125.73 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "a680e566-3af1-4b74-b898-ae7e5f73fec2")
+		)
+		(pin "2"
+			(uuid "2070bdf8-6c50-4c09-81cc-919796d432b4")
+		)
+		(instances
+			(project "LaserHarp3"
+				(path "/d4c5eff8-4e6c-4590-8dfd-9a1f7164c842/f7df11ad-3b0b-472c-ac1e-92260b595010"
+					(reference "LD19")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Diode_Laser:SPL_PL90")
+		(at 232.41 110.49 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "e5b68674-02b7-4ad8-8d5b-b44ea98940d0")
+		(property "Reference" "LD16"
+			(at 231.14 102.87 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "Laser_Diode"
+			(at 231.14 105.41 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Footprint" "LED_THT:LED_D5.0mm"
+			(at 230.886 115.062 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 233.172 115.57 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 232.41 110.49 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "eb3c5bf1-5924-4fdc-a7cc-73b16ce9c523")
+		)
+		(pin "2"
+			(uuid "d0c51c7d-ad8e-46f1-b1ef-cd707bc1e650")
+		)
+		(instances
+			(project "LaserHarp3"
+				(path "/d4c5eff8-4e6c-4590-8dfd-9a1f7164c842/f7df11ad-3b0b-472c-ac1e-92260b595010"
+					(reference "LD16")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Diode_Laser:SPL_PL90")
+		(at 232.41 100.33 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "e6052970-15bd-482a-8f4f-98b90273cf3f")
+		(property "Reference" "LD14"
+			(at 231.14 92.71 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "Laser_Diode"
+			(at 231.14 95.25 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Footprint" "LED_THT:LED_D5.0mm"
+			(at 230.886 104.902 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 233.172 105.41 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 232.41 100.33 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "18675088-3635-41d8-acd5-eeaacf8512e0")
+		)
+		(pin "2"
+			(uuid "77ab00e4-5cac-4e1c-9de6-51c8b983d15b")
+		)
+		(instances
+			(project "LaserHarp3"
+				(path "/d4c5eff8-4e6c-4590-8dfd-9a1f7164c842/f7df11ad-3b0b-472c-ac1e-92260b595010"
+					(reference "LD14")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Diode_Laser:SPL_PL90")
+		(at 232.41 64.77 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "f5e9a91b-86fa-48ac-9a38-f7a777b3abe4")
+		(property "Reference" "LD7"
+			(at 231.14 57.15 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "Laser_Diode"
+			(at 231.14 59.69 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Footprint" "LED_THT:LED_D5.0mm"
+			(at 230.886 69.342 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 233.172 69.85 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 232.41 64.77 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "581d8397-4824-41bd-9c07-c59c471dba3e")
+		)
+		(pin "2"
+			(uuid "0d15d696-7436-4763-9b23-26d4f7f735de")
+		)
+		(instances
+			(project "LaserHarp3"
+				(path "/d4c5eff8-4e6c-4590-8dfd-9a1f7164c842/f7df11ad-3b0b-472c-ac1e-92260b595010"
+					(reference "LD7")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Diode_Laser:SPL_PL90")
+		(at 232.41 151.13 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "fb9d7b47-1f38-4ab2-b5c2-01dee2f76821")
+		(property "Reference" "LD24"
+			(at 231.14 143.51 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "Laser_Diode"
+			(at 231.14 146.05 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Footprint" "LED_THT:LED_D5.0mm"
+			(at 230.886 155.702 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 233.172 156.21 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 232.41 151.13 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "c7a8c3c2-45f2-4cbd-9f8c-09ae98a56f3c")
+		)
+		(pin "2"
+			(uuid "a8b37bc5-74f9-40b5-9f3d-5d91c63fce2f")
+		)
+		(instances
+			(project "LaserHarp3"
+				(path "/d4c5eff8-4e6c-4590-8dfd-9a1f7164c842/f7df11ad-3b0b-472c-ac1e-92260b595010"
+					(reference "LD24")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(sheet
+		(at 107.95 157.48)
+		(size 12.7 5.08)
+		(fields_autoplaced yes)
+		(stroke
+			(width 0.1524)
+			(type solid)
+		)
+		(fill
+			(color 0 0 0 0.0000)
+		)
+		(uuid "01f74555-11b5-441d-a1ee-f00086e89da0")
+		(property "Sheetname" "Diode Driver 22"
+			(at 107.95 156.7684 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left bottom)
+			)
+		)
+		(property "Sheetfile" "Diode_Driver.kicad_sch"
+			(at 107.95 163.1446 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left top)
+			)
+		)
+		(pin "DI" input
+			(at 107.95 160.02 180)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+			(uuid "1d2b1ab3-3db9-4122-ac38-72a6d72312fe")
+		)
+		(pin "DO" input
+			(at 120.65 160.02 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+			(uuid "bbf97cf7-3e58-4f8f-b9ba-dbd0a928a816")
+		)
+		(instances
+			(project "LaserHarp3"
+				(path "/d4c5eff8-4e6c-4590-8dfd-9a1f7164c842/f7df11ad-3b0b-472c-ac1e-92260b595010"
+					(page "25")
+				)
+			)
+		)
+	)
+	(sheet
+		(at 107.95 43.18)
+		(size 12.7 5.08)
+		(fields_autoplaced yes)
+		(stroke
+			(width 0.1524)
+			(type solid)
+		)
+		(fill
+			(color 0 0 0 0.0000)
+		)
+		(uuid "09223506-edee-4d59-8162-714f2c3977a8")
+		(property "Sheetname" "Diode Driver 12"
+			(at 107.95 42.4684 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left bottom)
+			)
+		)
+		(property "Sheetfile" "Diode_Driver.kicad_sch"
+			(at 107.95 48.8446 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left top)
+			)
+		)
+		(pin "DI" input
+			(at 107.95 45.72 180)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+			(uuid "dbb19492-9a6e-41ab-8eb3-116e680b2a4a")
+		)
+		(pin "DO" input
+			(at 120.65 45.72 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+			(uuid "74e4c29c-0302-4a0e-b40c-b54b17b0d60b")
+		)
+		(instances
+			(project "LaserHarp3"
+				(path "/d4c5eff8-4e6c-4590-8dfd-9a1f7164c842/f7df11ad-3b0b-472c-ac1e-92260b595010"
+					(page "15")
+				)
+			)
+		)
+	)
+	(sheet
+		(at 57.15 66.04)
+		(size 12.7 5.08)
+		(fields_autoplaced yes)
+		(stroke
+			(width 0.1524)
+			(type solid)
+		)
+		(fill
+			(color 0 0 0 0.0000)
+		)
+		(uuid "09301765-d649-49c8-9c8b-1de5904262ba")
+		(property "Sheetname" "Diode Driver 2"
+			(at 57.15 65.3284 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left bottom)
+			)
+		)
+		(property "Sheetfile" "Diode_Driver.kicad_sch"
+			(at 57.15 71.7046 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left top)
+			)
+		)
+		(pin "DI" input
+			(at 57.15 68.58 180)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+			(uuid "8f9b069c-c038-4891-91aa-b5a5977200eb")
+		)
+		(pin "DO" input
+			(at 69.85 68.58 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+			(uuid "4f1775a6-8619-442e-ab14-792fa2e0ee20")
+		)
+		(instances
+			(project "LaserHarp3"
+				(path "/d4c5eff8-4e6c-4590-8dfd-9a1f7164c842/f7df11ad-3b0b-472c-ac1e-92260b595010"
+					(page "5")
+				)
+			)
+		)
+	)
+	(sheet
+		(at 57.15 100.33)
+		(size 12.7 5.08)
+		(fields_autoplaced yes)
+		(stroke
+			(width 0.1524)
+			(type solid)
+		)
+		(fill
+			(color 0 0 0 0.0000)
+		)
+		(uuid "1507362d-3c7d-4d74-b836-8346e3c128f8")
+		(property "Sheetname" "Diode Driver 5"
+			(at 57.15 99.6184 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left bottom)
+			)
+		)
+		(property "Sheetfile" "Diode_Driver.kicad_sch"
+			(at 57.15 105.9946 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left top)
+			)
+		)
+		(pin "DI" input
+			(at 57.15 102.87 180)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+			(uuid "35714ea3-6151-49ba-92f6-2a8bf16f242d")
+		)
+		(pin "DO" input
+			(at 69.85 102.87 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+			(uuid "3befb7bc-0f25-4fa9-8829-fcd80eebfaf5")
+		)
+		(instances
+			(project "LaserHarp3"
+				(path "/d4c5eff8-4e6c-4590-8dfd-9a1f7164c842/f7df11ad-3b0b-472c-ac1e-92260b595010"
+					(page "8")
+				)
+			)
+		)
+	)
+	(sheet
+		(at 107.95 111.76)
+		(size 12.7 5.08)
+		(fields_autoplaced yes)
+		(stroke
+			(width 0.1524)
+			(type solid)
+		)
+		(fill
+			(color 0 0 0 0.0000)
+		)
+		(uuid "292c26ea-fb08-4a75-a2d0-3d71465e351b")
+		(property "Sheetname" "Diode Driver 18"
+			(at 107.95 111.0484 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left bottom)
+			)
+		)
+		(property "Sheetfile" "Diode_Driver.kicad_sch"
+			(at 107.95 117.4246 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left top)
+			)
+		)
+		(pin "DI" input
+			(at 107.95 114.3 180)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+			(uuid "4efd62a9-6c41-4cab-95e7-ba69801751db")
+		)
+		(pin "DO" input
+			(at 120.65 114.3 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+			(uuid "ab5f960f-3cb7-4c12-bf61-c0965ad94389")
+		)
+		(instances
+			(project "LaserHarp3"
+				(path "/d4c5eff8-4e6c-4590-8dfd-9a1f7164c842/f7df11ad-3b0b-472c-ac1e-92260b595010"
+					(page "21")
+				)
+			)
+		)
+	)
+	(sheet
+		(at 107.95 88.9)
+		(size 12.7 5.08)
+		(fields_autoplaced yes)
+		(stroke
+			(width 0.1524)
+			(type solid)
+		)
+		(fill
+			(color 0 0 0 0.0000)
+		)
+		(uuid "443722bf-d74e-4f6b-b5ec-aef3a8cbd564")
+		(property "Sheetname" "Diode Driver 16"
+			(at 107.95 88.1884 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left bottom)
+			)
+		)
+		(property "Sheetfile" "Diode_Driver.kicad_sch"
+			(at 107.95 94.5646 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left top)
+			)
+		)
+		(pin "DI" input
+			(at 107.95 91.44 180)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+			(uuid "d5d9c4b1-4053-467f-afd3-c6fcedda9b28")
+		)
+		(pin "DO" input
+			(at 120.65 91.44 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+			(uuid "22274568-4abb-4129-a42e-1b4076eac693")
+		)
+		(instances
+			(project "LaserHarp3"
+				(path "/d4c5eff8-4e6c-4590-8dfd-9a1f7164c842/f7df11ad-3b0b-472c-ac1e-92260b595010"
+					(page "19")
+				)
+			)
+		)
+	)
+	(sheet
+		(at 57.15 157.48)
+		(size 12.7 5.08)
+		(fields_autoplaced yes)
+		(stroke
+			(width 0.1524)
+			(type solid)
+		)
+		(fill
+			(color 0 0 0 0.0000)
+		)
+		(uuid "49f36dd8-e368-4409-84d7-2b0faaed3ec6")
+		(property "Sheetname" "Diode Driver 10"
+			(at 57.15 156.7684 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left bottom)
+			)
+		)
+		(property "Sheetfile" "Diode_Driver.kicad_sch"
+			(at 57.15 163.1446 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left top)
+			)
+		)
+		(pin "DI" input
+			(at 57.15 160.02 180)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+			(uuid "9ad19d0e-9d40-4406-8a8a-e110aba3932a")
+		)
+		(pin "DO" input
+			(at 69.85 160.02 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+			(uuid "ff5f8ea0-7c9e-4cab-af08-57eaf4cd953c")
+		)
+		(instances
+			(project "LaserHarp3"
+				(path "/d4c5eff8-4e6c-4590-8dfd-9a1f7164c842/f7df11ad-3b0b-472c-ac1e-92260b595010"
+					(page "13")
+				)
+			)
+		)
+	)
+	(sheet
+		(at 57.15 111.76)
+		(size 12.7 5.08)
+		(fields_autoplaced yes)
+		(stroke
+			(width 0.1524)
+			(type solid)
+		)
+		(fill
+			(color 0 0 0 0.0000)
+		)
+		(uuid "736c28a3-0d93-4fe3-bbc7-3db5a6b60978")
+		(property "Sheetname" "Diode Driver 6"
+			(at 57.15 111.0484 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left bottom)
+			)
+		)
+		(property "Sheetfile" "Diode_Driver.kicad_sch"
+			(at 57.15 117.4246 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left top)
+			)
+		)
+		(pin "DI" input
+			(at 57.15 114.3 180)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+			(uuid "dd12ecb3-917b-49c6-bf87-041adbf31e74")
+		)
+		(pin "DO" input
+			(at 69.85 114.3 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+			(uuid "6c3a65f1-3178-4c68-a1ee-01db6c80c576")
+		)
+		(instances
+			(project "LaserHarp3"
+				(path "/d4c5eff8-4e6c-4590-8dfd-9a1f7164c842/f7df11ad-3b0b-472c-ac1e-92260b595010"
+					(page "9")
+				)
+			)
+		)
+	)
+	(sheet
+		(at 107.95 100.33)
+		(size 12.7 5.08)
+		(fields_autoplaced yes)
+		(stroke
+			(width 0.1524)
+			(type solid)
+		)
+		(fill
+			(color 0 0 0 0.0000)
+		)
+		(uuid "7ae2509f-9b8a-4c9d-8367-df3e036246ac")
+		(property "Sheetname" "Diode Driver 17"
+			(at 107.95 99.6184 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left bottom)
+			)
+		)
+		(property "Sheetfile" "Diode_Driver.kicad_sch"
+			(at 107.95 105.9946 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left top)
+			)
+		)
+		(pin "DI" input
+			(at 107.95 102.87 180)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+			(uuid "778bffc9-e1ce-433e-a8d9-2f8bb29a7dff")
+		)
+		(pin "DO" input
+			(at 120.65 102.87 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+			(uuid "4978bb08-83bb-4b18-9d01-a890602743c3")
+		)
+		(instances
+			(project "LaserHarp3"
+				(path "/d4c5eff8-4e6c-4590-8dfd-9a1f7164c842/f7df11ad-3b0b-472c-ac1e-92260b595010"
+					(page "20")
+				)
+			)
+		)
+	)
+	(sheet
+		(at 57.15 54.61)
+		(size 12.7 5.08)
+		(fields_autoplaced yes)
+		(stroke
+			(width 0.1524)
+			(type solid)
+		)
+		(fill
+			(color 0 0 0 0.0000)
+		)
+		(uuid "7bc8af21-cccc-4d08-b27f-53966b4e2715")
+		(property "Sheetname" "Diode Driver 1"
+			(at 57.15 53.8984 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left bottom)
+			)
+		)
+		(property "Sheetfile" "Diode_Driver.kicad_sch"
+			(at 57.15 60.2746 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left top)
+			)
+		)
+		(pin "DI" input
+			(at 57.15 57.15 180)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+			(uuid "c49f8652-8828-42df-9722-8e8bc282dce2")
+		)
+		(pin "DO" input
+			(at 69.85 57.15 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+			(uuid "0d9c7daa-755f-4f4a-ad3f-ae1b41eeefa2")
+		)
+		(instances
+			(project "LaserHarp3"
+				(path "/d4c5eff8-4e6c-4590-8dfd-9a1f7164c842/f7df11ad-3b0b-472c-ac1e-92260b595010"
+					(page "4")
+				)
+			)
+		)
+	)
+	(sheet
+		(at 107.95 134.62)
+		(size 12.7 5.08)
+		(fields_autoplaced yes)
+		(stroke
+			(width 0.1524)
+			(type solid)
+		)
+		(fill
+			(color 0 0 0 0.0000)
+		)
+		(uuid "8bdb5bb8-b633-429d-88a3-dac5fc298822")
+		(property "Sheetname" "Diode Driver 20"
+			(at 107.95 133.9084 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left bottom)
+			)
+		)
+		(property "Sheetfile" "Diode_Driver.kicad_sch"
+			(at 107.95 140.2846 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left top)
+			)
+		)
+		(pin "DI" input
+			(at 107.95 137.16 180)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+			(uuid "9b2de2c2-0122-494d-9664-0387e6d3dc69")
+		)
+		(pin "DO" input
+			(at 120.65 137.16 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+			(uuid "5269ce23-43bc-4e8c-947c-d07111b1d90c")
+		)
+		(instances
+			(project "LaserHarp3"
+				(path "/d4c5eff8-4e6c-4590-8dfd-9a1f7164c842/f7df11ad-3b0b-472c-ac1e-92260b595010"
+					(page "23")
+				)
+			)
+		)
+	)
+	(sheet
+		(at 57.15 168.91)
+		(size 12.7 5.08)
+		(fields_autoplaced yes)
+		(stroke
+			(width 0.1524)
+			(type solid)
+		)
+		(fill
+			(color 0 0 0 0.0000)
+		)
+		(uuid "9381655c-6394-495e-8a9f-13cfc94de4cf")
+		(property "Sheetname" "Diode Driver 11"
+			(at 57.15 168.1984 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left bottom)
+			)
+		)
+		(property "Sheetfile" "Diode_Driver.kicad_sch"
+			(at 57.15 174.5746 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left top)
+			)
+		)
+		(pin "DI" input
+			(at 57.15 171.45 180)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+			(uuid "b6b07c76-0e0c-49d0-b862-d04010dbe47d")
+		)
+		(pin "DO" input
+			(at 69.85 171.45 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+			(uuid "71355ba8-0410-42df-8188-85c94a5f569d")
+		)
+		(instances
+			(project "LaserHarp3"
+				(path "/d4c5eff8-4e6c-4590-8dfd-9a1f7164c842/f7df11ad-3b0b-472c-ac1e-92260b595010"
+					(page "14")
+				)
+			)
+		)
+	)
+	(sheet
+		(at 107.95 168.91)
+		(size 12.7 5.08)
+		(fields_autoplaced yes)
+		(stroke
+			(width 0.1524)
+			(type solid)
+		)
+		(fill
+			(color 0 0 0 0.0000)
+		)
+		(uuid "a4de8c7b-a4f8-449a-b621-617efed78c75")
+		(property "Sheetname" "Diode Driver 23"
+			(at 107.95 168.1984 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left bottom)
+			)
+		)
+		(property "Sheetfile" "Diode_Driver.kicad_sch"
+			(at 107.95 174.5746 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left top)
+			)
+		)
+		(pin "DI" input
+			(at 107.95 171.45 180)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+			(uuid "490a1491-6ee0-40ef-8596-f42763055b8c")
+		)
+		(pin "DO" input
+			(at 120.65 171.45 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+			(uuid "2b165f81-0726-4cf8-8efd-66f57374ca4b")
+		)
+		(instances
+			(project "LaserHarp3"
+				(path "/d4c5eff8-4e6c-4590-8dfd-9a1f7164c842/f7df11ad-3b0b-472c-ac1e-92260b595010"
+					(page "26")
+				)
+			)
+		)
+	)
+	(sheet
+		(at 57.15 43.18)
+		(size 12.7 5.08)
+		(fields_autoplaced yes)
+		(stroke
+			(width 0.1524)
+			(type solid)
+		)
+		(fill
+			(color 0 0 0 0.0000)
+		)
+		(uuid "a7e80c8e-9d4a-4e6a-a7d2-8d2797dd7177")
+		(property "Sheetname" "Diode Driver 0"
+			(at 57.15 42.4684 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left bottom)
+			)
+		)
+		(property "Sheetfile" "Diode_Driver.kicad_sch"
+			(at 57.15 48.8446 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left top)
+			)
+		)
+		(pin "DI" input
+			(at 57.15 45.72 180)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+			(uuid "1cf91cf7-02ed-44aa-99c3-1534a90ed95a")
+		)
+		(pin "DO" input
+			(at 69.85 45.72 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+			(uuid "3dee8540-3dad-41df-9db3-43381c5838ec")
+		)
+		(instances
+			(project "LaserHarp3"
+				(path "/d4c5eff8-4e6c-4590-8dfd-9a1f7164c842/f7df11ad-3b0b-472c-ac1e-92260b595010"
+					(page "3")
+				)
+			)
+		)
+	)
+	(sheet
+		(at 57.15 77.47)
+		(size 12.7 5.08)
+		(fields_autoplaced yes)
+		(stroke
+			(width 0.1524)
+			(type solid)
+		)
+		(fill
+			(color 0 0 0 0.0000)
+		)
+		(uuid "c6096e5c-985c-4086-b6d0-834b1156b173")
+		(property "Sheetname" "Diode Driver 3"
+			(at 57.15 76.7584 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left bottom)
+			)
+		)
+		(property "Sheetfile" "Diode_Driver.kicad_sch"
+			(at 57.15 83.1346 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left top)
+			)
+		)
+		(pin "DI" input
+			(at 57.15 80.01 180)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+			(uuid "a13d675f-5f0f-4fc6-96d1-eb19e2cc2d1b")
+		)
+		(pin "DO" input
+			(at 69.85 80.01 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+			(uuid "e5237ff5-2bd6-49c1-bfd3-3198d1f3ea1e")
+		)
+		(instances
+			(project "LaserHarp3"
+				(path "/d4c5eff8-4e6c-4590-8dfd-9a1f7164c842/f7df11ad-3b0b-472c-ac1e-92260b595010"
+					(page "6")
+				)
+			)
+		)
+	)
+	(sheet
+		(at 57.15 123.19)
+		(size 12.7 5.08)
+		(fields_autoplaced yes)
+		(stroke
+			(width 0.1524)
+			(type solid)
+		)
+		(fill
+			(color 0 0 0 0.0000)
+		)
+		(uuid "c90a7d3f-6aa5-4158-a026-7f4ae701d98e")
+		(property "Sheetname" "Diode Driver 7"
+			(at 57.15 122.4784 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left bottom)
+			)
+		)
+		(property "Sheetfile" "Diode_Driver.kicad_sch"
+			(at 57.15 128.8546 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left top)
+			)
+		)
+		(pin "DI" input
+			(at 57.15 125.73 180)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+			(uuid "7aef8954-2c98-485a-865d-42a69a1ce78a")
+		)
+		(pin "DO" input
+			(at 69.85 125.73 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+			(uuid "9a3c967b-6858-42ff-847a-4dd7ce55de3c")
+		)
+		(instances
+			(project "LaserHarp3"
+				(path "/d4c5eff8-4e6c-4590-8dfd-9a1f7164c842/f7df11ad-3b0b-472c-ac1e-92260b595010"
+					(page "10")
+				)
+			)
+		)
+	)
+	(sheet
+		(at 57.15 134.62)
+		(size 12.7 5.08)
+		(fields_autoplaced yes)
+		(stroke
+			(width 0.1524)
+			(type solid)
+		)
+		(fill
+			(color 0 0 0 0.0000)
+		)
+		(uuid "d25b9b0a-896d-4b6f-bee6-9a56be10924c")
+		(property "Sheetname" "Diode Driver 8"
+			(at 57.15 133.9084 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left bottom)
+			)
+		)
+		(property "Sheetfile" "Diode_Driver.kicad_sch"
+			(at 57.15 140.2846 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left top)
+			)
+		)
+		(pin "DI" input
+			(at 57.15 137.16 180)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+			(uuid "3c557228-64bc-4624-8563-c1e845add194")
+		)
+		(pin "DO" input
+			(at 69.85 137.16 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+			(uuid "fa7be3ea-8e99-4318-a588-37c43297cdd4")
+		)
+		(instances
+			(project "LaserHarp3"
+				(path "/d4c5eff8-4e6c-4590-8dfd-9a1f7164c842/f7df11ad-3b0b-472c-ac1e-92260b595010"
+					(page "11")
+				)
+			)
+		)
+	)
+	(sheet
+		(at 57.15 88.9)
+		(size 12.7 5.08)
+		(fields_autoplaced yes)
+		(stroke
+			(width 0.1524)
+			(type solid)
+		)
+		(fill
+			(color 0 0 0 0.0000)
+		)
+		(uuid "d29e4506-d497-44e8-b159-dfbd8d305813")
+		(property "Sheetname" "Diode Driver 4"
+			(at 57.15 88.1884 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left bottom)
+			)
+		)
+		(property "Sheetfile" "Diode_Driver.kicad_sch"
+			(at 57.15 94.5646 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left top)
+			)
+		)
+		(pin "DI" input
+			(at 57.15 91.44 180)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+			(uuid "7e91c956-ebfd-4b5f-989d-f35d952b2843")
+		)
+		(pin "DO" input
+			(at 69.85 91.44 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+			(uuid "97955776-d738-4972-8e6e-54c919924116")
+		)
+		(instances
+			(project "LaserHarp3"
+				(path "/d4c5eff8-4e6c-4590-8dfd-9a1f7164c842/f7df11ad-3b0b-472c-ac1e-92260b595010"
+					(page "7")
+				)
+			)
+		)
+	)
+	(sheet
+		(at 107.95 77.47)
+		(size 12.7 5.08)
+		(fields_autoplaced yes)
+		(stroke
+			(width 0.1524)
+			(type solid)
+		)
+		(fill
+			(color 0 0 0 0.0000)
+		)
+		(uuid "dffd8daa-465d-4a7d-aab8-75d93fd03e8b")
+		(property "Sheetname" "Diode Driver 15"
+			(at 107.95 76.7584 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left bottom)
+			)
+		)
+		(property "Sheetfile" "Diode_Driver.kicad_sch"
+			(at 107.95 83.1346 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left top)
+			)
+		)
+		(pin "DI" input
+			(at 107.95 80.01 180)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+			(uuid "7dc069ba-82a4-45b1-bb6d-714635ed2263")
+		)
+		(pin "DO" input
+			(at 120.65 80.01 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+			(uuid "ccabe0ab-755d-4f3f-aea2-9e9706ffd06a")
+		)
+		(instances
+			(project "LaserHarp3"
+				(path "/d4c5eff8-4e6c-4590-8dfd-9a1f7164c842/f7df11ad-3b0b-472c-ac1e-92260b595010"
+					(page "18")
+				)
+			)
+		)
+	)
+	(sheet
+		(at 107.95 66.04)
+		(size 12.7 5.08)
+		(fields_autoplaced yes)
+		(stroke
+			(width 0.1524)
+			(type solid)
+		)
+		(fill
+			(color 0 0 0 0.0000)
+		)
+		(uuid "e9583831-c78f-40ff-87ff-b979ec24a687")
+		(property "Sheetname" "Diode Driver 14"
+			(at 107.95 65.3284 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left bottom)
+			)
+		)
+		(property "Sheetfile" "Diode_Driver.kicad_sch"
+			(at 107.95 71.7046 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left top)
+			)
+		)
+		(pin "DI" input
+			(at 107.95 68.58 180)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+			(uuid "183c8fda-1c64-4153-b549-637cb31ca6ea")
+		)
+		(pin "DO" input
+			(at 120.65 68.58 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+			(uuid "5ab8cb67-d8a5-4456-9f51-1c6baa42f0dd")
+		)
+		(instances
+			(project "LaserHarp3"
+				(path "/d4c5eff8-4e6c-4590-8dfd-9a1f7164c842/f7df11ad-3b0b-472c-ac1e-92260b595010"
+					(page "17")
+				)
+			)
+		)
+	)
+	(sheet
+		(at 107.95 146.05)
+		(size 12.7 5.08)
+		(fields_autoplaced yes)
+		(stroke
+			(width 0.1524)
+			(type solid)
+		)
+		(fill
+			(color 0 0 0 0.0000)
+		)
+		(uuid "f46b1ca1-fced-483e-8d06-11e31e3947f6")
+		(property "Sheetname" "Diode Driver 21"
+			(at 107.95 145.3384 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left bottom)
+			)
+		)
+		(property "Sheetfile" "Diode_Driver.kicad_sch"
+			(at 107.95 151.7146 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left top)
+			)
+		)
+		(pin "DI" input
+			(at 107.95 148.59 180)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+			(uuid "2be7cfcb-ab6a-4345-937b-536d9e25f27c")
+		)
+		(pin "DO" input
+			(at 120.65 148.59 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+			(uuid "86559a95-1f6b-4fcb-b37b-21509e3096c0")
+		)
+		(instances
+			(project "LaserHarp3"
+				(path "/d4c5eff8-4e6c-4590-8dfd-9a1f7164c842/f7df11ad-3b0b-472c-ac1e-92260b595010"
+					(page "24")
+				)
+			)
+		)
+	)
+	(sheet
+		(at 57.15 146.05)
+		(size 12.7 5.08)
+		(fields_autoplaced yes)
+		(stroke
+			(width 0.1524)
+			(type solid)
+		)
+		(fill
+			(color 0 0 0 0.0000)
+		)
+		(uuid "fb35fd22-88c9-4542-b6ec-6c00c15ea7b5")
+		(property "Sheetname" "Diode Driver 9"
+			(at 57.15 145.3384 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left bottom)
+			)
+		)
+		(property "Sheetfile" "Diode_Driver.kicad_sch"
+			(at 57.15 151.7146 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left top)
+			)
+		)
+		(pin "DI" input
+			(at 57.15 148.59 180)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+			(uuid "37be97e1-a727-46ba-8f93-549aedc6cfe4")
+		)
+		(pin "DO" input
+			(at 69.85 148.59 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+			(uuid "bbac291b-caea-42de-a63c-e3e249faaabe")
+		)
+		(instances
+			(project "LaserHarp3"
+				(path "/d4c5eff8-4e6c-4590-8dfd-9a1f7164c842/f7df11ad-3b0b-472c-ac1e-92260b595010"
+					(page "12")
+				)
+			)
+		)
+	)
+	(sheet
+		(at 107.95 54.61)
+		(size 12.7 5.08)
+		(fields_autoplaced yes)
+		(stroke
+			(width 0.1524)
+			(type solid)
+		)
+		(fill
+			(color 0 0 0 0.0000)
+		)
+		(uuid "fd4b19e0-90fc-459a-85c1-3497664da193")
+		(property "Sheetname" "Diode Driver 13"
+			(at 107.95 53.8984 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left bottom)
+			)
+		)
+		(property "Sheetfile" "Diode_Driver.kicad_sch"
+			(at 107.95 60.2746 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left top)
+			)
+		)
+		(pin "DI" input
+			(at 107.95 57.15 180)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+			(uuid "2bb5914e-d528-4498-bbf7-c557d0053be1")
+		)
+		(pin "DO" input
+			(at 120.65 57.15 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+			(uuid "64cb687f-2fa7-45f8-a197-41a31b24ae75")
+		)
+		(instances
+			(project "LaserHarp3"
+				(path "/d4c5eff8-4e6c-4590-8dfd-9a1f7164c842/f7df11ad-3b0b-472c-ac1e-92260b595010"
+					(page "16")
+				)
+			)
+		)
+	)
+	(sheet
+		(at 107.95 123.19)
+		(size 12.7 5.08)
+		(fields_autoplaced yes)
+		(stroke
+			(width 0.1524)
+			(type solid)
+		)
+		(fill
+			(color 0 0 0 0.0000)
+		)
+		(uuid "fe94e0cd-1299-4243-beff-0bb393fee43b")
+		(property "Sheetname" "Diode Driver 19"
+			(at 107.95 122.4784 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left bottom)
+			)
+		)
+		(property "Sheetfile" "Diode_Driver.kicad_sch"
+			(at 107.95 128.8546 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left top)
+			)
+		)
+		(pin "DI" input
+			(at 107.95 125.73 180)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+			(uuid "90d2395f-1349-42fc-8ebd-7dad045fd08d")
+		)
+		(pin "DO" input
+			(at 120.65 125.73 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+			(uuid "91e690fb-8d95-4cd1-a6df-a485adcb4f1e")
+		)
+		(instances
+			(project "LaserHarp3"
+				(path "/d4c5eff8-4e6c-4590-8dfd-9a1f7164c842/f7df11ad-3b0b-472c-ac1e-92260b595010"
+					(page "22")
+				)
+			)
+		)
+	)
+)
