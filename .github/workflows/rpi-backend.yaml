@@ -1,4 +1,4 @@
-name: Lint
+name: Raspberry Pi Backend
 
 on:
   push:
@@ -9,7 +9,8 @@ on:
       - main
 
 jobs:
-  pylint:
+  lint:
+    name: Lint Python Code using Black and Pylint
     runs-on: ubuntu-latest
 
     steps:
@@ -28,26 +29,34 @@ jobs:
           pip install pylint
           pip install -r requirements.txt
 
-      - name: Run lint
+      - name: Run black
+        working-directory: ./rpi
+        run: black --check $(git ls-files '*.py')
+
+      - name: Run pylint
         working-directory: ./rpi
         run: pylint $(git ls-files '*.py')
 
-  eslint:
+  test:
+    name: Test Python Code using Unittest
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - name: Setup Python
+        uses: actions/setup-python@v5
         with:
-          node-version: "20"
+          python-version: 3.11
 
       - name: Install dependencies
-        working-directory: ./rpi/frontend
-        run: yarn install
+        working-directory: ./rpi
+        run: |
+          python -m pip install --upgrade pip
+          pip install numpy opencv-python
+          pip install -r requirements.txt
 
-      - name: Run lint
-        working-directory: ./rpi/frontend
-        run: yarn lint
+      - name: Run tests
+        working-directory: ./rpi
+        run: python -m unittest discover -v -s tests -p "test_*.py" -t ..
