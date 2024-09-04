@@ -4,8 +4,20 @@
 			"path": "."
 		},
 		{
+			"path": "rpi"
+		},
+		{
 			"path": "stm"
 		}
 	],
-	"settings": {}
+	"settings": {},
+	"extensions": {
+		"recommendations": [
+			"ms-python.python",
+			"ms-python.pylint",
+			"ms-python.black-formatter",
+			"ms-vscode.cpptools",
+			"vue.volar"
+		]
+	}
 }
