@@ -32,12 +32,11 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Setup Cube IDE Project
-        uses: xanderhendriks/action-build-stm32cubeide@v13.0
+      - name: Setup arm-none-eabi-gcc
+        uses: carlosperate/arm-none-eabi-gcc-action@v1
+        with:
+          release: 11.3.1
 
       - name: Build firmware
         working-directory: ./stm
-        run: |
-          make
-          make clean
-          make
+        run: make
