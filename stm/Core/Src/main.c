@@ -149,7 +149,7 @@ void USBD_MIDI_DataInHandler(uint8_t *usb_rx_buffer, uint8_t usb_rx_buffer_lengt
                     packet.command, packet.channel, packet.data1, packet.data2);
 
                 // loopback
-                USBD_MIDI_SendPacket(&packet);
+                // USBD_MIDI_SendPacket(&packet);
 
                 break;
             default:
@@ -666,8 +666,23 @@ void StartDefaultTask(void *argument) {
     LOG_INFO("Created by Amon Benson");
 
     /* Infinite loop */
+    midi_packet_t packet;
     for (;;) {
-        osDelay(1);
+        packet.cable = 0;
+        packet.command = 0x90;
+        packet.channel = 0;
+        packet.data1 = 60;
+        packet.data2 = 127;
+        USBD_MIDI_SendPacket(&packet);
+        osDelay(100);
+
+        packet.cable = 0;
+        packet.command = 0x90;
+        packet.channel = 0;
+        packet.data1 = 60;
+        packet.data2 = 0;
+        USBD_MIDI_SendPacket(&packet);
+        osDelay(100);
     }
     /* USER CODE END 5 */
 }
