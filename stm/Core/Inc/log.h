@@ -48,7 +48,7 @@
 #define LOG(log_level, format, ...) \
     do { \
         if (log_level <= LOG_GLOBAL_LEVEL) { \
-            printf("[%s] %s:%d: " format "\n", LOG_LEVEL_STRING(log_level), __FILE__, __LINE__, ##__VA_ARGS__); \
+            printf("%s %s:%d: " format "\n", LOG_LEVEL_STRING(log_level), __FILE__, __LINE__, ##__VA_ARGS__); \
         } \
     } while (0)
 

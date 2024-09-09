@@ -25,6 +25,7 @@
 /* USER CODE BEGIN Includes */
 #include "log.h"
 #include "midi_types.h"
+#include "usbd_midi.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -89,7 +90,7 @@ const osThreadAttr_t ipcReceiveTask_attributes = {
 osEventFlagsId_t globalStatusHandle;
 const osEventFlagsAttr_t globalStatus_attributes = { .name = "globalStatus" };
 /* USER CODE BEGIN PV */
-
+extern USBD_HandleTypeDef hUsbDeviceFS;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -110,7 +111,9 @@ void StartUsbReceiveTask(void *argument);
 void StartIpcReceiveTask(void *argument);
 
 /* USER CODE BEGIN PFP */
-
+int _write(int file, char *ptr, int len);
+void USBD_MIDI_DataInHandler(uint8_t *usb_rx_buffer, uint8_t usb_rx_buffer_length);
+void USBD_MIDI_SendPacket(midi_packet_t *packet);
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -145,6 +148,9 @@ void USBD_MIDI_DataInHandler(uint8_t *usb_rx_buffer, uint8_t usb_rx_buffer_lengt
                 LOG_DEBUG("USB MIDI: cable=%d, command=0x%02X, channel=%d, data1=%d, data2=%d", packet.cable,
                     packet.command, packet.channel, packet.data1, packet.data2);
 
+                // loopback
+                USBD_MIDI_SendPacket(&packet);
+
                 break;
             default:
                 LOG_WARN("USB MIDI: Unhandled code: %d", code);
@@ -154,6 +160,18 @@ void USBD_MIDI_DataInHandler(uint8_t *usb_rx_buffer, uint8_t usb_rx_buffer_lengt
         usb_rx_buffer += 4;
         usb_rx_buffer_length -= 4;
     }
+}
+
+void USBD_MIDI_SendPacket(midi_packet_t *packet) {
+    uint8_t usb_tx_buffer[4];
+
+    usb_tx_buffer[0] = (packet->cable << 4) | (packet->command >> 4);
+    usb_tx_buffer[1] = packet->command | packet->channel;
+    usb_tx_buffer[2] = packet->data1;
+    usb_tx_buffer[3] = packet->data2;
+
+    while (USBD_MIDI_GetState(&hUsbDeviceFS) != MIDI_IDLE) { }
+    USBD_MIDI_SendReport(&hUsbDeviceFS, usb_tx_buffer, 4);
 }
 /* USER CODE END 0 */
 

@@ -7,16 +7,22 @@
             "request": "launch",
             "servertype": "openocd",
             "cwd": "${workspaceFolder}",
-            "executable": "${workspaceFolder}/build/${workspaceFolderBasename}.elf",
+            "executable": "${workspaceFolder}/build/laserharp.elf",
             "device": "STM32F103C8",
             "configFiles": [
                 "interface/stlink-v2.cfg",
-                "target/stm32f1x.cfg"
+                "target/stm32f1x.cfg",
                 // "${workspaceFolder}/stm32f1x-bluepill.cfg"
             ],
             "preLaunchTask": "flash",
             "showDevDebugOutput": "raw",
-            "gdbPath": "gdb-multiarch"
+            "gdbPath": "gdb-multiarch",
+            "overrideLaunchCommands": [
+                "interpreter-exec console \"monitor reset halt\"",
+                //'target-download',
+                //'interpreter-exec console \"monitor reset halt\"',
+                "-enable-pretty-printing"
+            ]
         }
     ]
 }
