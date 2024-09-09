@@ -7,7 +7,7 @@
   ******************************************************************************
   * @attention
   *
-  * Copyright (c) 2023 STMicroelectronics.
+  * Copyright (c) 2024 STMicroelectronics.
   * All rights reserved.
   *
   * This software is licensed under terms that can be found in the LICENSE file
@@ -26,7 +26,7 @@
 #include "usbd_hid.h"
 
 /* USER CODE BEGIN Includes */
-#include "usbd_midi.h"
+
 /* USER CODE END Includes */
 
 /* USER CODE BEGIN PV */
@@ -63,7 +63,7 @@ USBD_HandleTypeDef hUsbDeviceFS;
 void MX_USB_DEVICE_Init(void)
 {
   /* USER CODE BEGIN USB_DEVICE_Init_PreTreatment */
-#if 0
+
   /* USER CODE END USB_DEVICE_Init_PreTreatment */
 
   /* Init Device Library, add supported class and start the library. */
@@ -81,33 +81,6 @@ void MX_USB_DEVICE_Init(void)
   }
 
   /* USER CODE BEGIN USB_DEVICE_Init_PostTreatment */
-#endif
-
-  // force USB renumeration by pulling D+ low
-  GPIO_InitTypeDef GPIO_InitStruct = { 0 };              // All zeroed out
-  GPIO_InitStruct.Pin = GPIO_PIN_12;                     // Hardcoding this - PA12 is D+
-  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;            // Push-pull mode
-  GPIO_InitStruct.Pull = GPIO_PULLDOWN;                  // Resetting so pull low
-  GPIO_InitStruct.Speed = GPIO_SPEED_HIGH;               // Really shouldn't matter in this case
-  HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);                // Initialize with above settings
-  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_12, GPIO_PIN_RESET); // Yank low
-  HAL_Delay(50);                                         // Enough time for host to disconnect device
-  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_12, GPIO_PIN_SET);   // Back high - so host will enumerate
-  HAL_GPIO_DeInit(GPIOA, GPIO_PIN_12);                   // Deinitialize the pin
-
-  /* Init Device Library, add supported class and start the library. */
-  if (USBD_Init(&hUsbDeviceFS, &FS_Desc, DEVICE_FS) != USBD_OK)
-  {
-    Error_Handler();
-  }
-  if (USBD_RegisterClass(&hUsbDeviceFS, &USBD_MIDI) != USBD_OK)
-  {
-    Error_Handler();
-  }
-  if (USBD_Start(&hUsbDeviceFS) != USBD_OK)
-  {
-    Error_Handler();
-  }
 
   /* USER CODE END USB_DEVICE_Init_PostTreatment */
 }

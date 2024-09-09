@@ -139,11 +139,7 @@
                 "--verbose",
                 "-i",
                 "Core/Inc/*.h",
-                "Core/Src/*.c",
-                "Drivers/Laser_Array/Inc/*.h",
-                "Drivers/Laser_Array/Src/*.c",
-                "Drivers/Midi/Inc/*.h",
-                "Drivers/Midi/Src/*.c",
+                "Core/Src/*.c"
             ],
             "options": {
                 "cwd": "${workspaceFolder}"

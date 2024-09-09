@@ -6,7 +6,7 @@
  ******************************************************************************
  * @attention
  *
- * Copyright (c) 2023 STMicroelectronics.
+ * Copyright (c) 2024 STMicroelectronics.
  * All rights reserved.
  *
  * This software is licensed under terms that can be found in the LICENSE file
@@ -23,15 +23,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include <stdio.h>
-#include <time.h>
-
-#include "din_midi.h"
-#include "ipc.h"
-#include "laser_array.h"
 #include "log.h"
-#include "ret_types.h"
-#include "usb_midi.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -41,18 +33,7 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-#define GLOBAL_STATUS_INIT_COMPLETE 0x00000001
 
-#define IPC_CN_DIN 0
-#define IPC_CN_USB 1
-#define IPC_CN_BLE 2
-#define IPC_CN_CONTROL 3
-
-#define IPC_CH_LASER_CONTROL 0
-#define IPC_CH_GLOBAL_CONTROL 15
-
-#define IPC_GLOBAL_CONTROL_RESET 0
-#define IPC_GLOBAL_CONTROL_VERSION 1
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -107,15 +88,7 @@ const osThreadAttr_t ipcReceiveTask_attributes = {
 osEventFlagsId_t globalStatusHandle;
 const osEventFlagsAttr_t globalStatus_attributes = { .name = "globalStatus" };
 /* USER CODE BEGIN PV */
-osSemaphoreId_t log_lock;
 
-// device driver handles
-laser_array_t laser_array;
-
-extern USBD_HandleTypeDef hUsbDeviceFS;
-din_midi_t din_midi;
-usb_midi_t usb_midi;
-ipc_t ipc;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -136,43 +109,14 @@ void StartUsbReceiveTask(void *argument);
 void StartIpcReceiveTask(void *argument);
 
 /* USER CODE BEGIN PFP */
-void StartDinReceiveTask(void *argument);
+
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-
-// printf to UART_DEBUG
-int _write(int file, char *data, int len) {
-    HAL_UART_Transmit(&HUART_DEBUG, (uint8_t *) data, len, HAL_MAX_DELAY);
+int _write(int file, char *ptr, int len) {
+    HAL_UART_Transmit(&huart2, (uint8_t *) ptr, len, 0xFFFF);
     return len;
-}
-
-// use FreeRTOS tick count for time
-time_t time(time_t *t) {
-    return osKernelGetTickCount() / osKernelGetTickFreq();
-}
-
-void log_lock_fn(bool lock, void *udata) {
-    if (lock) {
-        osSemaphoreAcquire(log_lock, osWaitForever);
-    } else {
-        osSemaphoreRelease(log_lock);
-    }
-}
-
-void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
-    if (huart == din_midi.config.huart) {
-        din_midi_HAL_UART_RxCpltCallback(&din_midi);
-    }
-
-    if (huart == ipc.config.huart) {
-        ipc_HAL_UART_RxCpltCallback(&ipc);
-    }
-}
-
-void USBD_MIDI_DataInHandler(uint8_t *usb_rx_buffer, uint8_t usb_rx_buffer_length) {
-    usb_midi_USBD_MIDI_DataInHandler(&usb_midi, usb_rx_buffer, usb_rx_buffer_length);
 }
 /* USER CODE END 0 */
 
@@ -647,79 +591,7 @@ static void MX_GPIO_Init(void) {
 }
 
 /* USER CODE BEGIN 4 */
-static void set_laser_from_midi(midi_message_t *message) {
-    uint8_t note, velocity, brightness;
 
-    // accept only note on and note off messages
-    switch (message->command) {
-        case MIDI_NOTE_ON:
-            note = message->note_on.note;
-            velocity = message->note_on.velocity;
-            break;
-        case MIDI_NOTE_OFF:
-            note = message->note_off.note;
-            velocity = 0;
-            break;
-        case MIDI_CONTROL_CHANGE:
-            note = message->control_change.controller;
-            velocity = message->control_change.value;
-            break;
-        default:
-            // ignore other messages
-            return;
-    }
-
-    // scale velocity to brightness
-    brightness = velocity * (LA_NUM_BRIGHTNESS_LEVELS - 1) / 127;
-
-    if (note < LA_NUM_DIODES) {
-        // set individual laser
-        laser_array_set_brightness(&laser_array, note, brightness);
-    } else if (note == 127) {
-        // set all lasers
-        for (int i = 0; i < LA_NUM_DIODES; i++) {
-            laser_array_set_brightness(&laser_array, i, brightness);
-        }
-    } else {
-        // invalid command, ignore
-    }
-}
-
-static void handle_global_control(midi_message_t *message) {
-    // accept only control change messages
-    if (message->command != MIDI_CONTROL_CHANGE) {
-        return;
-    }
-
-    uint8_t controller = message->control_change.controller;
-    uint8_t value = message->control_change.value;
-
-    switch (controller) {
-        case (IPC_GLOBAL_CONTROL_RESET):
-            if (value == 127) {
-                log_info("System reset requested via IPC");
-                NVIC_SystemReset();
-            }
-            break;
-        case (IPC_GLOBAL_CONTROL_VERSION):
-            if (value == 127) {
-                log_info("Version requested via IPC");
-                message->control_change.controller = IPC_GLOBAL_CONTROL_VERSION;
-
-                // send version number in separate messages
-                message->control_change.value = LH_VERSION_MAJOR;
-                ipc_transmit(&ipc, message);
-                message->control_change.value = LH_VERSION_MINOR;
-                ipc_transmit(&ipc, message);
-                message->control_change.value = LH_VERSION_PATCH;
-                ipc_transmit(&ipc, message);
-            }
-            break;
-        default:
-            // ignore other messages
-            break;
-    }
-}
 /* USER CODE END 4 */
 
 /* USER CODE BEGIN Header_StartDefaultTask */
@@ -733,72 +605,15 @@ void StartDefaultTask(void *argument) {
     /* init code for USB_DEVICE */
     MX_USB_DEVICE_Init();
     /* USER CODE BEGIN 5 */
-
-    // setup logging module
-    log_lock = osSemaphoreNew(1, 1, NULL);
-    log_set_lock(log_lock_fn, NULL);
-    log_set_level(LOG_INFO);
-
-    printf("\n\n\n\033[2J\033[;H"); // clear screen
-    log_info("Laser Harp STM Firmware version %s", LH_VERSION_STRING);
-
-    // setup laser array
-    const laser_array_config_t laser_array_config
-        = { .hspi = &hspi1, .htim_transfer = &htim3, .htim_fade = &htim2, .rclk_channel = TIM_CHANNEL_4 };
-    PANIC_ON_ERROR(laser_array_init(&laser_array, &laser_array_config), "Failed to initialize laser array");
-
-    // enable all lasers on startup
-    for (int i = 0; i < LA_NUM_DIODES; i++) {
-        laser_array_set_brightness(&laser_array, i, LA_NUM_BRIGHTNESS_LEVELS - 1);
+    /* Infinite loop */
+    for (;;) {
+        LOG_ERROR("This is an error message");
+        LOG_WARN("This is a warning message");
+        LOG_INFO("This is an info message");
+        LOG_DEBUG("This is a debug message");
+        LOG_TRACE("This is a trace message");
+        osDelay(1000);
     }
-
-    // setup DIN midi
-    const din_midi_config_t din_midi_config = {
-        .huart = &HUART_DIN,
-    };
-    PANIC_ON_ERROR(din_midi_init(&din_midi, &din_midi_config), "Failed to initialize DIN MIDI");
-
-    // setup USB midi
-    const usb_midi_config_t usb_midi_config = { .husb = &hUsbDeviceFS };
-    PANIC_ON_ERROR(usb_midi_init(&usb_midi, &usb_midi_config), "Failed to initialize USB MIDI");
-
-    // setup IPC
-    const ipc_config_t ipc_config = {
-        .huart = &HUART_IPC,
-    };
-    PANIC_ON_ERROR(ipc_init(&ipc, &ipc_config), "Failed to initialize IPC");
-
-    log_info("Initialization complete");
-    osEventFlagsSet(globalStatusHandle, GLOBAL_STATUS_INIT_COMPLETE);
-
-    /* midi_message_t message = {
-      .cable_number = 1,
-      .command = MIDI_NOTE_ON,
-      .channel = 0,
-      .note_on = {
-        .note = 2,
-        .velocity = 127,
-      }
-    }; */
-
-    osThreadExit();
-
-    /* int j = 0;
-    while (1) {
-      //PANIC_ON_ERROR(din_midi_transmit(&din_midi, &message), "Failed to send MIDI message (DIN)");
-      //PANIC_ON_ERROR(usb_midi_transmit(&usb_midi, &message), "Failed to send MIDI message (USB)");
-      //PANIC_ON_ERROR(ipc_transmit(&ipc, &message), "Failed to send message (IPC)");
-
-      //HAL_GPIO_TogglePin(STATUS_LED_GPIO_Port, STATUS_LED_Pin);
-      //osDelay(500);
-
-      for (int i = 0; i < LA_NUM_DIODES; i++) {
-        laser_array_set_brightness(&laser_array, j, 0);
-        laser_array_set_brightness(&laser_array, i, LA_NUM_BRIGHTNESS_LEVELS - 1);
-        j = i;
-        osDelay(50);
-      }
-    } */
     /* USER CODE END 5 */
 }
 
@@ -811,33 +626,9 @@ void StartDefaultTask(void *argument) {
 /* USER CODE END Header_StartDinReceiveTask */
 void StartDinReceiveTask(void *argument) {
     /* USER CODE BEGIN StartDinReceiveTask */
-    int ret;
-    midi_message_t message;
-
-    // wait for initialization to complete
-    osEventFlagsWait(globalStatusHandle, GLOBAL_STATUS_INIT_COMPLETE, osFlagsWaitAny | osFlagsNoClear, osWaitForever);
-    log_info("DIN Receive Task Started");
-
-    while (1) {
-        // wait for a midi packet
-        GOTO_ON_ERROR(din_midi_receive(&din_midi, &message), _fail, "Failed to receive DIN MIDI message");
-        log_debug("Din Midi Received: %02X %02X %02X %02X", message.cable_number, message.command, message.data1,
-            message.data2);
-
-#ifdef USE_DIRECT_LASER_CONTROL
-        // set laser directly (faster)
-        set_laser_from_midi(&message);
-
-        // TODO: notify RPi about laser brightness change
-#else
-        // route DIN messages to IPC
-        message.cable_number = IPC_CN_DIN;
-        GOTO_ON_ERROR(ipc_transmit(&ipc, &message), _fail, "Failed to transmit IPC message");
-#endif
-
-    _fail:
-        (void) ret;
-        continue;
+    /* Infinite loop */
+    for (;;) {
+        osDelay(1);
     }
     /* USER CODE END StartDinReceiveTask */
 }
@@ -851,33 +642,9 @@ void StartDinReceiveTask(void *argument) {
 /* USER CODE END Header_StartUsbReceiveTask */
 void StartUsbReceiveTask(void *argument) {
     /* USER CODE BEGIN StartUsbReceiveTask */
-    int ret;
-    midi_message_t message;
-
-    // wait for initialization to complete
-    osEventFlagsWait(globalStatusHandle, GLOBAL_STATUS_INIT_COMPLETE, osFlagsWaitAny | osFlagsNoClear, osWaitForever);
-    log_info("USB Receive Task Started");
-
-    while (1) {
-        // wait for a midi packet
-        GOTO_ON_ERROR(usb_midi_receive(&usb_midi, &message), _fail, "Failed to receive USB MIDI message");
-        log_debug("Usb Midi Received: %02X %02X %02X %02X", message.cable_number, message.command, message.data1,
-            message.data2);
-
-#ifdef USE_DIRECT_LASER_CONTROL
-        // set laser directly (faster)
-        set_laser_from_midi(&message);
-
-        // TODO: notify RPi about laser brightness change
-#else
-        // route USB messages to IPC
-        message.cable_number = IPC_CN_USB;
-        GOTO_ON_ERROR(ipc_transmit(&ipc, &message), _fail, "Failed to transmit IPC message");
-#endif
-
-    _fail:
-        (void) ret;
-        continue;
+    /* Infinite loop */
+    for (;;) {
+        osDelay(1);
     }
     /* USER CODE END StartUsbReceiveTask */
 }
@@ -891,53 +658,9 @@ void StartUsbReceiveTask(void *argument) {
 /* USER CODE END Header_StartIpcReceiveTask */
 void StartIpcReceiveTask(void *argument) {
     /* USER CODE BEGIN StartIpcReceiveTask */
-    int ret;
-    midi_message_t message;
-
-    // wait for initialization to complete
-    osEventFlagsWait(globalStatusHandle, GLOBAL_STATUS_INIT_COMPLETE, osFlagsWaitAny | osFlagsNoClear, osWaitForever);
-    log_info("IPC Receive Task Started");
-
-    while (1) {
-        // wait for a midi packet
-        GOTO_ON_ERROR(ipc_receive(&ipc, &message), _fail, "Failed to receive IPC message");
-        log_debug("IPC Received: cable: %u, command: %02X, channel: %u, data: %02X %02X", message.cable_number,
-            message.command, message.channel, message.data1, message.data2);
-
-        // route IPC messages depending on their cable number
-        switch (message.cable_number) {
-            case IPC_CN_DIN:
-                // forward to DIN MIDI (cable number is ignored)
-                GOTO_ON_ERROR(din_midi_transmit(&din_midi, &message), _fail, "Failed to transmit DIN MIDI message");
-                break;
-            case IPC_CN_USB:
-                // forward to USB MIDI (on cable 0)
-                message.cable_number = 0;
-                GOTO_ON_ERROR(usb_midi_transmit(&usb_midi, &message), _fail, "Failed to transmit USB MIDI message");
-                break;
-            case IPC_CN_CONTROL:;
-                switch (message.channel) {
-                    case IPC_CH_LASER_CONTROL:
-                        // set laser brightness
-                        set_laser_from_midi(&message);
-                        break;
-                    case IPC_CH_GLOBAL_CONTROL:
-                        // handle global control messages
-                        handle_global_control(&message);
-                        break;
-                    default:
-                        log_error("Invalid IPC channel %d", message.channel);
-                        break;
-                }
-                break;
-            default:
-                log_error("Invalid IPC cable number %d", message.cable_number);
-                break;
-        }
-
-    _fail:
-        (void) ret;
-        continue;
+    /* Infinite loop */
+    for (;;) {
+        osDelay(1);
     }
     /* USER CODE END StartIpcReceiveTask */
 }
@@ -958,9 +681,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
         HAL_IncTick();
     }
     /* USER CODE BEGIN Callback 1 */
-    if (htim->Instance == laser_array.config.htim_fade->Instance) {
-        laser_array_fade_TIM_PeriodElapsedHandler(&laser_array);
-    }
+
     /* USER CODE END Callback 1 */
 }
 

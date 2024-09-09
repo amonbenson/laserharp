@@ -7,7 +7,7 @@
   ******************************************************************************
   * @attention
   *
-  * Copyright (c) 2023 STMicroelectronics.
+  * Copyright (c) 2024 STMicroelectronics.
   * All rights reserved.
   *
   * This software is licensed under terms that can be found in the LICENSE file
@@ -64,7 +64,7 @@
 
 #define USBD_VID     0x1209
 #define USBD_LANGID_STRING     1033
-#define USBD_MANUFACTURER_STRING     "Schlegel Flegel"
+#define USBD_MANUFACTURER_STRING     "Amon Benson"
 #define USBD_PID_FS     0xC0B0
 #define USBD_PRODUCT_STRING_FS     "Laser Harp"
 #define USBD_CONFIGURATION_STRING_FS     "MIDI Config"

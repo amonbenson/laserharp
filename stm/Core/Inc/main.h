@@ -7,7 +7,7 @@
  ******************************************************************************
  * @attention
  *
- * Copyright (c) 2023 STMicroelectronics.
+ * Copyright (c) 2024 STMicroelectronics.
  * All rights reserved.
  *
  * This software is licensed under terms that can be found in the LICENSE file
@@ -31,7 +31,9 @@ extern "C" {
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#define LOG_GLOBAL_LEVEL LOG_LEVEL_TRACE
+#define LOG_USE_COLOR 1
+#include "log.h"
 /* USER CODE END Includes */
 
 /* Exported types ------------------------------------------------------------*/
@@ -41,22 +43,12 @@ extern "C" {
 
 /* Exported constants --------------------------------------------------------*/
 /* USER CODE BEGIN EC */
-#define __LH_STRINGIFY(x) #x
-#define LH_STRINGIFY(x) __LH_STRINGIFY(x)
 
-#define LH_VERSION_MAJOR 0
-#define LH_VERSION_MINOR 1
-#define LH_VERSION_PATCH 0
-#define LH_VERSION_STRING \
-    LH_STRINGIFY(LH_VERSION_MAJOR) "." LH_STRINGIFY(LH_VERSION_MINOR) "." LH_STRINGIFY(LH_VERSION_PATCH)
-
-// #define USE_DIRECT_LASER_CONTROL
 /* USER CODE END EC */
 
 /* Exported macro ------------------------------------------------------------*/
 /* USER CODE BEGIN EM */
-#define MIDI_IN_PORTS_NUM 0x01
-#define MIDI_OUT_PORTS_NUM 0x01
+
 /* USER CODE END EM */
 
 void HAL_TIM_MspPostInit(TIM_HandleTypeDef *htim);
@@ -102,7 +94,7 @@ void Error_Handler(void);
 #define IPC_SDA_GPIO_Port GPIOB
 
 /* USER CODE BEGIN Private defines */
-#define LOG_USE_COLOR
+
 /* USER CODE END Private defines */
 
 #ifdef __cplusplus
