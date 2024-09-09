@@ -79,6 +79,8 @@
             "type": "shell",
             "command": "pyserial-miniterm",
             "args": [
+                "-q",
+                "--exit-char=3",
                 "--filter=direct",
                 "/dev/ttyACM0",
                 "115200"
@@ -88,6 +90,8 @@
                 "args": [
                     "-m",
                     "serial.tools.miniterm",
+                    "-q",
+                    "--exit-char=3",
                     "--filter=direct",
                     "COM8",
                     "115200"
@@ -100,7 +104,7 @@
             "presentation": {
                 "reveal": "always",
                 "panel": "dedicated",
-                "clear": true
+                "close": true
             }
         },
         {
