@@ -1,4 +1,4 @@
-name: Raspberry Pi Frontend
+name: Frontend Tests
 
 on:
   push:

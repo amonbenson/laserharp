@@ -1,4 +1,4 @@
-name: STM32 Firmware
+name: Firmware Tests
 
 on:
   push:

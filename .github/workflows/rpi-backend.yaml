@@ -1,4 +1,4 @@
-name: Raspberry Pi Backend
+name: Backend Tests
 
 on:
   push:
