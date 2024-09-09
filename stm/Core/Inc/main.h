@@ -48,6 +48,15 @@ extern "C" {
 
 /* Exported macro ------------------------------------------------------------*/
 /* USER CODE BEGIN EM */
+#define __STRINGIFY(x) #x
+#define STRINGIFY(x) __STRINGIFY(x)
+
+#define FIRMWARE_VERSION_MAJOR 0
+#define FIRMWARE_VERSION_MINOR 1
+#define FIRMWARE_VERSION_PATCH 0
+#define FIRMWARE_VERSION_STR \
+    STRINGIFY(FIRMWARE_VERSION_MAJOR) "." STRINGIFY(FIRMWARE_VERSION_MINOR) "." STRINGIFY(FIRMWARE_VERSION_PATCH)
+
 #define MIDI_IN_PORTS_NUM 0x01 // Specify input ports number of your device
 #define MIDI_OUT_PORTS_NUM 0x01 // Specify output ports number of your device
 /* USER CODE END EM */

@@ -24,6 +24,7 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "log.h"
+#include "midi_types.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -117,6 +118,42 @@ void StartIpcReceiveTask(void *argument);
 int _write(int file, char *ptr, int len) {
     HAL_UART_Transmit(&huart2, (uint8_t *) ptr, len, 0xFFFF);
     return len;
+}
+
+void USBD_MIDI_DataInHandler(uint8_t *usb_rx_buffer, uint8_t usb_rx_buffer_length) {
+    uint8_t code;
+    midi_packet_t packet;
+
+    while (usb_rx_buffer_length && *usb_rx_buffer != 0x00) {
+        packet.cable = usb_rx_buffer[0] >> 4;
+        code = usb_rx_buffer[0] & 0x0F;
+
+        switch (code) {
+            case USB_MIDI_CIN_NOTE_OFF:
+            case USB_MIDI_CIN_NOTE_ON:
+            case USB_MIDI_CIN_POLY_KEY_PRESSURE:
+            case USB_MIDI_CIN_CONTROL_CHANGE:
+            case USB_MIDI_CIN_PROGRAM_CHANGE:
+            case USB_MIDI_CIN_CHANNEL_PRESSURE:
+            case USB_MIDI_CIN_PITCH_BEND:
+                // handle channel messages
+                packet.command = usb_rx_buffer[1] & 0xF0;
+                packet.channel = usb_rx_buffer[1] & 0x0F;
+                packet.data1 = usb_rx_buffer[2];
+                packet.data2 = usb_rx_buffer[3];
+
+                LOG_DEBUG("USB MIDI: cable=%d, command=0x%02X, channel=%d, data1=%d, data2=%d", packet.cable,
+                    packet.command, packet.channel, packet.data1, packet.data2);
+
+                break;
+            default:
+                LOG_WARN("USB MIDI: Unhandled code: %d", code);
+                break;
+        }
+
+        usb_rx_buffer += 4;
+        usb_rx_buffer_length -= 4;
+    }
 }
 /* USER CODE END 0 */
 
@@ -605,14 +642,14 @@ void StartDefaultTask(void *argument) {
     /* init code for USB_DEVICE */
     MX_USB_DEVICE_Init();
     /* USER CODE BEGIN 5 */
+
+    printf("\n\n\n");
+    LOG_INFO("Laserharp Firmware v%s", FIRMWARE_VERSION_STR);
+    LOG_INFO("Created by Amon Benson");
+
     /* Infinite loop */
     for (;;) {
-        LOG_ERROR("This is an error message");
-        LOG_WARN("This is a warning message");
-        LOG_INFO("This is an info message");
-        LOG_DEBUG("This is a debug message");
-        LOG_TRACE("This is a trace message");
-        osDelay(1000);
+        osDelay(1);
     }
     /* USER CODE END 5 */
 }
