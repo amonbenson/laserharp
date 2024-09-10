@@ -24,6 +24,7 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "drivers/ipc.h"
+#include "drivers/laser_array.h"
 #include "drivers/midi_usb.h"
 #include "log.h"
 #include "midi_types.h"
@@ -94,7 +95,7 @@ const osSemaphoreAttr_t printfSemaphore_attributes = { .name = "printfSemaphore"
 osEventFlagsId_t globalStatusHandle;
 const osEventFlagsAttr_t globalStatus_attributes = { .name = "globalStatus" };
 /* USER CODE BEGIN PV */
-
+laser_array_t laser_array;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -227,6 +228,13 @@ int main(void) {
     midi_usb_driver_init(usbRxDataHandle);
     ipc_driver_init(&huart1, ipcRxDataHandle);
 
+    const laser_array_config_t laser_array_config = {
+        .hspi = &hspi1,
+        .htim_transfer = &htim3,
+        .htim_fade = &htim2,
+        .rclk_channel = TIM_CHANNEL_4,
+    };
+    laser_array_init(&laser_array, &laser_array_config);
     /* USER CODE END RTOS_EVENTS */
 
     /* Start scheduler */
@@ -639,6 +647,11 @@ void StartDefaultTask(void *argument) {
     LOG_INFO("Created by Amon Benson");
     LOG_INFO("Compiled on %s at %s", __DATE__, __TIME__);
 
+    // enable all lasers on startup
+    for (uint8_t i = 0; i < LA_NUM_DIODES; i++) {
+        laser_array_set_brightness(&laser_array, i, LA_NUM_BRIGHTNESS_LEVELS - 1);
+    }
+
     for (;;) {
         osDelay(1);
     }
@@ -714,7 +727,9 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
         HAL_IncTick();
     }
     /* USER CODE BEGIN Callback 1 */
-
+    if (htim->Instance == laser_array.config.htim_fade->Instance) {
+        laser_array_fade_TIM_PeriodElapsedHandler(&laser_array);
+    }
     /* USER CODE END Callback 1 */
 }
 
