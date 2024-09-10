@@ -23,6 +23,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include "drivers/midi_usb.h"
 #include "log.h"
 #include "midi_types.h"
 #include "usbd_midi.h"
@@ -132,7 +133,7 @@ const osSemaphoreAttr_t printfSemaphore_attributes = { .name = "printfSemaphore"
 osEventFlagsId_t globalStatusHandle;
 const osEventFlagsAttr_t globalStatus_attributes = { .name = "globalStatus" };
 /* USER CODE BEGIN PV */
-extern USBD_HandleTypeDef hUsbDeviceFS;
+
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -170,43 +171,7 @@ int _write(int file, char *ptr, int len) {
     return len;
 }
 
-void USBD_MIDI_DataInHandler(uint8_t *usb_rx_buffer, uint8_t usb_rx_buffer_length) {
-    uint8_t code;
-    midi_packet_t packet;
-
-    while (usb_rx_buffer_length && *usb_rx_buffer != 0x00) {
-        packet.cable = usb_rx_buffer[0] >> 4;
-        code = usb_rx_buffer[0] & 0x0F;
-
-        switch (code) {
-            case USB_MIDI_CIN_NOTE_OFF:
-            case USB_MIDI_CIN_NOTE_ON:
-            case USB_MIDI_CIN_POLY_KEY_PRESSURE:
-            case USB_MIDI_CIN_CONTROL_CHANGE:
-            case USB_MIDI_CIN_PROGRAM_CHANGE:
-            case USB_MIDI_CIN_CHANNEL_PRESSURE:
-            case USB_MIDI_CIN_PITCH_BEND:
-                // handle channel messages
-                packet.command = usb_rx_buffer[1] & 0xF0;
-                packet.channel = usb_rx_buffer[1] & 0x0F;
-                packet.data1 = usb_rx_buffer[2];
-                packet.data2 = usb_rx_buffer[3];
-
-                // store the incoming packet
-                if (osMessageQueuePut(usbRxDataHandle, &packet, 0, 0) != osOK) {
-                    LOG_ERROR("USB MIDI: Failed to put packet into usbRxData");
-                }
-
-                break;
-            default:
-                LOG_WARN("USB MIDI: Unhandled code: %d", code);
-                break;
-        }
-
-        usb_rx_buffer += 4;
-        usb_rx_buffer_length -= 4;
-    }
-}
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) { }
 /* USER CODE END 0 */
 
 /**
@@ -322,7 +287,10 @@ int main(void) {
     globalStatusHandle = osEventFlagsNew(&globalStatus_attributes);
 
     /* USER CODE BEGIN RTOS_EVENTS */
-    /* add events, ... */
+
+    // initialize drivers
+    midi_usb_driver_init(usbTxDataHandle, usbRxDataHandle);
+
     /* USER CODE END RTOS_EVENTS */
 
     /* Start scheduler */
@@ -750,7 +718,6 @@ void StartDefaultTask(void *argument) {
 /* USER CODE END Header_StartDinReceiveTask */
 void StartDinReceiveTask(void *argument) {
     /* USER CODE BEGIN StartDinReceiveTask */
-    /* Infinite loop */
     for (;;) {
         osDelay(1);
     }
@@ -766,7 +733,6 @@ void StartDinReceiveTask(void *argument) {
 /* USER CODE END Header_StartDinTransmitTask */
 void StartDinTransmitTask(void *argument) {
     /* USER CODE BEGIN StartDinTransmitTask */
-    /* Infinite loop */
     for (;;) {
         osDelay(1);
     }
@@ -792,12 +758,11 @@ void StartUsbReceiveTask(void *argument) {
         }
 
         // print the received packet
-        LOG_TRACE("USB MIDI: Received packet: cable=%d, command=0x%02X, channel=%d, data1=%d, data2=%d", packet.cable,
-            packet.command, packet.channel, packet.data1, packet.data2);
+        LOG_TRACE("USB MIDI: Received packet: " MIDI_PACKET_FMT, MIDI_PACKET_FMT_ARGS(&packet));
 
-        // loopback the packet
+        // DEBUGGING: Loopback the packet to din transmit
         if (osMessageQueuePut(usbTxDataHandle, &packet, 0, 0) != osOK) {
-            LOG_ERROR("USB MIDI: Failed to put packet into usbTxData");
+            LOG_ERROR("USB MIDI: Failed to put packet into dinTxData");
         }
     }
     /* USER CODE END StartUsbReceiveTask */
@@ -812,30 +777,8 @@ void StartUsbReceiveTask(void *argument) {
 /* USER CODE END Header_StartUsbTransmitTask */
 void StartUsbTransmitTask(void *argument) {
     /* USER CODE BEGIN StartUsbTransmitTask */
-    midi_packet_t packet;
-    uint8_t usb_tx_buffer[4];
-
     for (;;) {
-        // wait for a packet to be ready to transmit
-        if (osMessageQueueGet(usbTxDataHandle, &packet, NULL, osWaitForever) != osOK) {
-            LOG_ERROR("USB MIDI: Failed to get packet from usbTxData");
-            continue;
-        }
-
-        LOG_TRACE("USB MIDI: Transmitting packet: cable=%d, command=0x%02X, channel=%d, data1=%d, data2=%d",
-            packet.cable, packet.command, packet.channel, packet.data1, packet.data2);
-
-        // prepare a usb report
-        usb_tx_buffer[0] = (packet.cable << 4) | (packet.command >> 4);
-        usb_tx_buffer[1] = packet.command | packet.channel;
-        usb_tx_buffer[2] = packet.data1;
-        usb_tx_buffer[3] = packet.data2;
-
-        // send the report
-        while (USBD_MIDI_GetState(&hUsbDeviceFS) != MIDI_IDLE) {
-            osDelay(1);
-        }
-        USBD_MIDI_SendReport(&hUsbDeviceFS, usb_tx_buffer, 4);
+        midi_usb_ll_driver_tx_process();
     }
     /* USER CODE END StartUsbTransmitTask */
 }
@@ -865,9 +808,21 @@ void StartIpcReceiveTask(void *argument) {
 /* USER CODE END Header_StartIPCTransmitTask */
 void StartIPCTransmitTask(void *argument) {
     /* USER CODE BEGIN StartIPCTransmitTask */
-    /* Infinite loop */
+    midi_packet_t packet;
+
     for (;;) {
-        osDelay(1);
+        // wait for a packet to be available
+        if (osMessageQueueGet(ipcTxDataHandle, &packet, NULL, osWaitForever) != osOK) {
+            LOG_ERROR("IPC: Failed to get packet from ipcTxData");
+            continue;
+        }
+
+        LOG_TRACE("IPC: Transmitting packet: cable=%d, command=0x%02X, channel=%d, data1=%d, data2=%d", packet.cable,
+            packet.command, packet.channel, packet.data1, packet.data2);
+
+        if (HAL_UART_Transmit(&huart3, (uint8_t *) &packet, sizeof(midi_packet_t), 0xFFFF) != HAL_OK) {
+            LOG_ERROR("IPC: Failed to transmit packet");
+        }
     }
     /* USER CODE END StartIPCTransmitTask */
 }

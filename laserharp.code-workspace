@@ -10,7 +10,13 @@
 			"path": "stm"
 		}
 	],
-	"settings": {},
+	"settings": {
+		"files.associations": {
+			"*.wb": "c",
+			".dockerignore": "ignore",
+			"midi_usb.h": "c"
+		}
+	},
 	"extensions": {
 		"recommendations": [
 			"ms-python.python",

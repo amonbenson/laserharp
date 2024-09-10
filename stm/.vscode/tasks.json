@@ -147,9 +147,8 @@
             },
             "problemMatcher": [],
             "presentation": {
-                "reveal": "never",
-                "panel": "dedicated",
-                "close": true
+                "clear": true,
+                "reveal": "silent"
             }
         }
     ]
