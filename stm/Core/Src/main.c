@@ -23,6 +23,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include "drivers/ipc.h"
 #include "drivers/midi_usb.h"
 #include "log.h"
 #include "midi_types.h"
@@ -66,31 +67,10 @@ const osThreadAttr_t defaultTask_attributes = {
     .stack_size = 256 * 4,
     .priority = (osPriority_t) osPriorityLow,
 };
-/* Definitions for dinReceiveTask */
-osThreadId_t dinReceiveTaskHandle;
-const osThreadAttr_t dinReceiveTask_attributes = {
-    .name = "dinReceiveTask",
-    .stack_size = 128 * 4,
-    .priority = (osPriority_t) osPriorityLow,
-};
-/* Definitions for dinTransmitTask */
-osThreadId_t dinTransmitTaskHandle;
-const osThreadAttr_t dinTransmitTask_attributes = {
-    .name = "dinTransmitTask",
-    .stack_size = 128 * 4,
-    .priority = (osPriority_t) osPriorityLow,
-};
 /* Definitions for usbReceiveTask */
 osThreadId_t usbReceiveTaskHandle;
 const osThreadAttr_t usbReceiveTask_attributes = {
     .name = "usbReceiveTask",
-    .stack_size = 128 * 4,
-    .priority = (osPriority_t) osPriorityLow,
-};
-/* Definitions for usbTransmitTask */
-osThreadId_t usbTransmitTaskHandle;
-const osThreadAttr_t usbTransmitTask_attributes = {
-    .name = "usbTransmitTask",
     .stack_size = 128 * 4,
     .priority = (osPriority_t) osPriorityLow,
 };
@@ -101,31 +81,12 @@ const osThreadAttr_t ipcReceiveTask_attributes = {
     .stack_size = 128 * 4,
     .priority = (osPriority_t) osPriorityLow,
 };
-/* Definitions for ipcTransmitTask */
-osThreadId_t ipcTransmitTaskHandle;
-const osThreadAttr_t ipcTransmitTask_attributes = {
-    .name = "ipcTransmitTask",
-    .stack_size = 128 * 4,
-    .priority = (osPriority_t) osPriorityLow,
-};
-/* Definitions for dinRxData */
-osMessageQueueId_t dinRxDataHandle;
-const osMessageQueueAttr_t dinRxData_attributes = { .name = "dinRxData" };
-/* Definitions for dinTxData */
-osMessageQueueId_t dinTxDataHandle;
-const osMessageQueueAttr_t dinTxData_attributes = { .name = "dinTxData" };
 /* Definitions for usbRxData */
 osMessageQueueId_t usbRxDataHandle;
 const osMessageQueueAttr_t usbRxData_attributes = { .name = "usbRxData" };
-/* Definitions for usbTxData */
-osMessageQueueId_t usbTxDataHandle;
-const osMessageQueueAttr_t usbTxData_attributes = { .name = "usbTxData" };
 /* Definitions for ipcRxData */
 osMessageQueueId_t ipcRxDataHandle;
 const osMessageQueueAttr_t ipcRxData_attributes = { .name = "ipcRxData" };
-/* Definitions for ipcTxData */
-osMessageQueueId_t ipcTxDataHandle;
-const osMessageQueueAttr_t ipcTxData_attributes = { .name = "ipcTxData" };
 /* Definitions for printfSemaphore */
 osSemaphoreId_t printfSemaphoreHandle;
 const osSemaphoreAttr_t printfSemaphore_attributes = { .name = "printfSemaphore" };
@@ -149,12 +110,8 @@ static void MX_TIM3_Init(void);
 static void MX_I2C1_Init(void);
 static void MX_ADC1_Init(void);
 void StartDefaultTask(void *argument);
-void StartDinReceiveTask(void *argument);
-void StartDinTransmitTask(void *argument);
 void StartUsbReceiveTask(void *argument);
-void StartUsbTransmitTask(void *argument);
 void StartIpcReceiveTask(void *argument);
-void StartIPCTransmitTask(void *argument);
 
 /* USER CODE BEGIN PFP */
 int _write(int file, char *ptr, int len);
@@ -171,7 +128,9 @@ int _write(int file, char *ptr, int len) {
     return len;
 }
 
-void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) { }
+void HAL_UART_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size) {
+    ipc_driver_HAL_UARTEx_RxEventCallback(huart, Size);
+}
 /* USER CODE END 0 */
 
 /**
@@ -234,23 +193,11 @@ int main(void) {
     /* USER CODE END RTOS_TIMERS */
 
     /* Create the queue(s) */
-    /* creation of dinRxData */
-    dinRxDataHandle = osMessageQueueNew(32, sizeof(midi_packet_t), &dinRxData_attributes);
-
-    /* creation of dinTxData */
-    dinTxDataHandle = osMessageQueueNew(32, sizeof(midi_packet_t), &dinTxData_attributes);
-
     /* creation of usbRxData */
     usbRxDataHandle = osMessageQueueNew(32, sizeof(midi_packet_t), &usbRxData_attributes);
 
-    /* creation of usbTxData */
-    usbTxDataHandle = osMessageQueueNew(32, sizeof(midi_packet_t), &usbTxData_attributes);
-
     /* creation of ipcRxData */
     ipcRxDataHandle = osMessageQueueNew(32, sizeof(midi_packet_t), &ipcRxData_attributes);
-
-    /* creation of ipcTxData */
-    ipcTxDataHandle = osMessageQueueNew(32, sizeof(midi_packet_t), &ipcTxData_attributes);
 
     /* USER CODE BEGIN RTOS_QUEUES */
     /* add queues, ... */
@@ -260,23 +207,11 @@ int main(void) {
     /* creation of defaultTask */
     defaultTaskHandle = osThreadNew(StartDefaultTask, NULL, &defaultTask_attributes);
 
-    /* creation of dinReceiveTask */
-    dinReceiveTaskHandle = osThreadNew(StartDinReceiveTask, NULL, &dinReceiveTask_attributes);
-
-    /* creation of dinTransmitTask */
-    dinTransmitTaskHandle = osThreadNew(StartDinTransmitTask, NULL, &dinTransmitTask_attributes);
-
     /* creation of usbReceiveTask */
     usbReceiveTaskHandle = osThreadNew(StartUsbReceiveTask, NULL, &usbReceiveTask_attributes);
 
-    /* creation of usbTransmitTask */
-    usbTransmitTaskHandle = osThreadNew(StartUsbTransmitTask, NULL, &usbTransmitTask_attributes);
-
     /* creation of ipcReceiveTask */
     ipcReceiveTaskHandle = osThreadNew(StartIpcReceiveTask, NULL, &ipcReceiveTask_attributes);
-
-    /* creation of ipcTransmitTask */
-    ipcTransmitTaskHandle = osThreadNew(StartIPCTransmitTask, NULL, &ipcTransmitTask_attributes);
 
     /* USER CODE BEGIN RTOS_THREADS */
     /* add threads, ... */
@@ -289,7 +224,8 @@ int main(void) {
     /* USER CODE BEGIN RTOS_EVENTS */
 
     // initialize drivers
-    midi_usb_driver_init(usbTxDataHandle, usbRxDataHandle);
+    midi_usb_driver_init(usbRxDataHandle);
+    ipc_driver_init(&huart1, ipcRxDataHandle);
 
     /* USER CODE END RTOS_EVENTS */
 
@@ -565,7 +501,7 @@ static void MX_USART1_UART_Init(void) {
 
     /* USER CODE END USART1_Init 1 */
     huart1.Instance = USART1;
-    huart1.Init.BaudRate = 1152000;
+    huart1.Init.BaudRate = 115200;
     huart1.Init.WordLength = UART_WORDLENGTH_8B;
     huart1.Init.StopBits = UART_STOPBITS_1;
     huart1.Init.Parity = UART_PARITY_NONE;
@@ -709,36 +645,6 @@ void StartDefaultTask(void *argument) {
     /* USER CODE END 5 */
 }
 
-/* USER CODE BEGIN Header_StartDinReceiveTask */
-/**
- * @brief Function implementing the dinReceiveTask thread.
- * @param argument: Not used
- * @retval None
- */
-/* USER CODE END Header_StartDinReceiveTask */
-void StartDinReceiveTask(void *argument) {
-    /* USER CODE BEGIN StartDinReceiveTask */
-    for (;;) {
-        osDelay(1);
-    }
-    /* USER CODE END StartDinReceiveTask */
-}
-
-/* USER CODE BEGIN Header_StartDinTransmitTask */
-/**
- * @brief Function implementing the dinTransmitTask thread.
- * @param argument: Not used
- * @retval None
- */
-/* USER CODE END Header_StartDinTransmitTask */
-void StartDinTransmitTask(void *argument) {
-    /* USER CODE BEGIN StartDinTransmitTask */
-    for (;;) {
-        osDelay(1);
-    }
-    /* USER CODE END StartDinTransmitTask */
-}
-
 /* USER CODE BEGIN Header_StartUsbReceiveTask */
 /**
  * @brief Function implementing the usbReceiveTask thread.
@@ -760,27 +666,10 @@ void StartUsbReceiveTask(void *argument) {
         // print the received packet
         LOG_TRACE("USB MIDI: Received packet: " MIDI_PACKET_FMT, MIDI_PACKET_FMT_ARGS(&packet));
 
-        // DEBUGGING: Loopback the packet to din transmit
-        if (osMessageQueuePut(usbTxDataHandle, &packet, 0, 0) != osOK) {
-            LOG_ERROR("USB MIDI: Failed to put packet into dinTxData");
-        }
+        // forward the midi packet to the Raspberry Pi
+        ipc_driver_transmit(&packet);
     }
     /* USER CODE END StartUsbReceiveTask */
-}
-
-/* USER CODE BEGIN Header_StartUsbTransmitTask */
-/**
- * @brief Function implementing the usbTransmitTask thread.
- * @param argument: Not used
- * @retval None
- */
-/* USER CODE END Header_StartUsbTransmitTask */
-void StartUsbTransmitTask(void *argument) {
-    /* USER CODE BEGIN StartUsbTransmitTask */
-    for (;;) {
-        midi_usb_ll_driver_tx_process();
-    }
-    /* USER CODE END StartUsbTransmitTask */
 }
 
 /* USER CODE BEGIN Header_StartIpcReceiveTask */
@@ -792,39 +681,21 @@ void StartUsbTransmitTask(void *argument) {
 /* USER CODE END Header_StartIpcReceiveTask */
 void StartIpcReceiveTask(void *argument) {
     /* USER CODE BEGIN StartIpcReceiveTask */
-    /* Infinite loop */
-    for (;;) {
-        osDelay(1);
-    }
-    /* USER CODE END StartIpcReceiveTask */
-}
-
-/* USER CODE BEGIN Header_StartIPCTransmitTask */
-/**
- * @brief Function implementing the ipcTransmitTask thread.
- * @param argument: Not used
- * @retval None
- */
-/* USER CODE END Header_StartIPCTransmitTask */
-void StartIPCTransmitTask(void *argument) {
-    /* USER CODE BEGIN StartIPCTransmitTask */
     midi_packet_t packet;
 
     for (;;) {
-        // wait for a packet to be available
-        if (osMessageQueueGet(ipcTxDataHandle, &packet, NULL, osWaitForever) != osOK) {
-            LOG_ERROR("IPC: Failed to get packet from ipcTxData");
+        // wait for a packet to be received
+        if (osMessageQueueGet(ipcRxDataHandle, &packet, NULL, osWaitForever) != osOK) {
+            LOG_ERROR("IPC: Failed to get packet from ipcRxData");
             continue;
         }
 
-        LOG_TRACE("IPC: Transmitting packet: cable=%d, command=0x%02X, channel=%d, data1=%d, data2=%d", packet.cable,
-            packet.command, packet.channel, packet.data1, packet.data2);
+        // print the received packet
+        LOG_TRACE("IPC: Received packet: " MIDI_PACKET_FMT, MIDI_PACKET_FMT_ARGS(&packet));
 
-        if (HAL_UART_Transmit(&huart3, (uint8_t *) &packet, sizeof(midi_packet_t), 0xFFFF) != HAL_OK) {
-            LOG_ERROR("IPC: Failed to transmit packet");
-        }
+        // TODO: handle IPC packets
     }
-    /* USER CODE END StartIPCTransmitTask */
+    /* USER CODE END StartIpcReceiveTask */
 }
 
 /**

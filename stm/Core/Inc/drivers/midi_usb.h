@@ -23,10 +23,9 @@
 #define MIDI_USB_CIN_SINGLE_BYTE 0xF
 
 typedef struct {
-    osMessageQueueId_t tx_queue;
     osMessageQueueId_t rx_queue;
 } midi_usb_driver_t;
 
-void midi_usb_driver_init(osMessageQueueId_t tx_queue, osMessageQueueId_t rx_queue);
+void midi_usb_driver_init(osMessageQueueId_t rx_queue);
 
-void midi_usb_ll_driver_tx_process();
+void midi_usb_driver_transmit(midi_packet_t *packet);
