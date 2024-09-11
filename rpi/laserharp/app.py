@@ -2,17 +2,14 @@ from enum import Enum
 import logging
 import threading
 import time
-import gpiozero
-import serial
 from .events import EventEmitter
 from .midi import MidiEvent
 from .ipc import IPCController
+from .din_midi import DinMidi
 from .laser_array import LaserArray
 from .camera import Camera
 from .image_calibrator import ImageCalibrator
 from .image_processor import ImageProcessor
-
-debug_led = gpiozero.LED(17)
 
 
 class LaserHarpApp(EventEmitter):
@@ -38,14 +35,16 @@ class LaserHarpApp(EventEmitter):
 
         # setup all components
         self.ipc = IPCController(self.config["ipc"])
+        self.din_midi = DinMidi(self.config["din_midi"])
         self.laser_array = LaserArray(self.ipc, self.config["laser_array"])
         self.camera = Camera(self.config["camera"])
         self.calibrator = ImageCalibrator(self.laser_array, self.camera, self.config["image_calibrator"])
         self.processor = ImageProcessor(self.laser_array, self.camera, self.config["image_processor"])
 
-        # setup the ipc read process
+        # setup all processing threads
         self.capture_thread = threading.Thread(target=self._capture_thread, daemon=True)
-        # self.ipc_read_thread = threading.Thread(target=self._ipc_read_process, daemon=True)
+        # self.ipc_read_thread = threading.Thread(target=self._ipc_read_thread, daemon=True)
+        self.din_midi_read_thread = threading.Thread(target=self._din_midi_read_thread, daemon=True)
 
         self._frame_rate = None
         self._frame_last_update = time.time()
@@ -53,7 +52,6 @@ class LaserHarpApp(EventEmitter):
         self._frame_emit_last_update = time.time()
 
         self._prev_result = None
-        self._midi_serial = serial.Serial("/dev/ttyAMA0", 31250)
         self._prev_pitch_bend = 8192
 
         self.state = self.State.IDLE
@@ -65,12 +63,14 @@ class LaserHarpApp(EventEmitter):
         # start all components
         logging.info("Starting components...")
         self.ipc.start()
+        self.din_midi.start()
         self.camera.start()
 
         # start all threads
         logging.info("Starting threads...")
         self.capture_thread.start()
-        # self.ipc_read_process.start()
+        # self.ipc_read_thread.start()
+        self.din_midi_read_thread.start()
 
         # load the calibration
         logging.info("Loading calibration...")
@@ -94,11 +94,12 @@ class LaserHarpApp(EventEmitter):
 
         # stop all threads
         self.capture_thread.join(timeout=1)
-        # self.ipc_read_process.join(timeout=1)
-        # self.ipc_read_process.terminate()
+        # self.ipc_read_thread.join(timeout=1)
+        self.din_midi_read_thread.join(timeout=1)
 
         # stop all components
         self.camera.stop()
+        self.din_midi.stop()
         self.ipc.stop()
 
         self._state_change([self.State.STOPPING], self.State.IDLE)
@@ -137,10 +138,6 @@ class LaserHarpApp(EventEmitter):
             result = self.processor.process(frame)
 
             # TODO: generate midi data
-            if any(result.active):
-                debug_led.on()
-            else:
-                debug_led.off()
 
             # set the laser brightness
             for i, active in enumerate(result.active):
@@ -149,25 +146,32 @@ class LaserHarpApp(EventEmitter):
                 note_off = not active and (self._prev_result and self._prev_result.active[i])
 
                 if note_on:
-                    print(f"Note on: {note}")
-                    self._midi_serial.write(bytes([0x90, note, 127]))
+                    self.din_midi.send(MidiEvent(0, "note_on", note=note, velocity=127))
                 elif note_off:
-                    print(f"Note off: {note}")
-                    self._midi_serial.write(bytes([0x80, note, 0]))
+                    self.din_midi.send(MidiEvent(0, "note_off", note=note))
 
             # use the average modulation to send pitch bend
             num_active = sum(result.active)
             mod_sum = sum(result.modulation)
             mod_avg = mod_sum / num_active if num_active > 0 else 0
-            pitch_bend = int(mod_avg * 8192 + 8192)
+            pitch_bend = max(-8192, min(8191, int(mod_avg * 8192)))
 
             if pitch_bend != self._prev_pitch_bend:
-                self._midi_serial.write(bytes([0xE0, pitch_bend & 0x7F, pitch_bend >> 7]))
+                self.din_midi.send(MidiEvent(0, "pitchwheel", pitch=pitch_bend))
             self._prev_pitch_bend = pitch_bend
 
-            self._midi_serial.flush()
+            # self._midi_serial.flush()
 
             self._prev_result = result
+
+    def _din_midi_read_thread(self):
+        while self.state != self.State.IDLE:
+            # read a message
+            event = self.din_midi.read(timeout=0.5)
+            if event is None:
+                continue
+
+            # TODO: handle the midi event
 
     def _note_to_laser(self, note: int):
         if note == 127:
