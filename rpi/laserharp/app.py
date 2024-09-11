@@ -43,7 +43,7 @@ class LaserHarpApp(EventEmitter):
 
         # setup all processing threads
         self.capture_thread = threading.Thread(target=self._capture_thread, daemon=True)
-        # self.ipc_read_thread = threading.Thread(target=self._ipc_read_thread, daemon=True)
+        self.ipc_read_thread = threading.Thread(target=self._ipc_read_thread, daemon=True)
         self.din_midi_read_thread = threading.Thread(target=self._din_midi_read_thread, daemon=True)
 
         self._frame_rate = None
@@ -163,6 +163,15 @@ class LaserHarpApp(EventEmitter):
             # self._midi_serial.flush()
 
             self._prev_result = result
+
+    def _ipc_read_thread(self):
+        while self.state != self.State.IDLE:
+            # read a message
+            data = self.ipc.read_raw(timeout=0.5)
+            if data is None:
+                continue
+
+            # TODO: handle the ipc message
 
     def _din_midi_read_thread(self):
         while self.state != self.State.IDLE:

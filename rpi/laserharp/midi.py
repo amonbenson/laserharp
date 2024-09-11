@@ -3,8 +3,8 @@ import mido
 
 
 class MidiEvent:
-    def __init__(self, cable: str, message_type: Union[str, mido.Message], *args, **kwargs):
-        self.cable = str(cable)
+    def __init__(self, cable: int, message_type: Union[str, mido.Message], *args, **kwargs):
+        self.cable = int(cable)
 
         if isinstance(message_type, mido.Message):
             self.message = message_type

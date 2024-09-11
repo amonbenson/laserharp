@@ -6,17 +6,11 @@ save_debug_images: true
 
 laser_array:
   size: 2 # number of lasers
-  translation_table: [12, 11] # mapping from note to laser index
+  translation_table: [11, 13] # mapping from note to laser index
 
 ipc:
   port: /dev/ttyAMA0
   baudrate: 115200
-
-  cables:
-    din: 0
-    usb: 1
-    ble: 2
-    laser_array: 3
 
 din_midi:
   port: /dev/ttyAMA2
@@ -49,7 +43,7 @@ image_calibrator:
 
   preblur: 3 # gaussian blur kernel size
   threshold: 50 # minimum brightness to be considered
-  min_coverage: 0.3 # percentual number of blobs that must be captured for each beam
+  min_coverage: 0.5 # percentual number of blobs that must be captured for each beam
 
 # settings during normal operation
 image_processor:

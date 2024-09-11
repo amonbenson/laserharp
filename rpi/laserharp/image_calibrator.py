@@ -202,7 +202,6 @@ class ImageCalibrator:
         # STEP 2: fit a line to each individual laser's beam path
         for i, _ in enumerate(self.laser_array):
             logging.info(f"Capturing laser {i}")
-            time.sleep(1)
             self.laser_array[i] = 127
 
             combined_capture = np.zeros_like(base_img)

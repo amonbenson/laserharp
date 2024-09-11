@@ -32,9 +32,14 @@ Bidirectional: 0x0N <byte0> <byte1> <byte2>
 Bidirectional: 0x1N <byte0> <byte1> <byte2>
 ```
 
-### Set Laser Brightness
+### Set Brightness for Single Laser
 ```
 RPi -> STM: 0x80 <diode_index> <brightness> 0x00
+```
+
+### Set Brightness for All Lasers
+```
+RPi -> STM: 0x81 <brightness> 0x00 0x00
 ```
 
 ### Firmware Version Inquiry
