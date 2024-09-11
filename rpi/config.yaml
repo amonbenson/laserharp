@@ -9,14 +9,18 @@ laser_array:
   translation_table: [12, 11] # mapping from note to laser index
 
 ipc:
-  port: /dev/serial0
-  baudrate: 1152000
+  port: /dev/ttyAMA0
+  baudrate: 115200
 
   cables:
     din: 0
     usb: 1
     ble: 2
     laser_array: 3
+
+din_midi:
+  port: /dev/ttyAMA2
+  baudrate: 38400 # note: this results in 31250 baud when using "dtoverlay=midi-uart2" in /boot/config.txt
 
 camera:
   # mechanical parameters
@@ -31,7 +35,7 @@ camera:
 
   # exposure settings
   shutter_speed: 10000 # in microseconds
-  iso: 10
+  iso: 20
 
   # image settings
   brightness: 50
@@ -43,9 +47,9 @@ camera:
 image_calibrator:
   calibration_file: calibration.yaml # path to the calibration file
 
-  preblur: 17 # gaussian blur kernel size
+  preblur: 3 # gaussian blur kernel size
   threshold: 50 # minimum brightness to be considered
-  min_coverage: 0.6 # percentual number of blobs that must be captured for each beam
+  min_coverage: 0.3 # percentual number of blobs that must be captured for each beam
 
 # settings during normal operation
 image_processor:
