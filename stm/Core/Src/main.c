@@ -129,7 +129,7 @@ int _write(int file, char *ptr, int len) {
     return len;
 }
 
-void HAL_UART_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size) {
+void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size) {
     ipc_driver_HAL_UARTEx_RxEventCallback(huart, Size);
 }
 /* USER CODE END 0 */
@@ -186,7 +186,7 @@ int main(void) {
     printfSemaphoreHandle = osSemaphoreNew(1, 0, &printfSemaphore_attributes);
 
     /* USER CODE BEGIN RTOS_SEMAPHORES */
-    /* add semaphores, ... */
+    osSemaphoreRelease(printfSemaphoreHandle);
     /* USER CODE END RTOS_SEMAPHORES */
 
     /* USER CODE BEGIN RTOS_TIMERS */
@@ -198,7 +198,7 @@ int main(void) {
     usbRxDataHandle = osMessageQueueNew(32, sizeof(midi_packet_t), &usbRxData_attributes);
 
     /* creation of ipcRxData */
-    ipcRxDataHandle = osMessageQueueNew(32, sizeof(midi_packet_t), &ipcRxData_attributes);
+    ipcRxDataHandle = osMessageQueueNew(32, sizeof(ipc_packet_t), &ipcRxData_attributes);
 
     /* USER CODE BEGIN RTOS_QUEUES */
     /* add queues, ... */
@@ -639,9 +639,6 @@ void StartDefaultTask(void *argument) {
     MX_USB_DEVICE_Init();
     /* USER CODE BEGIN 5 */
 
-    // enable the printf semaphore
-    osSemaphoreRelease(printfSemaphoreHandle);
-
     printf("\n\n\n");
     LOG_INFO("Laserharp Firmware version %s", FIRMWARE_VERSION_STR);
     LOG_INFO("Created by Amon Benson");
@@ -680,7 +677,12 @@ void StartUsbReceiveTask(void *argument) {
         LOG_TRACE("USB MIDI: Received packet: " MIDI_PACKET_FMT, MIDI_PACKET_FMT_ARGS(&packet));
 
         // forward the midi packet to the Raspberry Pi
-        ipc_driver_transmit(&packet);
+        ipc_packet_t ipc_packet = { 0 };
+        ipc_packet[0] = packet.cn_cin & 0xf0; // force cable number to 0
+        ipc_packet[1] = packet.status;
+        ipc_packet[2] = packet.data1;
+        ipc_packet[3] = packet.data2;
+        ipc_driver_transmit(&ipc_packet);
     }
     /* USER CODE END StartUsbReceiveTask */
 }
@@ -694,7 +696,7 @@ void StartUsbReceiveTask(void *argument) {
 /* USER CODE END Header_StartIpcReceiveTask */
 void StartIpcReceiveTask(void *argument) {
     /* USER CODE BEGIN StartIpcReceiveTask */
-    midi_packet_t packet;
+    ipc_packet_t packet;
 
     for (;;) {
         // wait for a packet to be received
@@ -704,9 +706,41 @@ void StartIpcReceiveTask(void *argument) {
         }
 
         // print the received packet
-        LOG_TRACE("IPC: Received packet: " MIDI_PACKET_FMT, MIDI_PACKET_FMT_ARGS(&packet));
+        LOG_TRACE("IPC: Received packet: " IPC_PACKET_FMT, IPC_PACKET_FMT_ARGS(&packet));
 
-        // TODO: handle IPC packets
+        uint8_t major_code = packet[0] & 0xF0;
+        uint8_t code = packet[0];
+        switch (major_code) {
+            case 0x00: // Usb Midi Out
+                LOG_INFO("USB Midi Out not implemented");
+                break;
+            case 0x10: // Din Midi Out
+                LOG_INFO("Din Midi Out not implemented");
+                break;
+            default: // Handle other IPC codes
+                switch (code) {
+                    case 0x80: // Set Brightness for Single Laser
+                        laser_array_set_brightness(
+                            &laser_array, packet[1], packet[2] * (LA_NUM_BRIGHTNESS_LEVELS - 1) / 127);
+                        break;
+                    case 0x81: // Set Brightness for All Lasers
+                        for (uint8_t i = 0; i < LA_NUM_DIODES; i++) {
+                            laser_array_set_brightness(
+                                &laser_array, i, packet[1] * (LA_NUM_BRIGHTNESS_LEVELS - 1) / 127);
+                        }
+                        break;
+                    case 0xf0: // Firmware Version Inquiry
+                        LOG_INFO("Firmware Version Inquiry not implemented");
+                        break;
+                    case 0xf1: // Reboot
+                        LOG_INFO("Rebooting...");
+                        NVIC_SystemReset();
+                        break;
+                    default:
+                        LOG_ERROR("Unknown IPC code: %02X", packet[0]);
+                        break;
+                }
+        }
     }
     /* USER CODE END StartIpcReceiveTask */
 }
