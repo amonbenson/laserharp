@@ -71,6 +71,10 @@ export class Api {
   once(endpoint, callback) {
     this.socket.once(endpoint, callback);
   }
+
+  emit(endpoint, data) {
+    this.socket.emit(endpoint, data);
+  }
 }
 
 export default {

@@ -38,6 +38,10 @@ def create_backend(laserharp: LaserHarpApp) -> tuple[Flask, callable]:
     def on_error(e):
         print("Socket error:", e)
 
+    @socketio.on("app:calibrate")
+    def on_calibrate(data):
+        laserharp.run_calibration()
+
     # will be set when calling run further down
     output = None
 
