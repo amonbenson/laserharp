@@ -17,6 +17,7 @@ def wait_until(condition: callable, timeout: float):
     return True
 
 
+# pylint: disable=duplicate-code
 class MockSerial:
     def __init__(self):
         self.txdata = bytearray()
@@ -47,6 +48,7 @@ class MockSerial:
         pass
 
 
+# pylint: disable=duplicate-code
 class MockIPCController(EventEmitter):
     def __init__(self, config: dict):
         super().__init__()
@@ -71,6 +73,7 @@ class MockIPCController(EventEmitter):
         return self.data
 
 
+# pylint: disable=duplicate-code
 class MockCamera:
     def __init__(self, config: dict):
         self.config = config

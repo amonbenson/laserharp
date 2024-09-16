@@ -7,6 +7,8 @@ from .utils import MockSerial
 class TestLaserArray(unittest.TestCase):
     def setUp(self):
         self.serial = MockSerial()
+
+        # pylint: disable=duplicate-code
         self.ipc = IPCController(
             config={
                 "port": None,  # ignored when using custom_serial

@@ -17,6 +17,7 @@ except ImportError:
 @unittest.skipUnless(PICAMERA2_AVAILABLE, "picamera2 is not available")
 class TestCamera(unittest.TestCase):
     def setUp(self):
+        # pylint: disable=duplicate-code
         self.camera = Camera(
             config={
                 "resolution": (640, 480),
