@@ -4,7 +4,7 @@ import time
 import numpy as np
 import yaml
 from threading import Thread
-from .utils import MockIPC, MockCamera, wait_until
+from .utils import MockIPCController, MockCamera, wait_until
 from src.laserharp.laser_array import LaserArray
 from src.laserharp.image_calibrator import Calibration, ImageCalibrator
 from . import OUTPUT_DIRECTORY
@@ -12,7 +12,7 @@ from . import OUTPUT_DIRECTORY
 
 class Test_ImageCalibrator(unittest.TestCase):
     def setUp(self):
-        self.ipc = MockIPC(config={"cables": {"laser_array": 3}})
+        self.ipc = MockIPCController(config={"cables": {"laser_array": 3}})
 
         self.laser_array = LaserArray(self.ipc, config={"size": 3, "translation_table": None})
 

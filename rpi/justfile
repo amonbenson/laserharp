@@ -6,7 +6,7 @@ help:
 
 
 test:
-    pytest -vv --color=yes tests
+    python -m unittest discover -t . -s tests -vv
 
 
 lint-js:

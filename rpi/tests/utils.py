@@ -1,6 +1,7 @@
 import numpy as np
 import cv2
 import time
+from typing import Optional
 from src.laserharp.midi import MidiEvent
 from src.laserharp.events import EventEmitter
 
@@ -47,16 +48,28 @@ class MockSerial:
         pass
 
 
-class MockIPC(EventEmitter):
+class MockIPCController(EventEmitter):
     def __init__(self, config: dict):
         super().__init__()
 
         self.config = config
-        self.event = None
+        self.data: Optional[bytearray] = None
 
-    def send(self, event: MidiEvent):
-        self.event = event
-        self.emit("send", event)
+    def start(self):
+        pass
+
+    def stop(self):
+        pass
+
+    def send_raw(self, data: bytes, timeout=None):
+        if len(data) != 4:
+            raise ValueError(f"IPC Data must be 4 bytes long, got {len(data)}")
+
+        self.data = data
+        self.emit("send_raw", data)
+
+    def read_raw(self, timeout=None) -> bytes:
+        return self.data
 
 
 class MockCamera:
