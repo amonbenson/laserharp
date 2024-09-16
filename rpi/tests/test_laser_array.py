@@ -1,13 +1,20 @@
 import unittest
 from src.laserharp.laser_array import LaserArray
 from src.laserharp.midi import MidiEvent
-from .utils import MockIPCController
+from src.laserharp.ipc import IPCController
+from .utils import MockSerial
 
 
-@unittest.skip("Refactored")
 class Test_LaserArray(unittest.TestCase):
     def setUp(self):
-        self.ipc = MockIPCController(config={"cables": {"laser_array": 3}})
+        self.serial = MockSerial()
+        self.ipc = IPCController(
+            config={
+                "port": None,  # ignored when using custom_serial
+                "baudrate": None,  # ignored when using custom_serial
+            },
+            custom_serial=self.serial,
+        )
 
         self.laser_array = LaserArray(self.ipc, config={"size": 3, "translation_table": [3, 4, 5]})
 
@@ -25,8 +32,8 @@ class Test_LaserArray(unittest.TestCase):
 
         # test if a message was sent
         self.assertEqual(
-            self.ipc.event,
-            MidiEvent("laser_array", "control_change", control=4, value=64),
+            self.serial.txdata,
+            bytearray([0x80, 4, 64, 0x00]),
         )
 
     def test_set_all(self):
@@ -39,15 +46,18 @@ class Test_LaserArray(unittest.TestCase):
 
         # test if a message was sent
         self.assertEqual(
-            self.ipc.event,
-            MidiEvent("laser_array", "control_change", control=127, value=101),
+            self.serial.txdata,
+            bytearray([0x81, 101, 0x00, 0x00]),
         )
+
+        # start a new capture
+        self.serial.clear()
 
         # check if set all works with a slice
         self.laser_array[:] = 127
         self.assertEqual(
-            self.ipc.event,
-            MidiEvent("laser_array", "control_change", control=127, value=127),
+            self.serial.txdata,
+            bytearray([0x81, 127, 0x00, 0x00]),
         )
 
     def test_stack(self):
@@ -57,15 +67,18 @@ class Test_LaserArray(unittest.TestCase):
         self.laser_array.set(0, 127)
         self.assertEqual(self.laser_array[0], 127)
         self.assertEqual(
-            self.ipc.event,
-            MidiEvent("laser_array", "control_change", control=3, value=127),
+            self.serial.txdata,
+            bytearray([0x80, 3, 64, 0x00]) + bytearray([0x80, 3, 127, 0x00]),
         )
+
+        # start a new capture
+        self.serial.clear()
 
         self.laser_array.pop_state()
         self.assertEqual(self.laser_array[0], 64)
         self.assertEqual(
-            self.ipc.event,
-            MidiEvent("laser_array", "control_change", control=3, value=64),
+            self.serial.txdata,
+            bytearray([0x80, 3, 64, 0x00]),
         )
 
 
