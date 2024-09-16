@@ -1,4 +1,5 @@
 import logging
+import time
 import serial
 from .events import EventEmitter
 
@@ -10,8 +11,11 @@ class IPCController(EventEmitter):
         super().__init__()
 
         self.config = config
+        self._enabled = config.get("enabled", True)
 
-        if custom_serial is not None:
+        if not self._enabled:
+            self._serial = None
+        elif custom_serial is not None:
             self._serial = custom_serial
         else:
             self._serial = serial.Serial(
@@ -23,24 +27,37 @@ class IPCController(EventEmitter):
             )
 
     def start(self):
+        if not self._enabled:
+            logging.info("IPC interface is disabled")
+            return
+
         if not self._serial.is_open:
             self._serial.open()
 
     def stop(self):
+        if not self._enabled:
+            return
+
         self._serial.close()
 
-    def send_raw(self, data: bytes, timeout=None):
+    def send_raw(self, data: bytes, timeout=1.0):
         # only short messages are supported
         if len(data) != 4:
             raise ValueError(f"IPC Data must be 4 bytes long, got {len(data)}")
 
         # send the packet
         logging.debug(f"RPI -> STM: {data.hex(' ')}")
-        self._serial.write_timeout = timeout
-        self._serial.write(data)
-        self._serial.flush()
 
-    def read_raw(self, timeout=None) -> bytes:
+        if self._enabled:
+            self._serial.write_timeout = timeout
+            self._serial.write(data)
+            self._serial.flush()
+
+    def read_raw(self, timeout=1.0) -> bytes:
+        if not self._enabled:
+            time.sleep(timeout)
+            return None
+
         # read the cable number and code index
         self._serial.timeout = timeout
         try:

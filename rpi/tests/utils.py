@@ -82,6 +82,9 @@ class MockCamera:
         w, h = self.resolution
         self.frame = np.zeros((h, w), dtype=np.uint8)
 
+    def is_enabled(self):
+        return True
+
     @property
     def resolution(self):
         return self.config["resolution"]

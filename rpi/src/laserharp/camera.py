@@ -33,14 +33,15 @@ class Camera:
 
     def __init__(self, config: dict):
         self.config = config
+        self._enabled = config.get("enabled", True)
 
         self.state = self.State.STOPPED
         self._frame = None
 
-        if PICAMERA2_AVAILABLE:
+        if self._enabled and PICAMERA2_AVAILABLE:
             self._init_camera()
 
-        picamera2.Picamera2.set_logging(logging.INFO)
+            picamera2.Picamera2.set_logging(logging.INFO)
 
     def _init_camera(self):
         # convert the rotation to a libcamera transform
@@ -89,6 +90,9 @@ class Camera:
 
         self.state = self.State.STOPPED
 
+    def is_enabled(self):
+        return self._enabled
+
     @property
     def resolution(self):
         return self.config["resolution"]
@@ -98,6 +102,10 @@ class Camera:
         return self.config["framerate"]
 
     def start(self):
+        if not self._enabled:
+            logging.info("Camera interface is disabled")
+            return
+
         if not PICAMERA2_AVAILABLE:
             raise RuntimeError("libcamera2 is not available. Please install it using 'apt-get install python3-picamera2'.")
 
@@ -113,6 +121,9 @@ class Camera:
         self.state = self.State.RUNNING
 
     def stop(self):
+        if not self._enabled:
+            return
+
         if not PICAMERA2_AVAILABLE:
             raise RuntimeError("libcamera2 is not available. Please install it using 'apt-get install python3-picamera2'.")
 
@@ -126,6 +137,11 @@ class Camera:
         self.state = self.State.STOPPED
 
     def capture(self) -> np.ndarray:
+        if not self._enabled:
+            # generate a "fake" empty frame
+            time.sleep(1 / self.config["framerate"])
+            return np.zeros((self.config["resolution"][1], self.config["resolution"][0]), dtype=np.uint8)
+
         if not PICAMERA2_AVAILABLE:
             raise RuntimeError("libcamera2 is not available. Please install it using 'apt-get install python3-picamera2'.")
         if self.state != self.State.RUNNING:
@@ -147,6 +163,10 @@ class Camera:
         return self._frame
 
     def start_debug_stream(self) -> "Camera.StreamingOutput":
+        if not self._enabled:
+            # return an empty output
+            return self.StreamingOutput()
+
         if not PICAMERA2_AVAILABLE:
             raise RuntimeError("libcamera2 is not available. Please install it using 'apt-get install python3-picamera2'.")
         if self.state != self.State.RUNNING:

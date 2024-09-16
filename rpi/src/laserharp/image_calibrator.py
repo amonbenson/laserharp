@@ -222,7 +222,14 @@ class ImageCalibrator:
 
                 # fit a line to the laser beam
                 logging.debug("Fitting line")
-                m, x0 = self._fit_line(beam_img)
+
+                # if the camera is disabled, use dummy data to simulate the calibration
+                if not self.camera.is_enabled():
+                    logging.warning("Camera interface is disabled. Using dummy data for calibration.")
+                    m = 0.0
+                    x0 = (i + 0.5) * self.camera.resolution[0] / len(self.laser_array)
+                else:
+                    m, x0 = self._fit_line(beam_img)
 
                 if m is None:
                     logging.warning("Beam too weak. Continuing...")

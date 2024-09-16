@@ -39,3 +39,15 @@ lint-fix:
     cd src/frontend && yarn lint:fix
     black $(git ls-files "*.py")
     pylint $(git ls-files "*.py")
+
+# Run the backend server
+backend-dev:
+    cd src && python -m backend
+
+# Run the backend server on a non Raspberry Pi device
+backend-dev-norpi:
+    cd src && python -m backend --no-ipc --no-camera --no-din-midi
+
+# Run the vite frontend server
+frontend-dev:
+    cd src/frontend && yarn dev

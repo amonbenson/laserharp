@@ -1,4 +1,5 @@
 import logging
+import time
 import serial
 import mido
 from .midi import MidiEvent
@@ -12,31 +13,47 @@ class DinMidi(EventEmitter):
         super().__init__()
 
         self.config = config
+        self._enabled = config.get("enabled", True)
 
-        self._serial = serial.Serial(
-            port=config["port"],
-            baudrate=config["baudrate"],
-            parity=serial.PARITY_NONE,
-            stopbits=serial.STOPBITS_ONE,
-            bytesize=serial.EIGHTBITS,
-        )
+        if not self._enabled:
+            self._serial = None
+        else:
+            self._serial = serial.Serial(
+                port=config["port"],
+                baudrate=config["baudrate"],
+                parity=serial.PARITY_NONE,
+                stopbits=serial.STOPBITS_ONE,
+                bytesize=serial.EIGHTBITS,
+            )
 
     def start(self):
+        if not self._enabled:
+            logging.info("DIN MIDI interface is disabled")
+            return
+
         if not self._serial.is_open:
             self._serial.open()
 
     def stop(self):
+        if not self._enabled:
+            return
+
         self._serial.close()
 
-    def send(self, event: MidiEvent, timeout=None):
+    def send(self, event: MidiEvent, timeout=1.0):
         data = bytearray(event.message.bytes())
         logging.debug(f"RPI -> DIN: {data.hex(' ')}")
 
-        self._serial.write_timeout = timeout
-        self._serial.write(data)
-        self._serial.flush()
+        if self._enabled:
+            self._serial.write_timeout = timeout
+            self._serial.write(data)
+            self._serial.flush()
 
-    def read(self, timeout=None) -> MidiEvent:
+    def read(self, timeout=1.0) -> MidiEvent:
+        if not self._enabled:
+            time.sleep(timeout)
+            return None
+
         self._serial.timeout = timeout
 
         try:
