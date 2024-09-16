@@ -12,7 +12,7 @@ class DinMidi(EventEmitter):
         super().__init__()
 
         self.config = config
-        
+
         self._serial = serial.Serial(
             port=config["port"],
             baudrate=config["baudrate"],

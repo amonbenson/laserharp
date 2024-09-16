@@ -1,7 +1,7 @@
 <script setup>
 import { ref, onMounted, onBeforeUnmount, inject } from "vue";
 import CameraView from "@/components/CameraView.vue";
-import Button from "@/components/Button.vue";
+import AccentButton from "@/components/AccentButton.vue";
 
 const api = inject("api");
 
@@ -19,7 +19,9 @@ onMounted(() => {
     <div class="absolute inset-8 space-y-4">
       <div class="w-full flex justify-between items-baseline">
         <p>FPS: {{ frameRate.toFixed(1) }}</p>
-        <Button @click="api.emit('app:calibrate')">Calibrate</Button>
+        <AccentButton @click="api.emit('app:calibrate')">
+          Calibrate
+        </AccentButton>
       </div>
       <CameraView />
     </div>
