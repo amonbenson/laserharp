@@ -1,14 +1,12 @@
 import unittest
 import numpy as np
-import cv2
-from .utils import MockIPCController, MockCamera
 from src.laserharp.laser_array import LaserArray
 from src.laserharp.image_processor import ImageProcessor
 from src.laserharp.image_calibrator import Calibration
-from . import OUTPUT_DIRECTORY
+from .utils import MockIPCController, MockCamera
 
 
-class Test_ImageProcessor(unittest.TestCase):
+class TestImageProcessor(unittest.TestCase):
     def setUp(self):
         self.ipc = MockIPCController(config={"cables": {"laser_array": 3}})
 

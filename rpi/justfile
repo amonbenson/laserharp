@@ -1,16 +1,41 @@
 set shell := ["bash", "-c"]
 
+# Display this help message
 help:
     @just --list
 
+# Run python unittests
 test:
     python -m unittest discover -t . -s tests -vv
 
-lint:
+# Lint frontend using eslint
+[private]
+lint-eslint:
     cd src/frontend && yarn lint
-    pylint $(git ls-files '*.py')
 
+# Lint python source files using black
+[private]
+lint-black:
+    black --check $(git ls-files "*.py")
+
+# Lint python source files using pylint
+[private]
+lint-pylint:
+    pylint $(git ls-files "*.py")
+
+# Lint python source files using pylint, skipping docstring checks
+[private]
+lint-pylint-dev:
+    pylint $(git ls-files "*.py") --disable missing-module-docstring,missing-class-docstring,missing-function-docstring,fixme
+
+# Lint all source files
+lint: lint-eslint lint-black lint-pylint
+
+# Lint all source files, skipping docstring and TODO checks
+lint-dev: lint-eslint lint-black lint-pylint-dev
+
+# Lint and fix all source files
 lint-fix:
     cd src/frontend && yarn lint:fix
-    black $(git ls-files '*.py')
-    pylint $(git ls-files '*.py')
+    black $(git ls-files "*.py")
+    pylint $(git ls-files "*.py")

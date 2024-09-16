@@ -225,11 +225,11 @@ class ImageCalibrator:
                 m, x0 = self._fit_line(beam_img)
 
                 if m is None:
-                    logging.warning(f"Beam too weak. Continuing...")
+                    logging.warning("Beam too weak. Continuing...")
                     continue
 
                 if np.abs(m) > 0.8:
-                    logging.warning(f"Beam gradient to high. Continuing...")
+                    logging.warning("Beam gradient to high. Continuing...")
                     continue
 
                 # save the calibration data

@@ -1,11 +1,10 @@
 import unittest
 from src.laserharp.laser_array import LaserArray
-from src.laserharp.midi import MidiEvent
 from src.laserharp.ipc import IPCController
 from .utils import MockSerial
 
 
-class Test_LaserArray(unittest.TestCase):
+class TestLaserArray(unittest.TestCase):
     def setUp(self):
         self.serial = MockSerial()
         self.ipc = IPCController(

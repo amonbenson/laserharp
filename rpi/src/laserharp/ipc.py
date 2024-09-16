@@ -1,9 +1,5 @@
 import logging
 import serial
-import mido
-from abc import ABC, abstractmethod
-import numpy as np
-from .midi import MidiEvent
 from .events import EventEmitter
 
 

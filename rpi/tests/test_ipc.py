@@ -1,11 +1,9 @@
 import unittest
-import mido
-from src.laserharp.midi import MidiEvent
 from src.laserharp.ipc import IPCController
 from .utils import MockSerial
 
 
-class Test_IPCConnector(unittest.TestCase):
+class TestIPCConnector(unittest.TestCase):
     def setUp(self):
         self.serial = MockSerial()
         self.ipc = IPCController(

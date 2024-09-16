@@ -1,8 +1,7 @@
-import numpy as np
-import cv2
 import time
 from typing import Optional
-from src.laserharp.midi import MidiEvent
+import numpy as np
+import cv2
 from src.laserharp.events import EventEmitter
 
 
@@ -61,14 +60,14 @@ class MockIPCController(EventEmitter):
     def stop(self):
         pass
 
-    def send_raw(self, data: bytes, timeout=None):
+    def send_raw(self, data: bytes, _timeout=None):
         if len(data) != 4:
             raise ValueError(f"IPC Data must be 4 bytes long, got {len(data)}")
 
         self.data = data
         self.emit("send_raw", data)
 
-    def read_raw(self, timeout=None) -> bytes:
+    def read_raw(self, _timeout=None) -> bytes:
         return self.data
 
 

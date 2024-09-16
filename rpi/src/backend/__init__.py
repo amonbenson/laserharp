@@ -39,7 +39,7 @@ def create_backend(laserharp: LaserHarpApp) -> tuple[Flask, callable]:
         print("Socket error:", e)
 
     @socketio.on("app:calibrate")
-    def on_calibrate(data):
+    def on_calibrate(_data):
         laserharp.run_calibration()
 
     # will be set when calling run further down
@@ -57,7 +57,7 @@ def create_backend(laserharp: LaserHarpApp) -> tuple[Flask, callable]:
                     if frame is None:
                         continue
 
-                    yield (b"--frame\r\n" b"Content-Type: image/jpeg\r\n\r\n" + frame + b"\r\n")
+                    yield b"--frame\r\n" b"Content-Type: image/jpeg\r\n\r\n" + frame + b"\r\n"
 
         return Response(generate(), mimetype="multipart/x-mixed-replace; boundary=frame")
 

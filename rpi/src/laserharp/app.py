@@ -185,14 +185,14 @@ class LaserHarpApp(EventEmitter):
     def _note_to_laser(self, note: int):
         if note == 127:
             return 127
-        else:
-            return note - self.config["root_note"]
+
+        return note - self.config["root_note"]
 
     def _laser_to_note(self, index: int):
         if index == 127:
             return 127
-        else:
-            return index + self.config["root_note"]
+
+        return index + self.config["root_note"]
 
     def _handle_midi_event(self, event: MidiEvent):
         # handle midi note on/off messages from any interface

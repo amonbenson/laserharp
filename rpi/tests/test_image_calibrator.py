@@ -1,16 +1,16 @@
 import os
 import unittest
 import time
+from threading import Thread
 import numpy as np
 import yaml
-from threading import Thread
-from .utils import MockIPCController, MockCamera, wait_until
 from src.laserharp.laser_array import LaserArray
 from src.laserharp.image_calibrator import Calibration, ImageCalibrator
+from .utils import MockIPCController, MockCamera, wait_until
 from . import OUTPUT_DIRECTORY
 
 
-class Test_ImageCalibrator(unittest.TestCase):
+class TestImageCalibrator(unittest.TestCase):
     def setUp(self):
         self.ipc = MockIPCController(config={"cables": {"laser_array": 3}})
 
@@ -52,7 +52,7 @@ class Test_ImageCalibrator(unittest.TestCase):
 
     def test_load_incompatible(self):
         # write a sample config
-        with open(self.image_calibrator.filename, "w") as f:
+        with open(self.image_calibrator.filename, "w", encoding="utf-8") as f:
             yaml.safe_dump(
                 {
                     "required_config": {
@@ -81,7 +81,7 @@ class Test_ImageCalibrator(unittest.TestCase):
 
     def test_load(self):
         # write a sample config
-        with open(self.image_calibrator.filename, "w") as f:
+        with open(self.image_calibrator.filename, "w", encoding="utf-8") as f:
             yaml.safe_dump(
                 {
                     "required_config": self.image_calibrator.required_config(),
@@ -114,7 +114,7 @@ class Test_ImageCalibrator(unittest.TestCase):
         self.image_calibrator.save()
 
         # check the output file
-        with open(self.image_calibrator.filename, "r") as f:
+        with open(self.image_calibrator.filename, "r", encoding="utf-8") as f:
             config = yaml.safe_load(f)
             calibration = config["calibration"]
 
@@ -170,7 +170,7 @@ class Test_ImageCalibrator(unittest.TestCase):
         # calibrate the other two lasers
         for i in range(1, 3):
             # wait until the next laser is turned on
-            self.assertTrue(wait_until(lambda: self.laser_array[i], timeout=2))
+            self.assertTrue(wait_until(lambda _i=i: self.laser_array[_i], timeout=2))
 
             # prepare the blobs for that beam
             self.camera.clear()
@@ -179,7 +179,7 @@ class Test_ImageCalibrator(unittest.TestCase):
             self.camera.save(OUTPUT_DIRECTORY / f"test_image_calibrator_{i}.png")
 
             # wait until the laser is turned off
-            self.assertTrue(wait_until(lambda: not self.laser_array[i], timeout=2))
+            self.assertTrue(wait_until(lambda _i=i: not self.laser_array[_i], timeout=2))
 
         # wait for the calibration to finish
         calibration_thread.join()
@@ -194,8 +194,8 @@ class Test_ImageCalibrator(unittest.TestCase):
         self.assertAlmostEqual(self.calibration.yb, 1.5 * 480, delta=0.5, msg="yb")
 
         for i in range(3):
-            self.assertAlmostEqual(self.calibration.x0[i], x0[i], delta=0.5, msg="x0[{}]".format(i))
-            self.assertAlmostEqual(self.calibration.m[i], m[i], delta=0.01, msg="m[{}]".format(i))
+            self.assertAlmostEqual(self.calibration.x0[i], x0[i], delta=0.5, msg=f"x0[{i}]")
+            self.assertAlmostEqual(self.calibration.m[i], m[i], delta=0.01, msg=f"m[{i}]")
 
 
 if __name__ == "__main__":

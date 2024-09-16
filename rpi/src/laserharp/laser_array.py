@@ -1,6 +1,5 @@
 import numpy as np
 from .ipc import IPCController
-from .midi import MidiEvent
 
 
 class LaserArray:

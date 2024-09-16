@@ -178,11 +178,13 @@ if __name__ == "__main__":
         }
     )
 
-    camera.start()
-    camera.on("frame", lambda frame: print(f"got frame of shape {frame.shape}"))
+    raise NotImplementedError("This script is not yet implemented for the updated camera class.")
 
-    while not camera.running:
-        time.sleep(0.1)
-    time.sleep(1)
+    # camera.start()
+    # camera.on("frame", lambda frame: print(f"got frame of shape {frame.shape}"))
 
-    camera.stop()
+    # while not camera.running:
+    #     time.sleep(0.1)
+    # time.sleep(1)
+
+    # camera.stop()
