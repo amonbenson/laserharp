@@ -1,7 +1,7 @@
 import unittest
 import mido
-from laserharp.midi import MidiEvent
-from laserharp.ipc import IPCController
+from src.laserharp.midi import MidiEvent
+from src.laserharp.ipc import IPCController
 from .utils import MockSerial
 
 

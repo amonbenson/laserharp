@@ -5,6 +5,10 @@ help:
     @just --list
 
 
+test:
+    pytest -vv --color=yes tests
+
+
 lint-js:
     cd frontend && yarn lint
 lint-py:

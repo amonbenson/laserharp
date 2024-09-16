@@ -5,8 +5,8 @@ import numpy as np
 import yaml
 from threading import Thread
 from .utils import MockIPC, MockCamera, wait_until
-from laserharp.laser_array import LaserArray
-from laserharp.image_calibrator import Calibration, ImageCalibrator
+from src.laserharp.laser_array import LaserArray
+from src.laserharp.image_calibrator import Calibration, ImageCalibrator
 from . import OUTPUT_DIRECTORY
 
 

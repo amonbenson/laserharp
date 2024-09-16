@@ -1,6 +1,6 @@
 import unittest
-from laserharp.laser_array import LaserArray
-from laserharp.midi import MidiEvent
+from src.laserharp.laser_array import LaserArray
+from src.laserharp.midi import MidiEvent
 from .utils import MockIPC
 
 
