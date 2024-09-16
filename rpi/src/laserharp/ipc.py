@@ -1,10 +1,8 @@
 import logging
 import time
-import serial
-from .events import EventEmitter
 
 
-class IPCController(EventEmitter):
+class IPCController:
     BYTE_TIMEOUT = 0.01
 
     def __init__(self, config: dict, custom_serial=None):

@@ -3,10 +3,9 @@ import time
 import serial
 import mido
 from .midi import MidiEvent
-from .events import EventEmitter
 
 
-class DinMidi(EventEmitter):
+class DinMidi:
     BYTE_TIMEOUT = 0.01
 
     def __init__(self, config: dict):

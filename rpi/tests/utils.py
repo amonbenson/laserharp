@@ -2,7 +2,6 @@ import time
 from typing import Optional
 import numpy as np
 import cv2
-from src.laserharp.events import EventEmitter
 
 
 def wait_until(condition: callable, timeout: float):
@@ -49,7 +48,7 @@ class MockSerial:
 
 
 # pylint: disable=duplicate-code
-class MockIPCController(EventEmitter):
+class MockIPCController:
     def __init__(self, config: dict):
         super().__init__()
 
@@ -67,7 +66,6 @@ class MockIPCController(EventEmitter):
             raise ValueError(f"IPC Data must be 4 bytes long, got {len(data)}")
 
         self.data = data
-        self.emit("send_raw", data)
 
     def read_raw(self, _timeout=None) -> bytes:
         return self.data
