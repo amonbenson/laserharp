@@ -1,13 +1,14 @@
 from dataclasses import dataclass
 import numpy as np
 import cv2
+from perci import ReactiveDictNode
 from .image_calibrator import Calibration
 from .laser_array import LaserArray
 from .camera import Camera
-from .events import Ref
+from .component import Component
 
 
-class ImageProcessor:
+class ImageProcessor(Component):
     @dataclass
     class Result:
         active: np.ndarray
@@ -21,9 +22,8 @@ class ImageProcessor:
                 "modulation": np.nan_to_num(self.modulation).tolist(),
             }
 
-    def __init__(self, laser_array: LaserArray, camera: Camera, config: dict):
-        self.config = config
-        self.state = Ref({"result": None})
+    def __init__(self, name: str, global_state: ReactiveDictNode, laser_array: LaserArray, camera: Camera):
+        super().__init__(name, global_state)
 
         self.laser_array = laser_array
         self.camera = camera
@@ -39,6 +39,12 @@ class ImageProcessor:
         self.y_metric = None
         self.beam_yv = None
         self.beam_xv = None
+
+    def start(self):
+        pass
+
+    def stop(self):
+        pass
 
     def _calculate_coeff(self) -> np.ndarray:
         # compute number of taps
@@ -137,7 +143,7 @@ class ImageProcessor:
         raw_length = self._calculate_beam_length(frame)
         result = self._apply_filter(raw_length)
 
-        # perform state update
-        self.state.update({"result": result.to_dict(replace_nan=True)})
+        # perform state update TODO: use new state system
+        # self.state.update({"result": result.to_dict(replace_nan=True)})
 
         return result

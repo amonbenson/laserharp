@@ -49,19 +49,7 @@ class TestImageProcessor(unittest.TestCase):
         self.ipc = MockIPCController("ipc", self.global_state)
         self.laser_array = LaserArray("laser_array", self.global_state, self.ipc)
         self.camera = MockCamera("camera", self.global_state)
-        self.image_processor = ImageProcessor(
-            self.laser_array,
-            self.camera,
-            config={
-                "preblur": 23,
-                "threshold": 10,
-                "length_min": 0.05,
-                "length_max": 2.0,
-                "filter_size": 23,
-                "filter_cutoff": 6,
-                "modulation_gain": 15,
-            },
-        )
+        self.image_processor = ImageProcessor("image_processor", self.global_state, self.laser_array, self.camera)
 
         # set the calibration data
         calibration = Calibration(ya=0, yb=480, x0=[200, 300, 400], m=[-0.1, 0, 0.1])

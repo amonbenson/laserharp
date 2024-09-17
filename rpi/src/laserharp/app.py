@@ -49,7 +49,7 @@ class LaserHarpApp(EventEmitter):
         self.laser_array = LaserArray("laser_array", self._global_state, self.ipc)
         self.camera = Camera("camera", self._global_state)
         self.calibrator = ImageCalibrator(self.laser_array, self.camera, self.config["image_calibrator"])
-        self.processor = ImageProcessor(self.laser_array, self.camera, self.config["image_processor"])
+        self.processor = ImageProcessor("image_processor", self._global_state, self.laser_array, self.camera)
 
         # setup all processing threads
         self.capture_thread = threading.Thread(target=self._capture_thread, daemon=True)
