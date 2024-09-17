@@ -1,6 +1,9 @@
+from dataclasses import asdict
 from flask import Flask, Response, stream_with_context, request
 from flask_cors import CORS
 from flask_socketio import SocketIO
+from perci import Watcher, watch
+from perci.changes import Change
 from laserharp.app import LaserHarpApp
 
 
@@ -13,26 +16,43 @@ def create_backend(laserharp: LaserHarpApp) -> tuple[Flask, callable]:
     laserharp.on("state", lambda state: socketio.emit("app:state", state.name.lower()))
     laserharp.on("frame_rate", lambda frame_rate: socketio.emit("app:frame_rate", frame_rate))
 
+    watchers: dict[str, Watcher] = {}
+
     @socketio.on("connect")
     def on_connect():
         clientid = request.sid
         print(f"Client connected: {clientid}")
 
-        socketio.emit("app:state", laserharp.state.name.lower())
-        socketio.emit("app:config", laserharp.config)
-        socketio.emit(
-            "app:calibration",
-            (laserharp.calibrator.calibration.to_dict() if laserharp.calibrator.calibration else None),
-        )
+        # send the initial state
+        socketio.emit("app:state", laserharp.get_global_state().json())
 
-        laserharp.processor.state.watch(
-            lambda value: socketio.emit("app:processor", value, to=clientid),
-            immediate=True,
-        )
-        laserharp.calibrator.state.watch(
-            lambda value: socketio.emit("app:calibrator", value, to=clientid),
-            immediate=True,
-        )
+        # watch any changes and send them to the client
+        watchers[clientid] = watch(laserharp.get_global_state(), lambda change: socketio.emit("app:state", asdict(change), to=clientid))
+
+        # socketio.emit("app:state", laserharp.state.name.lower())
+        # socketio.emit("app:config", laserharp.config)
+        # socketio.emit(
+        #     "app:calibration",
+        #     (laserharp.calibrator.calibration.to_dict() if laserharp.calibrator.calibration else None),
+        # )
+
+        # laserharp.processor.state.watch(
+        #     lambda value: socketio.emit("app:processor", value, to=clientid),
+        #     immediate=True,
+        # )
+        # laserharp.calibrator.state.watch(
+        #     lambda value: socketio.emit("app:calibrator", value, to=clientid),
+        #     immediate=True,
+        # )
+
+    @socketio.on("disconnect")
+    def on_disconnect():
+        clientid = request.sid
+        print(f"Client disconnected: {clientid}")
+
+        # remove the watcher
+        watcher = watchers.pop(clientid)
+        laserharp.get_global_state().get_namespace().remove_watcher(watcher)
 
     @socketio.on_error()
     def on_error(e):

@@ -1,12 +1,14 @@
 set shell := ["bash", "-c"]
 
+venv_dir := source_dir() + "/.venv"
+
 # Display this help message
 help:
     @just --list
 
 # Run python unittests
 test:
-    python -m unittest discover -t . -s tests -vv
+    source {{venv_dir}}/bin/activate && python -m unittest discover -t . -s tests -vv
 
 # Lint frontend using eslint
 [private]
@@ -16,17 +18,17 @@ lint-eslint:
 # Lint python source files using black
 [private]
 lint-black:
-    black --check $(git ls-files "*.py")
+    source {{venv_dir}}/bin/activate && black --check $(git ls-files "*.py")
 
 # Lint python source files using pylint
 [private]
 lint-pylint:
-    pylint $(git ls-files "*.py")
+    source {{venv_dir}}/bin/activate && pylint $(git ls-files "*.py")
 
 # Lint python source files using pylint, skipping docstring checks
 [private]
 lint-pylint-dev:
-    pylint $(git ls-files "*.py") --disable missing-module-docstring,missing-class-docstring,missing-function-docstring,fixme
+    source {{venv_dir}}/bin/activate && pylint $(git ls-files "*.py") --disable missing-module-docstring,missing-class-docstring,missing-function-docstring,fixme
 
 # Lint all source files
 lint: lint-eslint lint-black lint-pylint
@@ -37,16 +39,16 @@ lint-dev: lint-eslint lint-black lint-pylint-dev
 # Lint and fix all source files
 lint-fix:
     cd src/frontend && yarn lint:fix
-    black $(git ls-files "*.py")
-    pylint $(git ls-files "*.py")
+    source {{venv_dir}}/bin/activate && black $(git ls-files "*.py")
+    source {{venv_dir}}/bin/activate && pylint $(git ls-files "*.py")
 
 # Run the backend server
 backend-dev:
-    cd src && python -m backend
+    source {{venv_dir}}/bin/activate && cd src && python -m backend
 
 # Run the backend server on a non Raspberry Pi device
 backend-dev-norpi:
-    cd src && python -m backend --no-ipc --no-camera --no-din-midi
+    source {{venv_dir}}/bin/activate && cd src && python -m backend --no-ipc --no-camera --no-din-midi
 
 # Run the vite frontend server
 frontend-dev:
