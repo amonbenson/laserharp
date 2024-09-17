@@ -80,15 +80,18 @@ class ImageCalibrator:
         self.filename = os.path.abspath(config["calibration_file"])
         self.calibration = None
 
-    def required_config(self):
+    def required_config(self) -> dict:
         # get all configuration values that must be consistent between calibration and runtime
+        laser_array_config = self.laser_array.config.json()
+        camera_config = self.camera.config.json()
+
         return {
-            "laser_array": self.laser_array.config,
+            "laser_array": laser_array_config,
             "camera": {
-                "fov": self.camera.config["fov"],
-                "mount_angle": self.camera.config["mount_angle"],
-                "resolution": self.camera.resolution,
-                "rotation": self.camera.config["rotation"],
+                "fov": camera_config["fov"],
+                "mount_angle": camera_config["mount_angle"],
+                "resolution": camera_config["resolution"],
+                "rotation": camera_config["rotation"],
             },
         }
 

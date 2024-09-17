@@ -4,6 +4,7 @@ import time
 from threading import Thread
 import numpy as np
 import yaml
+from perci import reactive
 from src.laserharp.laser_array import LaserArray
 from src.laserharp.image_calibrator import Calibration, ImageCalibrator
 from .utils import MockIPCController, MockCamera, wait_until
@@ -12,30 +13,53 @@ from . import OUTPUT_DIRECTORY
 
 class TestImageCalibrator(unittest.TestCase):
     def setUp(self):
-        self.ipc = MockIPCController(config={"cables": {"laser_array": 3}})
-
-        self.laser_array = LaserArray(self.ipc, config={"size": 3, "translation_table": None})
-
-        self.camera = MockCamera(
-            config={
-                "fov": (50, 45),
-                "mount_angle": 45,
-                "mount_distance": 0.135,
-                "resolution": (640, 480),
-                "framerate": 60,
-                "rotation": 180,
-            }
+        self.global_state = reactive(
+            {
+                "config": {
+                    "ipc": {},
+                    "laser_array": {
+                        "size": 3,
+                    },
+                    "camera": {
+                        "fov": [50, 45],
+                        "mount_angle": 45,
+                        "mount_distance": 0.135,
+                        "resolution": [640, 480],
+                        "framerate": 60,
+                        "rotation": 180,
+                    },
+                    "image_calibrator": {
+                        "calibration_file": os.path.join(OUTPUT_DIRECTORY, "calibration.yaml"),
+                        "preblur": 17,
+                        "threshold": 100,
+                        "min_coverage": 0.6,
+                    },
+                },
+                "settings": {
+                    "ipc": {},
+                    "laser_array": {},
+                    "camera": {},
+                    "image_calibrator": {},
+                },
+                "state": {
+                    "ipc": {},
+                    "laser_array": {},
+                    "camera": {},
+                    "image_calibrator": {},
+                },
+            },
         )
+
+        self.ipc = MockIPCController(config=self.global_state["config"]["ipc"])
+
+        self.laser_array = LaserArray("laser_array", self.global_state, self.ipc)
+
+        self.camera = MockCamera(config=self.global_state["config"]["camera"])
 
         self.image_calibrator = ImageCalibrator(
             self.laser_array,
             self.camera,
-            config={
-                "calibration_file": os.path.join(OUTPUT_DIRECTORY, "calibration.yaml"),
-                "preblur": 17,
-                "threshold": 100,
-                "min_coverage": 0.6,
-            },
+            config=self.global_state["config"]["image_calibrator"],
         )
 
         self.calibration = None

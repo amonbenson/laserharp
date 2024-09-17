@@ -1,5 +1,6 @@
 import unittest
 import numpy as np
+from perci import reactive
 from src.laserharp.laser_array import LaserArray
 from src.laserharp.image_processor import ImageProcessor
 from src.laserharp.image_calibrator import Calibration
@@ -8,9 +9,46 @@ from .utils import MockIPCController, MockCamera
 
 class TestImageProcessor(unittest.TestCase):
     def setUp(self):
+        self.global_state = reactive(
+            {
+                "config": {
+                    "ipc": {},
+                    "laser_array": {
+                        "size": 3,
+                    },
+                    "camera": {
+                        "resolution": [640, 480],
+                        "framerate": 60,
+                        "mount_distance": 0.2,
+                    },
+                    "image_processor": {
+                        "preblur": 23,
+                        "threshold": 10,
+                        "length_min": 0.05,
+                        "length_max": 2.0,
+                        "filter_size": 23,
+                        "filter_cutoff": 6,
+                        "modulation_gain": 15,
+                    },
+                },
+                "settings": {
+                    "ipc": {},
+                    "laser_array": {},
+                    "camera": {},
+                    "image_processor": {},
+                },
+                "state": {
+                    "ipc": {},
+                    "laser_array": {},
+                    "camera": {},
+                    "image_processor": {},
+                },
+            }
+        )
+
         self.ipc = MockIPCController(config={"cables": {"laser_array": 3}})
 
-        self.laser_array = LaserArray(self.ipc, config={"size": 3, "translation_table": None})
+        self.laser_array = LaserArray("laser_array", self.global_state, self.ipc)
 
         self.camera = MockCamera(config={"resolution": (640, 480), "framerate": 60, "mount_distance": 0.2})
 

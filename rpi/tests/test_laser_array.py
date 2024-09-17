@@ -7,7 +7,7 @@ from .utils import MockSerial
 
 class TestLaserArray(unittest.TestCase):
     def setUp(self):
-        global_state = reactive(
+        self.global_state = reactive(
             {
                 "config": {
                     "ipc": {
@@ -30,16 +30,10 @@ class TestLaserArray(unittest.TestCase):
             }
         )
 
-        self.serial = MockSerial()
-
         # pylint: disable=duplicate-code
-        self.ipc = IPCController(
-            name="ipc",
-            global_state=global_state,
-            custom_serial=self.serial,
-        )
-
-        self.laser_array = LaserArray(self.ipc, config=global_state["config"]["laser_array"])
+        self.serial = MockSerial()
+        self.ipc = IPCController("ipc", self.global_state, self.serial)
+        self.laser_array = LaserArray("laser_array", self.global_state, self.ipc)
 
     def tearDown(self):
         pass
