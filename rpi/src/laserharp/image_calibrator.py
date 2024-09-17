@@ -5,9 +5,10 @@ import os
 import numpy as np
 import cv2
 import yaml
+from perci import ReactiveDictNode
 from .camera import Camera
 from .laser_array import LaserArray
-from .events import Ref
+from .component import Component
 
 
 def _compare_config(a: dict, b: dict):
@@ -69,15 +70,14 @@ class Calibration:
         return Calibration(ya=d["ya"], yb=d["yb"], x0=np.array(d["x0"]), m=np.array(d["m"]))
 
 
-class ImageCalibrator:
-    def __init__(self, laser_array: LaserArray, camera: Camera, config):
-        self.config = config
-        self.state = Ref({"calibration": None})
+class ImageCalibrator(Component):
+    def __init__(self, name: str, global_state: ReactiveDictNode, laser_array: LaserArray, camera: Camera):
+        super().__init__(name, global_state)
 
         self.laser_array = laser_array
         self.camera = camera
 
-        self.filename = os.path.abspath(config["calibration_file"])
+        self.filename = os.path.abspath(self.config["calibration_file"])
         self.calibration = None
 
     def required_config(self) -> dict:
@@ -110,7 +110,9 @@ class ImageCalibrator:
                 return False
 
             self.calibration = Calibration.from_dict(d["calibration"])
-            self.state.update({"calibration": self.calibration.to_dict()})
+
+            # TODO: use new state system
+            # self.state.update({"calibration": self.calibration.to_dict()})
 
         return True
 

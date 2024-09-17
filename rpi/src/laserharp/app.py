@@ -32,7 +32,7 @@ class LaserHarpApp(EventEmitter):
     def __init__(self, config: dict):
         EventEmitter.__init__(self)
 
-        self._component_names = ["ipc", "din_midi", "laser_array", "camera"]
+        self._component_names = ["ipc", "din_midi", "laser_array", "camera", "image_processor", "image_calibrator"]
         self._global_state = reactive(
             {
                 "config": config,
@@ -48,7 +48,7 @@ class LaserHarpApp(EventEmitter):
         self.din_midi = DinMidi("din_midi", self._global_state)
         self.laser_array = LaserArray("laser_array", self._global_state, self.ipc)
         self.camera = Camera("camera", self._global_state)
-        self.calibrator = ImageCalibrator(self.laser_array, self.camera, self.config["image_calibrator"])
+        self.calibrator = ImageCalibrator("image_calibrator", self._global_state, self.laser_array, self.camera)
         self.processor = ImageProcessor("image_processor", self._global_state, self.laser_array, self.camera)
 
         # setup all processing threads

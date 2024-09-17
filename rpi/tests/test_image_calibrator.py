@@ -54,11 +54,7 @@ class TestImageCalibrator(unittest.TestCase):
         self.ipc = MockIPCController("ipc", self.global_state)
         self.laser_array = LaserArray("laser_array", self.global_state, self.ipc)
         self.camera = MockCamera("camera", self.global_state)
-        self.image_calibrator = ImageCalibrator(
-            self.laser_array,
-            self.camera,
-            config=self.global_state["config"]["image_calibrator"],
-        )
+        self.image_calibrator = ImageCalibrator("image_calibrator", self.global_state, self.laser_array, self.camera)
 
         self.calibration = None
 
