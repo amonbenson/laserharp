@@ -4,6 +4,7 @@ import time
 import threading
 from enum import Enum
 import numpy as np
+from .component import Component
 
 try:
     import libcamera
@@ -14,7 +15,7 @@ except ImportError:
     PICAMERA2_AVAILABLE = False
 
 
-class Camera:
+class Camera(Component):
     class State(Enum):
         STOPPED = 0
         STARTING = 1
@@ -31,14 +32,13 @@ class Camera:
                 self.frame = buf
                 self.condition.notify_all()
 
-    def __init__(self, config: dict):
-        self.config = config
-        self._enabled = config.get("enabled", True)
+    def __init__(self, name: str, global_state: dict):
+        super().__init__(name, global_state)
 
-        self.state = self.State.STOPPED
+        self._camera_state = self.State.STOPPED
         self._frame = None
 
-        if self._enabled and PICAMERA2_AVAILABLE:
+        if self.enabled and PICAMERA2_AVAILABLE:
             self._init_camera()
 
             picamera2.Picamera2.set_logging(logging.INFO)
@@ -88,10 +88,7 @@ class Camera:
 
         logging.debug(f"Camera configuration: {self.picam.stream_configuration('main')}")
 
-        self.state = self.State.STOPPED
-
-    def is_enabled(self):
-        return self._enabled
+        self._camera_state = self.State.STOPPED
 
     @property
     def resolution(self):
@@ -102,55 +99,55 @@ class Camera:
         return self.config["framerate"]
 
     def start(self):
-        if not self._enabled:
+        if not self.enabled:
             logging.info("Camera interface is disabled")
             return
 
         if not PICAMERA2_AVAILABLE:
             raise RuntimeError("libcamera2 is not available. Please install it using 'apt-get install python3-picamera2'.")
 
-        if self.state != self.State.STOPPED:
+        if self._camera_state != self.State.STOPPED:
             raise RuntimeError("Camera is already running.")
 
-        self.state = self.State.STARTING
+        self._camera_state = self.State.STARTING
 
         # start continuous capture
         self.picam.start()
         time.sleep(2)
 
-        self.state = self.State.RUNNING
+        self._camera_state = self.State.RUNNING
 
     def stop(self):
-        if not self._enabled:
+        if not self.enabled:
             return
 
         if not PICAMERA2_AVAILABLE:
             raise RuntimeError("libcamera2 is not available. Please install it using 'apt-get install python3-picamera2'.")
 
-        if self.state not in (self.State.STARTING, self.State.RUNNING):
+        if self._camera_state not in (self.State.STARTING, self.State.RUNNING):
             raise RuntimeError("Camera is not running.")
 
-        self.state = self.State.STOPPING
+        self._camera_state = self.State.STOPPING
         self.picam.stop_recording()
         self.picam.stop()
         self.picam.close()
-        self.state = self.State.STOPPED
+        self._camera_state = self.State.STOPPED
 
     def capture(self) -> np.ndarray:
-        if not self._enabled:
+        if not self.enabled:
             # generate a "fake" empty frame
             time.sleep(1 / self.config["framerate"])
             return np.zeros((self.config["resolution"][1], self.config["resolution"][0]), dtype=np.uint8)
 
         if not PICAMERA2_AVAILABLE:
             raise RuntimeError("libcamera2 is not available. Please install it using 'apt-get install python3-picamera2'.")
-        if self.state != self.State.RUNNING:
+        if self._camera_state != self.State.RUNNING:
             raise RuntimeError("Camera is not running.")
 
         w, h = self.config["resolution"]
 
         # capture a single frame
-        yuv = self.picam.capture_array("main")
+        yuv: np.ndarray = self.picam.capture_array("main")
         assert yuv.dtype == np.uint8
         assert yuv.shape[0] == h * 3 // 2
         assert yuv.shape[1] == w
@@ -163,13 +160,13 @@ class Camera:
         return self._frame
 
     def start_debug_stream(self) -> "Camera.StreamingOutput":
-        if not self._enabled:
+        if not self.enabled:
             # return an empty output
             return self.StreamingOutput()
 
         if not PICAMERA2_AVAILABLE:
             raise RuntimeError("libcamera2 is not available. Please install it using 'apt-get install python3-picamera2'.")
-        if self.state != self.State.RUNNING:
+        if self._camera_state != self.State.RUNNING:
             raise RuntimeError("Camera is not running.")
 
         output = self.StreamingOutput()
@@ -183,28 +180,28 @@ class Camera:
         return output
 
 
-if __name__ == "__main__":
-    camera = Camera(
-        config={
-            "resolution": (640, 480),
-            "framerate": 60,
-            "rotation": 180,
-            "shutter_speed": 5000,
-            "iso": 10,
-            "brightness": 50,
-            "contrast": 0,
-            "saturation": 0,
-            "sharpness": 0,
-        }
-    )
+# if __name__ == "__main__":
+#     camera = Camera(
+#         config={
+#             "resolution": (640, 480),
+#             "framerate": 60,
+#             "rotation": 180,
+#             "shutter_speed": 5000,
+#             "iso": 10,
+#             "brightness": 50,
+#             "contrast": 0,
+#             "saturation": 0,
+#             "sharpness": 0,
+#         }
+#     )
 
-    raise NotImplementedError("This script is not yet implemented for the updated camera class.")
+#     raise NotImplementedError("This script is not yet implemented for the updated camera class.")
 
-    # camera.start()
-    # camera.on("frame", lambda frame: print(f"got frame of shape {frame.shape}"))
+#     # camera.start()
+#     # camera.on("frame", lambda frame: print(f"got frame of shape {frame.shape}"))
 
-    # while not camera.running:
-    #     time.sleep(0.1)
-    # time.sleep(1)
+#     # while not camera.running:
+#     #     time.sleep(0.1)
+#     # time.sleep(1)
 
-    # camera.stop()
+#     # camera.stop()

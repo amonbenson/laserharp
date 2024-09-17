@@ -2,7 +2,7 @@ import unittest
 from src.laserharp.laser_array import LaserArray
 from src.laserharp.ipc import IPCController
 from perci import reactive
-from .utils import MockSerial
+from .mocks import MockSerial
 
 
 class TestLaserArray(unittest.TestCase):

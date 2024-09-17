@@ -4,7 +4,7 @@ from perci import reactive
 from src.laserharp.laser_array import LaserArray
 from src.laserharp.image_processor import ImageProcessor
 from src.laserharp.image_calibrator import Calibration
-from .utils import MockIPCController, MockCamera
+from .mocks import MockIPCController, MockCamera
 
 
 class TestImageProcessor(unittest.TestCase):
@@ -46,12 +46,9 @@ class TestImageProcessor(unittest.TestCase):
             }
         )
 
-        self.ipc = MockIPCController(config={"cables": {"laser_array": 3}})
-
+        self.ipc = MockIPCController("ipc", self.global_state)
         self.laser_array = LaserArray("laser_array", self.global_state, self.ipc)
-
-        self.camera = MockCamera(config={"resolution": (640, 480), "framerate": 60, "mount_distance": 0.2})
-
+        self.camera = MockCamera("camera", self.global_state)
         self.image_processor = ImageProcessor(
             self.laser_array,
             self.camera,

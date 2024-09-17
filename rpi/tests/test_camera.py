@@ -2,6 +2,7 @@ import unittest
 import time
 import logging
 import cv2
+from perci import reactive
 from src.laserharp.camera import Camera
 from . import OUTPUT_DIRECTORY
 
@@ -17,20 +18,32 @@ except ImportError:
 @unittest.skipUnless(PICAMERA2_AVAILABLE, "picamera2 is not available")
 class TestCamera(unittest.TestCase):
     def setUp(self):
-        # pylint: disable=duplicate-code
-        self.camera = Camera(
-            config={
-                "resolution": (640, 480),
-                "framerate": 50,
-                "rotation": 180,
-                "shutter_speed": 5000,
-                "iso": 10,
-                "brightness": 50,
-                "contrast": 0,
-                "saturation": 0,
-                "sharpness": 0,
-            }
+        self.global_state = reactive(
+            {
+                "config": {
+                    "camera": {
+                        "resolution": (640, 480),
+                        "framerate": 50,
+                        "rotation": 180,
+                        "shutter_speed": 5000,
+                        "iso": 10,
+                        "brightness": 50,
+                        "contrast": 0,
+                        "saturation": 0,
+                        "sharpness": 0,
+                    },
+                },
+                "settings": {
+                    "camera": {},
+                },
+                "state": {
+                    "camera": {},
+                },
+            },
         )
+
+        # pylint: disable=duplicate-code
+        self.camera = Camera("camera", self.global_state)
         self.camera.start()
 
     def tearDown(self):

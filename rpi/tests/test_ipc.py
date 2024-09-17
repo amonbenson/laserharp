@@ -1,18 +1,29 @@
 import unittest
 from src.laserharp.ipc import IPCController
-from .utils import MockSerial
+from .mocks import MockSerial
 
 
 class TestIPCConnector(unittest.TestCase):
     def setUp(self):
-        self.serial = MockSerial()
-        self.ipc = IPCController(
-            config={
-                "port": None,  # ignored when using custom_serial
-                "baudrate": None,  # ignored when using custom_serial
-            },
-            custom_serial=self.serial,
+        self.global_state = reactive(
+            {
+                "config": {
+                    "ipc": {
+                        "port": "/dev/ttyUSB0",
+                        "baudrate": 115200,
+                    },
+                },
+                "settings": {
+                    "ipc": {},
+                },
+                "state": {
+                    "ipc": {},
+                },
+            }
         )
+
+        self.serial = MockSerial()
+        self.ipc = IPCController("ipc", self.global_state, self.serial)
 
     def tearDown(self):
         self.serial.clear()

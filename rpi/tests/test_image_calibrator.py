@@ -7,7 +7,8 @@ import yaml
 from perci import reactive
 from src.laserharp.laser_array import LaserArray
 from src.laserharp.image_calibrator import Calibration, ImageCalibrator
-from .utils import MockIPCController, MockCamera, wait_until
+from .mocks import MockIPCController, MockCamera
+from .utils import wait_until
 from . import OUTPUT_DIRECTORY
 
 
@@ -50,12 +51,9 @@ class TestImageCalibrator(unittest.TestCase):
             },
         )
 
-        self.ipc = MockIPCController(config=self.global_state["config"]["ipc"])
-
+        self.ipc = MockIPCController("ipc", self.global_state)
         self.laser_array = LaserArray("laser_array", self.global_state, self.ipc)
-
-        self.camera = MockCamera(config=self.global_state["config"]["camera"])
-
+        self.camera = MockCamera("camera", self.global_state)
         self.image_calibrator = ImageCalibrator(
             self.laser_array,
             self.camera,

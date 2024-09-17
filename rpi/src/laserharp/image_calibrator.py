@@ -227,7 +227,7 @@ class ImageCalibrator:
                 logging.debug("Fitting line")
 
                 # if the camera is disabled, use dummy data to simulate the calibration
-                if not self.camera.is_enabled():
+                if not self.camera.enabled:
                     logging.warning("Camera interface is disabled. Using dummy data for calibration.")
                     m = 0.0
                     x0 = (i + 0.5) * self.camera.resolution[0] / len(self.laser_array)
