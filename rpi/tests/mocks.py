@@ -2,6 +2,7 @@ import time
 from typing import Optional
 import numpy as np
 import cv2
+from perci import ReactiveDictNode
 from src.laserharp.ipc import IPCController
 from src.laserharp.camera import Camera
 
@@ -39,7 +40,7 @@ class MockSerial:
 
 # pylint: disable=duplicate-code
 class MockIPCController(IPCController):
-    def __init__(self, name: str, global_state: dict):
+    def __init__(self, name: str, global_state: ReactiveDictNode):
         super().__init__(name, global_state, MockSerial())
 
         self.txdata = bytearray()
@@ -72,7 +73,7 @@ class MockIPCController(IPCController):
 
 # pylint: disable=duplicate-code
 class MockCamera(Camera):
-    def __init__(self, name: str, global_state: dict):
+    def __init__(self, name: str, global_state: ReactiveDictNode):
         super().__init__(name, global_state)
 
         # setup a test frame

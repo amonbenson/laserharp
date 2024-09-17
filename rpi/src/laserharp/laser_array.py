@@ -1,11 +1,11 @@
 import numpy as np
 from .ipc import IPCController
-from perci import ReactiveNode
+from perci import ReactiveDictNode
 from .component import Component
 
 
 class LaserArray(Component):
-    def __init__(self, name: str, global_state: ReactiveNode, ipc: IPCController):
+    def __init__(self, name: str, global_state: ReactiveDictNode, ipc: IPCController):
         super().__init__(name, global_state)
 
         self.ipc = ipc

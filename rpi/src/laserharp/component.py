@@ -1,9 +1,9 @@
 from abc import ABC, abstractmethod
-from perci import ReactiveNode
+from perci import ReactiveDictNode
 
 
 class Component:
-    def __init__(self, name: str, global_state: ReactiveNode):
+    def __init__(self, name: str, global_state: ReactiveDictNode):
         # check if the required configuration is present
         if name not in global_state["config"]:
             raise ValueError(f"Component {name} has no configuration")

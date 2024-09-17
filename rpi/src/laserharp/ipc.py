@@ -1,14 +1,14 @@
 import logging
 import time
 import serial
-from perci import ReactiveNode
+from perci import ReactiveDictNode
 from .component import Component
 
 
 class IPCController(Component):
     BYTE_TIMEOUT = 0.01
 
-    def __init__(self, name: str, global_state: ReactiveNode, custom_serial=None):
+    def __init__(self, name: str, global_state: ReactiveDictNode, custom_serial=None):
         super().__init__(name, global_state)
 
         if not self.enabled:

@@ -2,7 +2,7 @@ import logging
 import time
 import serial
 import mido
-from perci import ReactiveNode
+from perci import ReactiveDictNode
 from .component import Component
 from .midi import MidiEvent
 
@@ -10,7 +10,7 @@ from .midi import MidiEvent
 class DinMidi(Component):
     BYTE_TIMEOUT = 0.01
 
-    def __init__(self, name: str, global_state: ReactiveNode):
+    def __init__(self, name: str, global_state: ReactiveDictNode):
         super().__init__(name, global_state)
 
         if not self.enabled:

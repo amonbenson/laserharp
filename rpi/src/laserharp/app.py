@@ -2,7 +2,7 @@ from enum import Enum
 import logging
 import threading
 import time
-from perci import reactive, ReactiveNode
+from perci import reactive, ReactiveDictNode
 from .events import EventEmitter
 from .midi import MidiEvent
 from .ipc import IPCController
@@ -67,7 +67,7 @@ class LaserHarpApp(EventEmitter):
         self.state = self.State.IDLE
         self.emit("state", self.state)
 
-    def get_global_state(self) -> ReactiveNode:
+    def get_global_state(self) -> ReactiveDictNode:
         return self._global_state
 
     def start(self, force_calibration=False):

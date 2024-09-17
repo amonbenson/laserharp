@@ -4,6 +4,7 @@ import time
 import threading
 from enum import Enum
 import numpy as np
+from perci import ReactiveDictNode
 from .component import Component
 
 try:
@@ -32,7 +33,7 @@ class Camera(Component):
                 self.frame = buf
                 self.condition.notify_all()
 
-    def __init__(self, name: str, global_state: dict):
+    def __init__(self, name: str, global_state: ReactiveDictNode):
         super().__init__(name, global_state)
 
         self._camera_state = self.State.STOPPED
