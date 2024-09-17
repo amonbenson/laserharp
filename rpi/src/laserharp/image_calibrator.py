@@ -80,6 +80,14 @@ class ImageCalibrator(Component):
         self.filename = os.path.abspath(self.config["calibration_file"])
         self.calibration = None
 
+        self.state.update({"calibration": None})
+
+    def start(self):
+        pass
+
+    def stop(self):
+        pass
+
     def required_config(self) -> dict:
         # get all configuration values that must be consistent between calibration and runtime
         laser_array_config = self.laser_array.config.json()
@@ -111,8 +119,13 @@ class ImageCalibrator(Component):
 
             self.calibration = Calibration.from_dict(d["calibration"])
 
-            # TODO: use new state system
-            # self.state.update({"calibration": self.calibration.to_dict()})
+            # set the calibration data in the state
+            self.state.update(
+                {
+                    "calibration": self.calibration.to_dict(),
+                    "current_index": None,
+                }
+            )
 
         return True
 
@@ -194,6 +207,7 @@ class ImageCalibrator(Component):
             x0=np.zeros(len(self.laser_array), dtype=np.float32),
             m=np.zeros(len(self.laser_array), dtype=np.float32),
         )
+        self.state["calibration"] = calibration.to_dict()
 
         # STEP 1: capture the base image
         logging.info("Capturing base image")
@@ -210,6 +224,7 @@ class ImageCalibrator(Component):
             self.laser_array[i] = 127
 
             combined_capture = np.zeros_like(base_img)
+            self.state["current_index"] = i
 
             while True:
                 # capture the laser beam and subtract the base image
@@ -248,6 +263,9 @@ class ImageCalibrator(Component):
                 calibration.x0[i] = x0
                 calibration.m[i] = m
 
+                self.state["calibration"]["x0"][i] = x0
+                self.state["calibration"]["m"][i] = m
+
                 # visualize the result
                 if save_debug_images:
                     y_start = 0
@@ -279,6 +297,8 @@ class ImageCalibrator(Component):
         self.laser_array.pop_state()
 
         logging.info("Calibration complete")
+
         self.calibration = calibration
-        self.state.update({"calibration": self.calibration.to_dict()})
+        self.state["current_index"] = None
+
         return calibration
