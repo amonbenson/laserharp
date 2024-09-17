@@ -23,7 +23,10 @@ class TestLaserArray(unittest.TestCase):
                     "ipc": {},
                     "laser_array": {},
                 },
-                "state": {},
+                "state": {
+                    "ipc": {},
+                    "laser_array": {},
+                },
             }
         )
 

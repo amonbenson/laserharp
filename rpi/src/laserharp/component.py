@@ -11,9 +11,8 @@ class Component:
         if name not in global_state["settings"]:
             raise ValueError(f"Component {name} has no settings")
 
-        if name in global_state["state"]:
-            raise ValueError(f"Component {name} already has a state")
-        global_state["state"][name] = {}
+        if name not in global_state["state"]:
+            raise ValueError(f"Component {name} has no state")
 
         # store the name and configuration
         self.name = name

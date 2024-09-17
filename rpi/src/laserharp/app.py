@@ -32,15 +32,12 @@ class LaserHarpApp(EventEmitter):
     def __init__(self, config: dict):
         EventEmitter.__init__(self)
 
-        self._components = {
-            "ipc": None,
-        }
-
+        self._component_names = ["ipc", "din_midi"]
         self._global_state = reactive(
             {
-                "config": {key: config for key, config in config.items()},
-                "settings": {key: {} for key in self._components},
-                "state": {},
+                "config": config,
+                "settings": {name: {} for name in self._component_names},
+                "state": {name: {} for name in self._component_names},
             }
         )
 
@@ -48,7 +45,7 @@ class LaserHarpApp(EventEmitter):
 
         # setup all components
         self.ipc = IPCController("ipc", self._global_state)
-        self.din_midi = DinMidi(self.config["din_midi"])
+        self.din_midi = DinMidi("din_midi", self._global_state)
         self.laser_array = LaserArray(self.ipc, self.config["laser_array"])
         self.camera = Camera(self.config["camera"])
         self.calibrator = ImageCalibrator(self.laser_array, self.camera, self.config["image_calibrator"])
