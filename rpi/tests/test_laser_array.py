@@ -1,23 +1,42 @@
 import unittest
 from src.laserharp.laser_array import LaserArray
 from src.laserharp.ipc import IPCController
+from perci import reactive
 from .utils import MockSerial
 
 
 class TestLaserArray(unittest.TestCase):
     def setUp(self):
+        global_state = reactive(
+            {
+                "config": {
+                    "ipc": {
+                        "port": "/dev/ttyUSB0",
+                        "baudrate": 115200,
+                    },
+                    "laser_array": {
+                        "size": 3,
+                        "translation_table": [3, 4, 5],
+                    },
+                },
+                "settings": {
+                    "ipc": {},
+                    "laser_array": {},
+                },
+                "state": {},
+            }
+        )
+
         self.serial = MockSerial()
 
         # pylint: disable=duplicate-code
         self.ipc = IPCController(
-            config={
-                "port": None,  # ignored when using custom_serial
-                "baudrate": None,  # ignored when using custom_serial
-            },
+            name="ipc",
+            global_state=global_state,
             custom_serial=self.serial,
         )
 
-        self.laser_array = LaserArray(self.ipc, config={"size": 3, "translation_table": [3, 4, 5]})
+        self.laser_array = LaserArray(self.ipc, config=global_state["config"]["laser_array"])
 
     def tearDown(self):
         pass

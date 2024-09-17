@@ -3,28 +3,27 @@ from perci import ReactiveNode
 
 
 class Component:
-    def __init__(self, name: str, config: ReactiveNode, settings: ReactiveNode):
-        self._name = name
-        self._config = config
-        self._settings = settings
-        self._state = None
+    def __init__(self, name: str, global_state: ReactiveNode):
+        # check if the required configuration is present
+        if name not in global_state["config"]:
+            raise ValueError(f"Component {name} has no configuration")
 
-        self._enabled = config.get("enabled", True)
+        if name not in global_state["settings"]:
+            raise ValueError(f"Component {name} has no settings")
 
-    def get_name(self) -> str:
-        return self._name
+        if name in global_state["state"]:
+            raise ValueError(f"Component {name} already has a state")
+        global_state["state"][name] = {}
 
-    def get_config(self) -> ReactiveNode:
-        return self._config
+        # store the name and configuration
+        self.name = name
+        self.config = global_state["config"][name]
+        self.settings = global_state["settings"][name]
+        self.state = global_state["state"][name]
 
-    def get_state(self) -> ReactiveNode:
-        if self._state is None:
-            raise ValueError("Component state is not initialized")
-
-        return self._state
-
-    def is_enabled(self) -> bool:
-        return self._enabled
+    @property
+    def enabled(self) -> bool:
+        return self.config.get("enabled", True)
 
     @abstractmethod
     def start(self):

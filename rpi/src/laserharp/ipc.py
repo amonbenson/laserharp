@@ -1,31 +1,31 @@
 import logging
 import time
+import serial
+from perci import ReactiveNode
+from .component import Component
 
 
-class IPCController:
+class IPCController(Component):
     BYTE_TIMEOUT = 0.01
 
-    def __init__(self, config: dict, custom_serial=None):
-        super().__init__()
+    def __init__(self, name: str, global_state: ReactiveNode, custom_serial=None):
+        super().__init__(name, global_state)
 
-        self.config = config
-        self._enabled = config.get("enabled", True)
-
-        if not self._enabled:
+        if not self.enabled:
             self._serial = None
         elif custom_serial is not None:
             self._serial = custom_serial
         else:
             self._serial = serial.Serial(
-                port=config["port"],
-                baudrate=config["baudrate"],
+                port=self.config["port"],
+                baudrate=self.config["baudrate"],
                 parity=serial.PARITY_NONE,
                 stopbits=serial.STOPBITS_ONE,
                 bytesize=serial.EIGHTBITS,
             )
 
     def start(self):
-        if not self._enabled:
+        if not self.enabled:
             logging.info("IPC interface is disabled")
             return
 
@@ -33,7 +33,7 @@ class IPCController:
             self._serial.open()
 
     def stop(self):
-        if not self._enabled:
+        if not self.enabled:
             return
 
         self._serial.close()
@@ -46,13 +46,13 @@ class IPCController:
         # send the packet
         logging.debug(f"RPI -> STM: {data.hex(' ')}")
 
-        if self._enabled:
+        if self.enabled:
             self._serial.write_timeout = timeout
             self._serial.write(data)
             self._serial.flush()
 
     def read_raw(self, timeout=1.0) -> bytes:
-        if not self._enabled:
+        if not self.enabled:
             time.sleep(timeout)
             return None
 

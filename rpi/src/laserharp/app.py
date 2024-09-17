@@ -40,14 +40,14 @@ class LaserHarpApp(EventEmitter):
             {
                 "config": {key: config for key, config in config.items()},
                 "settings": {key: {} for key in self._components},
-                "state": {key: {} for key in self._components},
+                "state": {},
             }
         )
 
         self.config = config
 
         # setup all components
-        self.ipc = IPCController(self.config["ipc"])
+        self.ipc = IPCController("ipc", self._global_state)
         self.din_midi = DinMidi(self.config["din_midi"])
         self.laser_array = LaserArray(self.ipc, self.config["laser_array"])
         self.camera = Camera(self.config["camera"])
