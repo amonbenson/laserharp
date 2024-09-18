@@ -3,7 +3,6 @@ import logging
 import threading
 import time
 from perci import reactive, ReactiveDictNode
-from .events import EventEmitter
 from .midi import MidiEvent
 from .ipc import IPCController
 from .din_midi import DinMidi
@@ -11,28 +10,12 @@ from .laser_array import LaserArray
 from .camera import Camera
 from .image_calibrator import ImageCalibrator
 from .image_processor import ImageProcessor
+from .component import Component
 
 
-class LaserHarpApp(EventEmitter):
-    class State(Enum):
-        IDLE = 0
-        STARTING = 1
-        RUNNING = 2
-        CALIBRATING = 3
-        STOPPING = 4
-
-    def _state_change(self, origin_states: list[State], target_state: State):
-        if self.state not in origin_states:
-            raise RuntimeError(f"Invalid state: {self.state}")
-
-        logging.debug(f"App state change: {self.state} -> {target_state}")
-        self.state = target_state
-        self.emit("state", self.state)
-
+class LaserHarpApp(Component):
     def __init__(self, config: dict):
-        EventEmitter.__init__(self)
-
-        self._component_names = ["ipc", "din_midi", "laser_array", "camera", "image_processor", "image_calibrator"]
+        self._component_names = ["app", "ipc", "din_midi", "laser_array", "camera", "image_processor", "image_calibrator"]
         self._global_state = reactive(
             {
                 "config": config,
@@ -41,7 +24,7 @@ class LaserHarpApp(EventEmitter):
             }
         )
 
-        self.config = config
+        super().__init__("app", self._global_state)
 
         # setup all components
         self.ipc = IPCController("ipc", self._global_state)
@@ -56,22 +39,23 @@ class LaserHarpApp(EventEmitter):
         self.ipc_read_thread = threading.Thread(target=self._ipc_read_thread, daemon=True)
         self.din_midi_read_thread = threading.Thread(target=self._din_midi_read_thread, daemon=True)
 
-        self._frame_rate = None
-        self._frame_last_update = time.time()
-        self.frame_emit_rate = 10
-        self._frame_emit_last_update = time.time()
-
         self._prev_result = None
         self._prev_pitch_bend = 8192
 
-        self.state = self.State.IDLE
-        self.emit("state", self.state)
+        self.state["status"] = "stopped"
+
+    def _status_change(self, origin_states: list[str], target_status: str):
+        if self.state["status"] not in origin_states:
+            raise RuntimeError(f"Invalid state: {self.state['status']}")
+
+        logging.debug(f"App state change: {self.state['status']} -> {target_status}")
+        self.state["status"] = target_status
 
     def get_global_state(self) -> ReactiveDictNode:
         return self._global_state
 
     def start(self, force_calibration=False):
-        self._state_change([self.State.IDLE], self.State.STARTING)
+        self._status_change(["stopped"], "starting")
 
         # start all components
         logging.info("Starting components...")
@@ -97,10 +81,10 @@ class LaserHarpApp(EventEmitter):
         # enable all lasers
         self.laser_array.set_all(127)
 
-        self._state_change([self.State.STARTING], self.State.RUNNING)
+        self._status_change(["starting"], "running")
 
     def stop(self):
-        self._state_change([self.State.RUNNING], self.State.STOPPING)
+        self._status_change(["running"], "stopping")
 
         # disable all lasers
         self.laser_array.set_all(0)
@@ -115,36 +99,19 @@ class LaserHarpApp(EventEmitter):
         self.din_midi.stop()
         self.ipc.stop()
 
-        self._state_change([self.State.STOPPING], self.State.IDLE)
+        self._status_change(["stopping"], "stopped")
 
     def _capture_thread(self):
-        while self.state != self.State.IDLE:
+        while self.state["status"] in ("starting", "running"):
             # stop if the camera is not running anymore (note: this is the camera state, not the app state)
-            if self.camera.state != self.camera.State.RUNNING:
+            if self.camera.state["status"] != "running":
                 break
 
             # capture the next frame
             frame = self.camera.capture()
 
-            # emit at a lower rate
-            t = time.time()
-            emit_enabled = t - self._frame_emit_last_update >= 1 / self.frame_emit_rate
-            if emit_enabled:
-                self._frame_emit_last_update = t
-
-            # calculate and emit frame rate
-            new_framerate = 1 / (t - self._frame_last_update)
-            self._frame_rate = new_framerate * 0.5 + self._frame_rate * 0.5 if self._frame_rate is not None else new_framerate
-            self._frame_last_update = t
-            if emit_enabled:
-                self.emit("frame_rate", self._frame_rate)
-
-            # emit the frame
-            if emit_enabled:
-                self.emit("frame", frame)
-
             # stop further processing if we are not in running state
-            if self.state != self.State.RUNNING:
+            if self.state["status"] != "running":
                 continue
 
             # invoke the image processor
@@ -178,7 +145,7 @@ class LaserHarpApp(EventEmitter):
             self._prev_result = result
 
     def _ipc_read_thread(self):
-        while self.state != self.State.IDLE:
+        while self.state["status"] in ("starting", "running"):
             # read a message
             data = self.ipc.read_raw(timeout=0.5)
             if data is None:
@@ -187,7 +154,7 @@ class LaserHarpApp(EventEmitter):
             # TODO: handle the ipc message
 
     def _din_midi_read_thread(self):
-        while self.state != self.State.IDLE:
+        while self.state["status"] in ("starting", "running"):
             # read a message
             event = self.din_midi.read(timeout=0.5)
             if event is None:
@@ -229,8 +196,10 @@ class LaserHarpApp(EventEmitter):
             return
 
     def run_calibration(self):
-        prev_state = self.state
-        self._state_change([self.State.RUNNING, self.State.STARTING], self.State.CALIBRATING)
+        # TODO: run in separate thread
+
+        prev_status = self.state["status"]
+        self._status_change(["starting", "running"], "calibrating")
 
         # run the calibrator
         calibration = self.calibrator.calibrate(save_debug_images=self.config["save_debug_images"])
@@ -239,4 +208,4 @@ class LaserHarpApp(EventEmitter):
         # update the processor
         self.processor.set_calibration(calibration)
 
-        self._state_change([self.State.CALIBRATING], prev_state)
+        self._status_change(["calibrating"], prev_status)

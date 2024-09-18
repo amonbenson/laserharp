@@ -1,8 +1,9 @@
-log_level: INFO
+app:
+  log_level: INFO
 
-root_note: 60
+  root_note: 60
 
-save_debug_images: false
+  save_debug_images: false
 
 laser_array:
   size: 15 # number of lasers

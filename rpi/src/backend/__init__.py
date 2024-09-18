@@ -12,10 +12,6 @@ def create_backend(laserharp: LaserHarpApp) -> tuple[Flask, callable]:
     socketio = SocketIO(app, cors_allowed_origins="*", path="/ws")
     CORS(app, resources={r"/api/*": {"origins": "*"}})
 
-    # send app events via socket connection
-    laserharp.on("state", lambda state: socketio.emit("app:state", state.name.lower()))
-    laserharp.on("frame_rate", lambda frame_rate: socketio.emit("app:frame_rate", frame_rate))
-
     watchers: dict[str, Watcher] = {}
 
     @socketio.on("connect")
@@ -29,28 +25,12 @@ def create_backend(laserharp: LaserHarpApp) -> tuple[Flask, callable]:
         # watch any changes and send them to the client
         watchers[clientid] = watch(laserharp.get_global_state(), lambda change: socketio.emit("app:state", asdict(change), to=clientid))
 
-        # socketio.emit("app:state", laserharp.state.name.lower())
-        # socketio.emit("app:config", laserharp.config)
-        # socketio.emit(
-        #     "app:calibration",
-        #     (laserharp.calibrator.calibration.to_dict() if laserharp.calibrator.calibration else None),
-        # )
-
-        # laserharp.processor.state.watch(
-        #     lambda value: socketio.emit("app:processor", value, to=clientid),
-        #     immediate=True,
-        # )
-        # laserharp.calibrator.state.watch(
-        #     lambda value: socketio.emit("app:calibrator", value, to=clientid),
-        #     immediate=True,
-        # )
-
     @socketio.on("disconnect")
     def on_disconnect():
         clientid = request.sid
         print(f"Client disconnected: {clientid}")
 
-        # remove the watcher
+        # remove the session's watcher
         watcher = watchers.pop(clientid)
         laserharp.get_global_state().get_namespace().remove_watcher(watcher)
 

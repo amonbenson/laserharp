@@ -2,19 +2,29 @@ class EventEmitter:
     def __init__(self):
         self._events: dict[str, list[callable]] = {}
 
+    def _assert_events_initialized(self):
+        if not hasattr(self, "_events"):
+            raise AttributeError(f"'{self.__class__.__name__}' object has no attribute '_events'. Did you call super().__init__()?")
+
     def on(self, event: str, callback: callable):
+        self._assert_events_initialized()
+
         if event not in self._events:
             self._events[event] = []
 
         self._events[event].append(callback)
 
     def off(self, event: str, callback: callable):
+        self._assert_events_initialized()
+
         if event not in self._events:
             return
 
         self._events[event].remove(callback)
 
     def emit(self, event: str, *args, **kwargs):
+        self._assert_events_initialized()
+
         if event not in self._events:
             return
 

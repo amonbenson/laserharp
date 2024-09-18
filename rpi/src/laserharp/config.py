@@ -14,7 +14,7 @@ def load_config(filename: str = None, config_logging: bool = True):
     # configure logging
     if config_logging:
         logging.basicConfig(
-            level=_config["log_level"],
+            level=_config["app"]["log_level"],
             format="%(asctime)s %(levelname)s %(pathname)s: %(message)s",
         )
 
