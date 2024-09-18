@@ -58,3 +58,57 @@ image_processor:
   filter_size: 3 # filter kernel size
 
   modulation_gain: 15 # vibrato factor before soft-clipping (e. g. "drive")
+
+midi_converter:
+  settings:
+    root_note:
+      type: int
+      range: [0, 127]
+      default: 60
+
+    section_octave_spacing:
+      type: int
+      range: [0, 4]
+      default: 2
+
+    section_start_0:
+      type: float
+      range: [0.0, 5.0]
+      default: 0.2
+    section_start_1:
+      type: float
+      range: [0.0, 5.0]
+      default: 0.6
+    section_start_2:
+      type: float
+      range: [0.0, 5.0]
+      default: 1.0
+
+    pedal_position_c:
+      type: int
+      range: [-1, 1]
+      default: 0
+    pedal_position_d:
+      type: int
+      range: [-1, 1]
+      default: 0
+    pedal_position_e:
+      type: int
+      range: [-1, 1]
+      default: 0
+    pedal_position_f:
+      type: int
+      range: [-1, 1]
+      default: 0
+    pedal_position_g:
+      type: int
+      range: [-1, 1]
+      default: 0
+    pedal_position_a:
+      type: int
+      range: [-1, 1]
+      default: 0
+    pedal_position_b:
+      type: int
+      range: [-1, 1]
+      default: 0

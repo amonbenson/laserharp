@@ -10,15 +10,21 @@ from .laser_array import LaserArray
 from .camera import Camera
 from .image_calibrator import ImageCalibrator
 from .image_processor import ImageProcessor
+from .midi_converter import MidiConverter
 from .component import Component
+from .settings import SettingsManager
 
 
 class LaserHarpApp(Component):
     def __init__(self, config: dict):
-        self._component_names = ["app", "ipc", "din_midi", "laser_array", "camera", "image_processor", "image_calibrator"]
+        self._component_names = ["app", "ipc", "din_midi", "laser_array", "camera", "image_processor", "image_calibrator", "midi_converter"]
         self._global_state = reactive({name: {"config": config[name]} for name in self._component_names})
 
         super().__init__("app", self._global_state)
+
+        # setup the settings manager
+        self.settings = SettingsManager(self._global_state)
+        self.settings.setup()
 
         # setup all components
         self.ipc = IPCController("ipc", self._global_state)
@@ -27,6 +33,7 @@ class LaserHarpApp(Component):
         self.camera = Camera("camera", self._global_state)
         self.calibrator = ImageCalibrator("image_calibrator", self._global_state, self.laser_array, self.camera)
         self.processor = ImageProcessor("image_processor", self._global_state, self.laser_array, self.camera)
+        self.midi_converter = MidiConverter("midi_converter", self._global_state, self.laser_array, self.din_midi)
 
         # setup all processing threads
         self._capture_thread = threading.Thread(target=self._capture_thread_run, daemon=True)
