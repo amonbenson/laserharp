@@ -20,10 +20,13 @@ def create_backend(laserharp: LaserHarpApp) -> tuple[Flask, callable]:
         print(f"Client connected: {clientid}")
 
         # send the initial state
-        socketio.emit("app:state", laserharp.get_global_state().json())
+        socketio.emit("app:global_state:init", laserharp.get_global_state().json())
 
         # watch any changes and send them to the client
-        watchers[clientid] = watch(laserharp.get_global_state(), lambda change: socketio.emit("app:state", asdict(change), to=clientid))
+        def on_change(change: Change):
+            socketio.emit("app:global_state:change", asdict(change), to=clientid)
+
+        watchers[clientid] = watch(laserharp.get_global_state(), on_change)
 
     @socketio.on("disconnect")
     def on_disconnect():
@@ -47,6 +50,9 @@ def create_backend(laserharp: LaserHarpApp) -> tuple[Flask, callable]:
 
     @app.route("/api/stream.mjpg")
     def stream():
+        if not laserharp.camera.enabled:
+            return Response("Camera is not enabled", status=503)
+
         @stream_with_context
         def generate():
             while True:

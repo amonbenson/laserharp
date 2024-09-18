@@ -1,5 +1,6 @@
 <script setup>
-import { ref, onMounted, onBeforeUnmount, inject } from "vue";
+import { ref, computed, onMounted, onBeforeUnmount, inject } from "vue";
+import { storeToRefs } from "pinia";
 import { useLaserharpStore } from "@/stores/laserharp";
 import colors from "tailwindcss/colors";
 
@@ -8,6 +9,10 @@ const CAMERA_HEIGHT = 480;
 
 const api = inject("api");
 const laserharp = useLaserharpStore();
+
+const calibration = computed(() => laserharp.globalState.state.image_calibrator?.calibration);
+const result = computed(() => laserharp.globalState.state.image_processor?.result);
+const mountDistance = computed(() => laserharp.globalState.config.camera?.mount_distance);
 
 const canvas = ref(null);
 let canvasAnimationFrameHandle = null;
@@ -43,22 +48,22 @@ function onRedraw() {
   context.translate(0, -CAMERA_HEIGHT);
 
   // draw the camera stream
-  context.drawImage(stream, 0, 0, CAMERA_WIDTH, CAMERA_HEIGHT);
+  try {
+    context.drawImage(stream, 0, 0, CAMERA_WIDTH, CAMERA_HEIGHT);
+  } catch (error) {
+    // ignore
+  }
 
   // draw the calibration lines
-  const calibration = laserharp.calibrator.calibration;
-  const result = laserharp.processor.result;
-  const mountDistance = laserharp.config?.camera?.mount_distance;
-
-  if (calibration && result && mountDistance) {
-    const n = calibration.m.length;
+  if (calibration.value && result.value && mountDistance.value) {
+    const n = calibration.value.m.length;
 
     context.lineCap = "round";
 
     for (let i = 0; i < n; i++) {
-      const x0 = calibration.x0[i];
+      const x0 = calibration.value.x0[i];
       const y0 = 0;
-      const x1 = calibration.x0[i] + calibration.m[i] * CAMERA_HEIGHT;
+      const x1 = calibration.value.x0[i] + calibration.value.m[i] * CAMERA_HEIGHT;
       const y1 = CAMERA_HEIGHT;
 
       // draw the beam line
@@ -72,12 +77,12 @@ function onRedraw() {
       context.stroke();
 
       // draw a blob at the point of intersection
-      if (result.active[i]) {
-        const y = calculateScreenY(result.length[i], mountDistance, calibration.ya, calibration.yb);
-        const x = x0 + y * calibration.m[i];
+      if (result.value.active[i]) {
+        const y = calculateScreenY(result.value.length[i], mountDistance, calibration.value.ya, calibration.value.yb);
+        const x = x0 + y * calibration.value.m[i];
 
-        const yMod = y + result.modulation[i] * 70;
-        const xMod = x0 + yMod * calibration.m[i];
+        const yMod = y + result.value.modulation[i] * 70;
+        const xMod = x0 + yMod * calibration.value.m[i];
 
         context.fillStyle = colors.rose[600];
         context.strokeStyle = colors.rose[600];
@@ -114,6 +119,7 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
+  <!-- <div>{{ globalState }}</div> -->
   <div class="aspect-[4/3]">
     <canvas
       ref="canvas"

@@ -1,11 +1,20 @@
 <script setup>
 import { RouterLink, RouterView } from "vue-router";
-import { inject, onMounted, onBeforeUnmount } from "vue";
+import { inject, onMounted, onBeforeUnmount, computed, watch } from "vue";
+import { storeToRefs } from "pinia";
 import { useLaserharpStore } from "./stores/laserharp";
 
 const api = inject("api");
 
 const laserharp = useLaserharpStore();
+const { globalState, connected } = storeToRefs(laserharp);
+const status = computed(() => {
+  if (connected.value) {
+    return globalState.value.state.app?.status ?? "unknown";
+  } else {
+    return "disconnected";
+  }
+});
 
 onMounted(() => {
   // api connects autoomatically
@@ -25,11 +34,12 @@ onBeforeUnmount(() => {
       >
         <h1>
           Laserharp&nbsp;<span
-            class="inline-block ml-2 size-4 rounded-full bg-gray-500"
-            :class="{
-              'bg-rose-600': laserharp.status === 'disconnected',
-              'bg-green-500': laserharp.status === 'running',
-            }"
+            class="inline-block ml-2 size-4 rounded-full"
+            :class="status === 'running'
+              ? 'bg-green-500'
+              : (status === 'calibrating'
+                ? 'bg-yellow-500'
+                : 'bg-gray-500')"
           />
         </h1>
       </RouterLink>

@@ -21,29 +21,19 @@ export class Api {
     const laserharp = useLaserharpStore();
 
     this.socket.on("connect", () => {
-      if (laserharp.status === "disconnected") {
-        laserharp.connect();
-      }
+      laserharp.connect();
     });
 
     this.socket.on("disconnect", () => {
       laserharp.disconnect();
     });
 
-    this.socket.on("app:state", status => {
-      laserharp.$patch({ status });
+    this.socket.on("app:global_state:init", state => {
+      laserharp.globalStateInit(state);
     });
 
-    this.socket.on("app:config", config => {
-      laserharp.$patch({ config });
-    });
-
-    this.socket.on("app:processor", value => {
-      laserharp.$patch({ processor: value });
-    });
-
-    this.socket.on("app:calibrator", value => {
-      laserharp.$patch({ calibrator: value });
+    this.socket.on("app:global_state:change", change => {
+      laserharp.globalStateChange(change);
     });
   }
 
