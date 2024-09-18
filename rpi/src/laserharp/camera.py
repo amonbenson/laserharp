@@ -81,7 +81,7 @@ class Camera(Component):
         super().__init__(name, global_state)
 
         self.state["status"] = "stopped"
-        self.state["frame_rate"] = 0
+        self.state["framerate"] = 0
 
         self._frame_counter = FrameRateCounter(update_interval=1.0)
         self._frame_counter.on("update", self._on_frame_counter_update)
@@ -95,7 +95,7 @@ class Camera(Component):
 
     def _on_frame_counter_update(self, rate):
         # store the new frame rate in the state
-        self.state["frame_rate"] = rate
+        self.state["framerate"] = rate
 
     def _init_camera(self):
         # convert the rotation to a libcamera transform

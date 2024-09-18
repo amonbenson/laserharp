@@ -47,11 +47,13 @@ function onRedraw() {
   context.scale(canvas.value.width / CAMERA_WIDTH, -canvas.value.height / CAMERA_HEIGHT);
   context.translate(0, -CAMERA_HEIGHT);
 
-  // draw the camera stream
   try {
+    // draw the camera stream
     context.drawImage(stream, 0, 0, CAMERA_WIDTH, CAMERA_HEIGHT);
   } catch (error) {
-    // ignore
+    // draw a black rectangle if the stream is not available
+    context.fillStyle = "black";
+    context.fillRect(0, 0, CAMERA_WIDTH, CAMERA_HEIGHT);
   }
 
   // draw the calibration lines

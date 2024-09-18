@@ -27,7 +27,7 @@ onBeforeUnmount(() => {
 
 <template>
   <div class="w-full h-full flex flex-col select-none">
-    <header class="w-full h-12 bg-gray-900 text-white flex justify-between items-center">
+    <header class="w-full h-12 bg-gray-900 text-white flex items-center">
       <RouterLink
         to="/"
         class="mx-8"
@@ -42,6 +42,13 @@ onBeforeUnmount(() => {
                 : 'bg-gray-500')"
           />
         </h1>
+      </RouterLink>
+
+      <RouterLink
+        to="/calibrate"
+        class="mx-8"
+      >
+        <h2>Calibrate</h2>
       </RouterLink>
     </header>
 
