@@ -15,13 +15,6 @@ class ImageProcessor(Component):
         length: np.ndarray
         modulation: np.ndarray
 
-        def to_dict(self, replace_nan=False):
-            return {
-                "active": np.nan_to_num(self.active).tolist(),
-                "length": (np.nan_to_num(self.length).tolist() if replace_nan else self.length.tolist()),
-                "modulation": np.nan_to_num(self.modulation).tolist(),
-            }
-
     def __init__(self, name: str, global_state: ReactiveDictNode, laser_array: LaserArray, camera: Camera):
         super().__init__(name, global_state)
 
@@ -40,11 +33,17 @@ class ImageProcessor(Component):
         self.beam_yv = None
         self.beam_xv = None
 
+        self.state["result"] = None
+
     def start(self):
-        pass
+        self.state["result"] = {
+            "active": [False] * len(self.laser_array),
+            "length": [0.0] * len(self.laser_array),
+            "modulation": [0.0] * len(self.laser_array),
+        }
 
     def stop(self):
-        pass
+        self.state["result"] = None
 
     def _calculate_coeff(self) -> np.ndarray:
         # compute number of taps
@@ -143,7 +142,10 @@ class ImageProcessor(Component):
         raw_length = self._calculate_beam_length(frame)
         result = self._apply_filter(raw_length)
 
-        # perform state update TODO: use new state system
-        # self.state.update({"result": result.to_dict(replace_nan=True)})
+        # store the new result values
+        for i in range(len(self.laser_array)):
+            self.state["result"]["active"][i] = bool(result.active[i])
+            self.state["result"]["length"][i] = float(result.length[i]) if np.isfinite(result.length[i]) else 0.0
+            self.state["result"]["modulation"][i] = float(result.modulation[i]) if np.isfinite(result.modulation[i]) else 0.0
 
         return result

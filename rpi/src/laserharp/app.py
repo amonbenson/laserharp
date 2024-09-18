@@ -16,12 +16,7 @@ from .component import Component
 class LaserHarpApp(Component):
     def __init__(self, config: dict):
         self._component_names = ["app", "ipc", "din_midi", "laser_array", "camera", "image_processor", "image_calibrator"]
-        self._global_state = reactive(
-            {
-                name: { "config": config[name] }
-                for name in self._component_names
-            }
-        )
+        self._global_state = reactive({name: {"config": config[name]} for name in self._component_names})
 
         super().__init__("app", self._global_state)
 
@@ -60,7 +55,10 @@ class LaserHarpApp(Component):
         logging.info("Starting components...")
         self.ipc.start()
         self.din_midi.start()
+        self.laser_array.start()
         self.camera.start()
+        self.calibrator.start()
+        self.processor.start()
 
         # start all threads
         logging.info("Starting threads...")
@@ -94,7 +92,10 @@ class LaserHarpApp(Component):
         self.din_midi_read_thread.join(timeout=1)
 
         # stop all components
+        self.processor.stop()
+        self.calibrator.stop()
         self.camera.stop()
+        self.laser_array.stop()
         self.din_midi.stop()
         self.ipc.stop()
 
