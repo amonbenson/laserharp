@@ -28,9 +28,8 @@ class MidiConverter(Component):
         pass
 
     def _is_in_section(self, section: int, length: float) -> bool:
-        bounds = self.config["sections"]["bounds"]
-        start = bounds[section]
-        end = bounds[section + 1] if section < len(bounds) - 1 else np.inf
+        start = self.settings["section_start_" + str(section)]
+        end = self.settings.get("section_start_" + str(section + 1), np.inf)
 
         return start <= length < end
 
@@ -48,9 +47,9 @@ class MidiConverter(Component):
 
     def process(self, interceptions: ImageProcessor.Result):
         for x in range(len(self._laser_array)):
-            active = interceptions.active[x]
-            length = interceptions.length[x]
-            _modulation = interceptions.modulation[x]
+            active = bool(interceptions.active[x])
+            length = float(interceptions.length[x])
+            _modulation = float(interceptions.modulation[x])
 
             # use the diode index x as the step position and apply the current scale
             note_offset = self._apply_scale(x)
@@ -63,8 +62,8 @@ class MidiConverter(Component):
                     continue
 
                 # calculate the midi note
-                note = self.config["root_note"]
-                note += y * self.config["section"]["octave_spacing"] * 12
+                note = self.settings["root_note"]
+                note += y * self.settings["section_octave_spacing"] * 12
                 note += note_offset
 
                 # send the note on/off message

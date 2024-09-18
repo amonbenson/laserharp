@@ -27,41 +27,40 @@ onBeforeUnmount(() => {
 
 <template>
   <div class="w-full h-full flex flex-col select-none">
-    <header class="w-full h-12 shrink-0 bg-gray-900 text-white flex items-center">
-      <RouterLink
-        to="/"
-        class="mx-8"
-      >
-        <h1>
-          Laserharp&nbsp;<span
-            class="inline-block ml-2 size-4 rounded-full"
-            :class="status === 'running'
-              ? 'bg-green-500'
-              : (status === 'calibrating'
-                ? 'bg-yellow-500'
-                : 'bg-gray-500')"
-          />
-        </h1>
-      </RouterLink>
+    <header class="w-full h-12 shrink-0 bg-gray-900 text-white">
+      <div class="container mx-auto px-8 h-full flex items-center space-x-8">
+        <RouterLink
+          to="/"
+        >
+          <h1>
+            Laserharp&nbsp;<span
+              class="inline-block ml-2 size-4 rounded-full"
+              :class="status === 'running'
+                ? 'bg-green-500'
+                : (status === 'calibrating'
+                  ? 'bg-yellow-500'
+                  : 'bg-gray-500')"
+            />
+          </h1>
+        </RouterLink>
 
-      <RouterLink
-        to="/calibrate"
-        class="mx-8"
-      >
-        Calibrate
-      </RouterLink>
+        <RouterLink
+          to="/calibrate"
+        >
+          Calibrate
+        </RouterLink>
 
-      <RouterLink
-        to="/debug"
-        class="mx-8"
-      >
-        Debug
-      </RouterLink>
+        <RouterLink
+          to="/debug"
+        >
+          Debug
+        </RouterLink>
+      </div>
     </header>
 
-    <main class="p-8 w-full h-full overflow-y-auto">
-      <div class="container mx-auto space-y-8 h-full flex flex-col">
-        <RouterView class="grow" />
+    <main class="w-full h-full overflow-y-auto">
+      <div class="container mx-auto p-8 space-y-8 min-h-full flex flex-col">
+        <RouterView />
       </div>
     </main>
   </div>

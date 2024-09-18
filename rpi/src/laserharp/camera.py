@@ -24,6 +24,7 @@ class FrameRateCounter(EventEmitter):
         self._update_interval = update_interval
 
         self._last_time = time.time()
+        self._last_count = 0
         self._frame_count = 0
         self._frame_rate = 0
 
@@ -39,6 +40,9 @@ class FrameRateCounter(EventEmitter):
         self._running = False
         self._thread.join()
         self._thread = None
+
+    def get_frame_count(self):
+        return self._frame_count
 
     def get_frame_rate(self):
         return self._frame_rate
@@ -59,8 +63,9 @@ class FrameRateCounter(EventEmitter):
             self._last_time = t_now
 
             # calculate the frame rate and reset the frame counter
-            self._frame_rate = self._frame_count / dt
-            self._frame_count = 0
+            fc = self._frame_count
+            self._frame_rate = (fc - self._last_count) / dt
+            self._last_count = fc
 
             # emit an event
             self.emit("update", self._frame_rate)
@@ -151,6 +156,14 @@ class Camera(Component):
     @property
     def framerate(self):
         return self.config["framerate"]
+
+    @property
+    def actual_framerate(self):
+        return self._frame_counter.get_frame_rate()
+
+    @property
+    def frame_count(self):
+        return self._frame_counter.get_frame_count()
 
     def start(self):
         if self.state["status"] != "stopped":

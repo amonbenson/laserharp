@@ -1,8 +1,9 @@
-from enum import Enum
 import logging
 import threading
 import time
+import numpy as np
 from perci import reactive, ReactiveDictNode
+import cv2
 from .midi import MidiEvent
 from .ipc import IPCController
 from .din_midi import DinMidi
@@ -149,35 +150,43 @@ class LaserHarpApp(Component):
             # capture the next frame
             frame = self.camera.capture()
 
+            # draw a random blob for testing
+            if not self.camera.enabled and self.config["generate_debug_intersections"]:
+                phi = self.camera.frame_count * 0.05
+                px = int(frame.shape[1] / 2 + np.cos(phi) * frame.shape[0] * 0.3)
+                py = int(frame.shape[0] / 2 + np.sin(phi) * frame.shape[0] * 0.3)
+                cv2.circle(frame, (px, py), 60, (255, 255, 255), -1)
+
             # invoke the image processor
             result = self.processor.process(frame)
 
-            # TODO: generate midi data
+            # invoke the midi converter
+            self.midi_converter.process(result)
 
-            # set the laser brightness
-            for i, active in enumerate(result.active):
-                note = self._laser_to_note(i)
-                note_on = active and not (self._prev_result and self._prev_result.active[i])
-                note_off = not active and (self._prev_result and self._prev_result.active[i])
+            # # set the laser brightness
+            # for i, active in enumerate(result.active):
+            #     note = self._laser_to_note(i)
+            #     note_on = active and not (self._prev_result and self._prev_result.active[i])
+            #     note_off = not active and (self._prev_result and self._prev_result.active[i])
 
-                if note_on:
-                    self.din_midi.send(MidiEvent(0, "note_on", note=note, velocity=127))
-                elif note_off:
-                    self.din_midi.send(MidiEvent(0, "note_off", note=note))
+            #     if note_on:
+            #         self.din_midi.send(MidiEvent(0, "note_on", note=note, velocity=127))
+            #     elif note_off:
+            #         self.din_midi.send(MidiEvent(0, "note_off", note=note))
 
-            # use the average modulation to send pitch bend
-            num_active = sum(result.active)
-            mod_sum = sum(result.modulation)
-            mod_avg = mod_sum / num_active if num_active > 0 else 0
-            pitch_bend = max(-8192, min(8191, int(mod_avg * 8192)))
+            # # use the average modulation to send pitch bend
+            # num_active = sum(result.active)
+            # mod_sum = sum(result.modulation)
+            # mod_avg = mod_sum / num_active if num_active > 0 else 0
+            # pitch_bend = max(-8192, min(8191, int(mod_avg * 8192)))
 
-            if pitch_bend != self._prev_pitch_bend:
-                self.din_midi.send(MidiEvent(0, "pitchwheel", pitch=pitch_bend))
-            self._prev_pitch_bend = pitch_bend
+            # if pitch_bend != self._prev_pitch_bend:
+            #     self.din_midi.send(MidiEvent(0, "pitchwheel", pitch=pitch_bend))
+            # self._prev_pitch_bend = pitch_bend
 
-            # self._midi_serial.flush()
+            # # self._midi_serial.flush()
 
-            self._prev_result = result
+            # self._prev_result = result
 
     def _ipc_read_thread_run(self):
         while self.state["status"] != "stopping":

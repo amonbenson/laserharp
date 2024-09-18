@@ -1,9 +1,8 @@
 app:
   log_level: INFO
 
-  root_note: 60
-
-  save_debug_images: false
+  save_debug_images: false # save camera visualization images when calibrating
+  generate_debug_intersections: true # generate random intersections when the camera is disabled
 
 laser_array:
   size: 15 # number of lasers

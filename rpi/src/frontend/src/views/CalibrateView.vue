@@ -14,7 +14,7 @@ const actualFrameRate = computed(() => laserharp.camera?.state?.framerate ?? 0);
 <template>
   <div class="w-full flex justify-between items-baseline">
     <p :class="{ 'text-rose-500': actualFrameRate < targetFrameRate * 0.9 }">
-      FPS: {{ actualFrameRate.toFixed() }}
+      FPS: {{ actualFrameRate.toFixed() }} / {{ targetFrameRate.toFixed() }}
     </p>
     <AccentButton @click="api.emit('app:calibrate')">
       Calibrate

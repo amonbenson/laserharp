@@ -1,6 +1,5 @@
 <script setup>
-import { ref, computed, onMounted, onBeforeUnmount, inject } from "vue";
-import { storeToRefs } from "pinia";
+import { ref, computed, watch, onMounted, onBeforeUnmount, inject } from "vue";
 import { useLaserharpStore } from "@/stores/laserharp";
 import colors from "tailwindcss/colors";
 
@@ -80,7 +79,7 @@ function onRedraw() {
 
       // draw a blob at the point of intersection
       if (result.value.active[i]) {
-        const y = calculateScreenY(result.value.length[i], mountDistance, calibration.value.ya, calibration.value.yb);
+        const y = calculateScreenY(result.value.length[i], mountDistance.value, calibration.value.ya, calibration.value.yb);
         const x = x0 + y * calibration.value.m[i];
 
         const yMod = y + result.value.modulation[i] * 70;
@@ -121,7 +120,6 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <!-- <div>{{ globalState }}</div> -->
   <div class="aspect-[4/3]">
     <canvas
       ref="canvas"
