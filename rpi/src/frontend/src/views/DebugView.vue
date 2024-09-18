@@ -8,6 +8,6 @@ const laserharpString = computed(() => JSON.stringify(laserharp, null, 2));
 
 <template>
   <main class="w-full h-full relative overflow-y-auto">
-    Hello!
+    <pre class="absolute inset-8 space-y-4 select-text">{{ laserharpString }}</pre>
   </main>
 </template>

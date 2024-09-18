@@ -14,6 +14,11 @@ const router = createRouter({
       name: "calibrate",
       component: () => import("@/views/CalibrateView.vue"),
     },
+    {
+      path: "/debug",
+      name: "debug",
+      component: () => import("@/views/DebugView.vue"),
+    }
   ],
 });
 

@@ -48,7 +48,14 @@ onBeforeUnmount(() => {
         to="/calibrate"
         class="mx-8"
       >
-        <h2>Calibrate</h2>
+        Calibrate
+      </RouterLink>
+
+      <RouterLink
+        to="/debug"
+        class="mx-8"
+      >
+        Debug
       </RouterLink>
     </header>
 
