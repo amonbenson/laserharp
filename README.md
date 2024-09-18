@@ -20,6 +20,21 @@ dtoverlay=uart2-pi5
 dtoverlay=midi-uart2-pi5
 ```
 
+## Diode to Note Mapping
+
+- Root note: C3 (midi note 48, one octave below middle C)
+- Global transpose setting
+
+- Modes:
+    - **Pedal Harp**: For each note, choose one of:
+        - flat
+        - natural
+        - sharp
+    - **Custom Scale**:
+        - each diode can be assigned to a specific midi note
+
+- The harp is divided into three horizontal sections resulting in 3 different octave ranges
+
 ## IPC Protocol
 
 ### USB Midi
