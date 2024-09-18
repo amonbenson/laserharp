@@ -29,9 +29,12 @@ class LaserHarpApp(Component):
         self.processor = ImageProcessor("image_processor", self._global_state, self.laser_array, self.camera)
 
         # setup all processing threads
-        self.capture_thread = threading.Thread(target=self._capture_thread, daemon=True)
-        self.ipc_read_thread = threading.Thread(target=self._ipc_read_thread, daemon=True)
-        self.din_midi_read_thread = threading.Thread(target=self._din_midi_read_thread, daemon=True)
+        self._capture_thread = threading.Thread(target=self._capture_thread_run, daemon=True)
+        self._calibrate_thread = threading.Thread(target=self._calibrate_thread_run, daemon=True)
+        self._ipc_read_thread = threading.Thread(target=self._ipc_read_thread_run, daemon=True)
+        self._din_midi_read_thread = threading.Thread(target=self._din_midi_read_thread_run, daemon=True)
+
+        self._calibration_request = False
 
         self._prev_result = None
         self._prev_pitch_bend = 8192
@@ -62,9 +65,9 @@ class LaserHarpApp(Component):
 
         # start all threads
         logging.info("Starting threads...")
-        self.capture_thread.start()
+        self._capture_thread.start()
         # self.ipc_read_thread.start()
-        self.din_midi_read_thread.start()
+        self._din_midi_read_thread.start()
 
         # load the calibration
         logging.info("Loading calibration...")
@@ -80,6 +83,9 @@ class LaserHarpApp(Component):
 
         self._status_change(["starting"], "running")
 
+        # start the calibration thread. If a calibration should be performed, this will take over now
+        self._calibrate_thread.start()
+
     def stop(self):
         self._status_change(["running"], "stopping")
 
@@ -87,9 +93,9 @@ class LaserHarpApp(Component):
         self.laser_array.set_all(0)
 
         # stop all threads
-        self.capture_thread.join(timeout=1)
+        self._capture_thread.join(timeout=1)
         # self.ipc_read_thread.join(timeout=1)
-        self.din_midi_read_thread.join(timeout=1)
+        self._din_midi_read_thread.join(timeout=1)
 
         # stop all components
         self.processor.stop()
@@ -101,18 +107,40 @@ class LaserHarpApp(Component):
 
         self._status_change(["stopping"], "stopped")
 
-    def _capture_thread(self):
-        while self.state["status"] in ("starting", "running"):
-            # stop if the camera is not running anymore (note: this is the camera state, not the app state)
+    def _calibrate_thread_run(self):
+        while self.state["status"] != "stopping":
+            # wait for a calibration request
+            if not self._calibration_request:
+                time.sleep(1)
+                continue
+
+            self._calibration_request = False
+
+            prev_status = self.state["status"]
+            self._status_change(["starting", "running"], "calibrating")
+
+            # run the calibrator
+            calibration = self.calibrator.calibrate(save_debug_images=self.config["save_debug_images"])
+            self.calibrator.save()
+
+            # update the processor
+            self.processor.set_calibration(calibration)
+
+            self._status_change(["calibrating"], prev_status)
+
+    def _capture_thread_run(self):
+        while self.state["status"] != "stopping":
+            # wait if we are currently starting up or calibrating
+            if self.state["status"] in ("starting", "calibrating"):
+                time.sleep(0.1)
+                continue
+
+            # stop if the app or camera is not running anymore
             if self.camera.state["status"] != "running":
                 break
 
             # capture the next frame
             frame = self.camera.capture()
-
-            # stop further processing if we are not in running state
-            if self.state["status"] != "running":
-                continue
 
             # invoke the image processor
             result = self.processor.process(frame)
@@ -144,8 +172,8 @@ class LaserHarpApp(Component):
 
             self._prev_result = result
 
-    def _ipc_read_thread(self):
-        while self.state["status"] in ("starting", "running"):
+    def _ipc_read_thread_run(self):
+        while self.state["status"] != "stopping":
             # read a message
             data = self.ipc.read_raw(timeout=0.5)
             if data is None:
@@ -153,8 +181,8 @@ class LaserHarpApp(Component):
 
             # TODO: handle the ipc message
 
-    def _din_midi_read_thread(self):
-        while self.state["status"] in ("starting", "running"):
+    def _din_midi_read_thread_run(self):
+        while self.state["status"] != "stopping":
             # read a message
             event = self.din_midi.read(timeout=0.5)
             if event is None:
@@ -196,16 +224,5 @@ class LaserHarpApp(Component):
             return
 
     def run_calibration(self):
-        # TODO: run in separate thread
-
-        prev_status = self.state["status"]
-        self._status_change(["starting", "running"], "calibrating")
-
-        # run the calibrator
-        calibration = self.calibrator.calibrate(save_debug_images=self.config["save_debug_images"])
-        self.calibrator.save()
-
-        # update the processor
-        self.processor.set_calibration(calibration)
-
-        self._status_change(["calibrating"], prev_status)
+        # notify the calibration thread
+        self._calibration_request = True
