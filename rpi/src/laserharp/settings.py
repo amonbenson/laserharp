@@ -36,8 +36,8 @@ class IntSetting(Setting[int]):
         super().__init__(key, target, desc)
 
         # parse the description
-        self._min_value = int(desc.get("min", np.iinfo(np.int32).min))
-        self._max_value = int(desc.get("max", np.iinfo(np.int32).max))
+        self._min_value = desc["range"][0] if "range" in desc else np.iinfo(np.int32).min
+        self._max_value = desc["range"][1] if "range" in desc else np.iinfo(np.int32).max
         self._default_value = int(desc.get("default", 0))
 
         # set the initial value
@@ -57,8 +57,8 @@ class FloatSetting(Setting[float]):
         super().__init__(key, target, desc)
 
         # parse the description
-        self._min_value = float(desc.get("min", np.finfo(np.float32).min))
-        self._max_value = float(desc.get("max", np.finfo(np.float32).max))
+        self._min_value = desc["range"][0] if "range" in desc else np.finfo(np.float32).min
+        self._max_value = desc["range"][1] if "range" in desc else np.finfo(np.float32).max
         self._default_value = float(desc.get("default", 0.0))
 
         # set the initial value
