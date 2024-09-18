@@ -7,7 +7,5 @@ const laserharpString = computed(() => JSON.stringify(laserharp, null, 2));
 </script>
 
 <template>
-  <main class="w-full h-full relative overflow-y-auto">
-    <pre class="absolute inset-8 space-y-4 select-text">{{ laserharpString }}</pre>
-  </main>
+  <pre class="bg-gray-900 p-4 select-text">{{ laserharpString }}</pre>
 </template>

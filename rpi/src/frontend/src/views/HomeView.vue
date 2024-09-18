@@ -7,7 +7,7 @@ const laserharpString = computed(() => JSON.stringify(laserharp, null, 2));
 </script>
 
 <template>
-  <main class="w-full h-full relative overflow-y-auto">
-    Hello!
-  </main>
+  <div>
+    Hello
+  </div>
 </template>

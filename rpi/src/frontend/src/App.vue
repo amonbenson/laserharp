@@ -27,7 +27,7 @@ onBeforeUnmount(() => {
 
 <template>
   <div class="w-full h-full flex flex-col select-none">
-    <header class="w-full h-12 bg-gray-900 text-white flex items-center">
+    <header class="w-full h-12 shrink-0 bg-gray-900 text-white flex items-center">
       <RouterLink
         to="/"
         class="mx-8"
@@ -59,6 +59,10 @@ onBeforeUnmount(() => {
       </RouterLink>
     </header>
 
-    <RouterView class="grow" />
+    <main class="p-8 w-full h-full overflow-y-auto">
+      <div class="container mx-auto space-y-8 h-full flex flex-col">
+        <RouterView class="grow" />
+      </div>
+    </main>
   </div>
 </template>
