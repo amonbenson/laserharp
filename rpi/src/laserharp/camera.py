@@ -83,7 +83,7 @@ class Camera(Component):
         self.state["status"] = "stopped"
         self.state["frame_rate"] = 0
 
-        self._frame_counter = FrameRateCounter(update_interval=0.25)
+        self._frame_counter = FrameRateCounter(update_interval=1.0)
         self._frame_counter.on("update", self._on_frame_counter_update)
 
         self._frame = None

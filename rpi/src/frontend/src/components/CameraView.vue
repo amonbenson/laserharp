@@ -10,9 +10,9 @@ const CAMERA_HEIGHT = 480;
 const api = inject("api");
 const laserharp = useLaserharpStore();
 
-const calibration = computed(() => laserharp.globalState.state.image_calibrator?.calibration);
-const result = computed(() => laserharp.globalState.state.image_processor?.result);
-const mountDistance = computed(() => laserharp.globalState.config.camera?.mount_distance);
+const calibration = computed(() => laserharp.image_calibrator?.state?.calibration);
+const result = computed(() => laserharp.image_processor?.state?.result);
+const mountDistance = computed(() => laserharp.camera?.config?.mount_distance);
 
 const canvas = ref(null);
 let canvasAnimationFrameHandle = null;

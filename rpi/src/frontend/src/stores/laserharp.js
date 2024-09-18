@@ -4,26 +4,10 @@ const traversePath = (obj, path) => {
   return path.reduce((acc, key) => acc[key], obj);
 };
 
-const updateRecursive = (obj, newObj) => {
-  for (const key in newObj) {
-    if (typeof obj[key] === "object" && typeof newObj[key] === "object") {
-      updateRecursive(obj[key], newObj[key]);
-    } else {
-      obj[key] = newObj[key];
-    }
-  }
-};
-
 export const useLaserharpStore = defineStore("laserharp", {
   state: () => ({
-    globalState: {
-      config: {},
-      settings: {},
-      state: {
-        app: {
-          status: "disconnected",
-        },
-      },
+    app: {
+      status: "disconnected",
     },
     connected: false,
   }),
@@ -35,7 +19,9 @@ export const useLaserharpStore = defineStore("laserharp", {
       this.connected = false;
     },
     globalStateInit(state) {
-      this.globalState = state;
+      for (const key in state) {
+        this[key] = state[key];
+      }
     },
     globalStateChange({ change_type, path, ...args }) {
       // remove the "root" key
@@ -52,7 +38,7 @@ export const useLaserharpStore = defineStore("laserharp", {
       // traverse the path along the global st
       let node = null;
       try {
-        node = traversePath(this.globalState, path);
+        node = traversePath(this, path);
       } catch (e) {
         console.error(`Failed to apply change to ${path.join(".")}:`, e);
         return;

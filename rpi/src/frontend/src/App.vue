@@ -7,10 +7,10 @@ import { useLaserharpStore } from "./stores/laserharp";
 const api = inject("api");
 
 const laserharp = useLaserharpStore();
-const { globalState, connected } = storeToRefs(laserharp);
+
 const status = computed(() => {
-  if (connected.value) {
-    return globalState.value.state.app?.status ?? "unknown";
+  if (laserharp.connected) {
+    return laserharp.app?.state?.status ?? "unknown";
   } else {
     return "disconnected";
   }

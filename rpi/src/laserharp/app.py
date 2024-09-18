@@ -18,9 +18,8 @@ class LaserHarpApp(Component):
         self._component_names = ["app", "ipc", "din_midi", "laser_array", "camera", "image_processor", "image_calibrator"]
         self._global_state = reactive(
             {
-                "config": config,
-                "settings": {name: {} for name in self._component_names},
-                "state": {name: {} for name in self._component_names},
+                name: { "config": config[name] }
+                for name in self._component_names
             }
         )
 
