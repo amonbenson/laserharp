@@ -1,9 +1,10 @@
 <script setup>
-import { computed } from "vue";
+import { inject, computed } from "vue";
 import { useLaserharpStore } from "@/stores/laserharp";
 import CameraStream from "@/components/CameraStream.vue";
 import AccentButton from "@/components/AccentButton.vue";
 
+const api = inject("api");
 const laserharp = useLaserharpStore();
 
 const targetFrameRate = computed(() => laserharp.camera?.config?.framerate ?? 0);

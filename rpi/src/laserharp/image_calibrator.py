@@ -80,7 +80,8 @@ class ImageCalibrator(Component):
         self.filename = os.path.abspath(self.config["calibration_file"])
         self.calibration = None
 
-        self.state.update({"calibration": None})
+        self.state["calibration"] = None
+        self.state["current_index"] = None
 
     def start(self):
         pass
@@ -120,12 +121,8 @@ class ImageCalibrator(Component):
             self.calibration = Calibration.from_dict(d["calibration"])
 
             # set the calibration data in the state
-            self.state.update(
-                {
-                    "calibration": self.calibration.to_dict(),
-                    "current_index": None,
-                }
-            )
+            self.state["calibration"] = self.calibration.to_dict()
+            self.state["current_index"] = None
 
         return True
 
@@ -204,7 +201,7 @@ class ImageCalibrator(Component):
         calibration = Calibration(
             ya=ya,
             yb=yb,
-            x0=np.zeros(len(self.laser_array), dtype=np.float32),
+            x0=-np.ones(len(self.laser_array), dtype=np.float32),
             m=np.zeros(len(self.laser_array), dtype=np.float32),
         )
         self.state["calibration"] = calibration.to_dict()
@@ -246,8 +243,10 @@ class ImageCalibrator(Component):
                 # if the camera is disabled, use dummy data to simulate the calibration
                 if not self.camera.enabled:
                     logging.warning("Camera interface is disabled. Using dummy data for calibration.")
-                    m = 0.0
-                    x0 = (i + 0.5) * self.camera.resolution[0] / len(self.laser_array)
+                    p = i / (len(self.laser_array) - 1) - 0.5
+
+                    m = p * 0.2
+                    x0 = self.camera.resolution[0] * (0.5 + p * 0.8)
                 else:
                     m, x0 = self._fit_line(beam_img)
 

@@ -48,7 +48,7 @@ export const useLaserharpStore = defineStore("laserharp", {
       switch (change_type) {
         case "add":
           switch (args.repr) {
-            case "atomic":
+            case "value":
               node[args.key] = args.value;
               break;
             case "list":
