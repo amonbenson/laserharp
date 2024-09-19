@@ -16,12 +16,20 @@ class TestImageCalibrator(unittest.TestCase):
     def setUp(self):
         self.global_state = reactive(
             {
-                "config": {
-                    "ipc": {},
-                    "laser_array": {
+                "ipc": {
+                    "config": {},
+                    "settings": {},
+                    "state": {},
+                },
+                "laser_array": {
+                    "config": {
                         "size": 3,
                     },
-                    "camera": {
+                    "settings": {},
+                    "state": {},
+                },
+                "camera": {
+                    "config": {
                         "fov": [50, 45],
                         "mount_angle": 45,
                         "mount_distance": 0.135,
@@ -29,24 +37,18 @@ class TestImageCalibrator(unittest.TestCase):
                         "framerate": 60,
                         "rotation": 180,
                     },
-                    "image_calibrator": {
+                    "settings": {},
+                    "state": {},
+                },
+                "image_calibrator": {
+                    "config": {
                         "calibration_file": os.path.join(OUTPUT_DIRECTORY, "calibration.yaml"),
                         "preblur": 17,
                         "threshold": 100,
                         "min_coverage": 0.6,
                     },
-                },
-                "settings": {
-                    "ipc": {},
-                    "laser_array": {},
-                    "camera": {},
-                    "image_calibrator": {},
-                },
-                "state": {
-                    "ipc": {},
-                    "laser_array": {},
-                    "camera": {},
-                    "image_calibrator": {},
+                    "settings": {},
+                    "state": {},
                 },
             },
         )

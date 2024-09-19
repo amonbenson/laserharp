@@ -11,17 +11,29 @@ class TestImageProcessor(unittest.TestCase):
     def setUp(self):
         self.global_state = reactive(
             {
-                "config": {
-                    "ipc": {},
-                    "laser_array": {
+                "ipc": {
+                    "config": {},
+                    "settings": {},
+                    "state": {},
+                },
+                "laser_array": {
+                    "config": {
                         "size": 3,
                     },
-                    "camera": {
+                    "settings": {},
+                    "state": {},
+                },
+                "camera": {
+                    "config": {
                         "resolution": [640, 480],
                         "framerate": 60,
                         "mount_distance": 0.2,
                     },
-                    "image_processor": {
+                    "settings": {},
+                    "state": {},
+                },
+                "image_processor": {
+                    "config": {
                         "preblur": 23,
                         "threshold": 10,
                         "length_min": 0.05,
@@ -30,20 +42,10 @@ class TestImageProcessor(unittest.TestCase):
                         "filter_cutoff": 6,
                         "modulation_gain": 15,
                     },
+                    "settings": {},
+                    "state": {},
                 },
-                "settings": {
-                    "ipc": {},
-                    "laser_array": {},
-                    "camera": {},
-                    "image_processor": {},
-                },
-                "state": {
-                    "ipc": {},
-                    "laser_array": {},
-                    "camera": {},
-                    "image_processor": {},
-                },
-            }
+            },
         )
 
         self.ipc = MockIPCController("ipc", self.global_state)
@@ -55,8 +57,16 @@ class TestImageProcessor(unittest.TestCase):
         calibration = Calibration(ya=0, yb=480, x0=[200, 300, 400], m=[-0.1, 0, 0.1])
         self.image_processor.set_calibration(calibration)
 
+        self.ipc.start()
+        self.laser_array.start()
+        self.camera.start()
+        self.image_processor.start()
+
     def tearDown(self):
-        pass
+        self.image_processor.stop()
+        self.laser_array.stop()
+        self.camera.stop()
+        self.ipc.stop()
 
     def test_calibration(self):
         # test if y coordinates are correct

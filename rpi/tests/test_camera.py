@@ -20,8 +20,8 @@ class TestCamera(unittest.TestCase):
     def setUp(self):
         self.global_state = reactive(
             {
-                "config": {
-                    "camera": {
+                "camera": {
+                    "config": {
                         "resolution": (640, 480),
                         "framerate": 50,
                         "rotation": 180,
@@ -32,12 +32,8 @@ class TestCamera(unittest.TestCase):
                         "saturation": 0,
                         "sharpness": 0,
                     },
-                },
-                "settings": {
-                    "camera": {},
-                },
-                "state": {
-                    "camera": {},
+                    "settings": {},
+                    "state": {},
                 },
             },
         )

@@ -8,17 +8,13 @@ class TestIPCConnector(unittest.TestCase):
     def setUp(self):
         self.global_state = reactive(
             {
-                "config": {
-                    "ipc": {
+                "ipc": {
+                    "config": {
                         "port": "/dev/ttyUSB0",
                         "baudrate": 115200,
                     },
-                },
-                "settings": {
-                    "ipc": {},
-                },
-                "state": {
-                    "ipc": {},
+                    "settings": {},
+                    "state": {},
                 },
             }
         )

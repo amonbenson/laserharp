@@ -9,23 +9,21 @@ class TestLaserArray(unittest.TestCase):
     def setUp(self):
         self.global_state = reactive(
             {
-                "config": {
-                    "ipc": {
+                "ipc": {
+                    "config": {
                         "port": "/dev/ttyUSB0",
                         "baudrate": 115200,
                     },
-                    "laser_array": {
+                    "settings": {},
+                    "state": {},
+                },
+                "laser_array": {
+                    "config": {
                         "size": 3,
                         "translation_table": [3, 4, 5],
                     },
-                },
-                "settings": {
-                    "ipc": {},
-                    "laser_array": {},
-                },
-                "state": {
-                    "ipc": {},
-                    "laser_array": {},
+                    "settings": {},
+                    "state": {},
                 },
             }
         )
