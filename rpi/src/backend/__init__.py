@@ -24,16 +24,14 @@ class Session:
         # create a thread that watches for changes
         self.running = False
         self.thread = threading.Thread(target=self._run)
-        self.start()
 
     def start(self):
         self.running = True
         self.thread.start()
 
     def stop(self):
-        self.running = False
-        self.thread.join()
         self.laserharp.get_global_state().get_namespace().remove_watcher(self.watcher)
+        self.running = False
 
     def _run(self):
         while self.running:
@@ -57,11 +55,6 @@ def create_backend(laserharp: LaserHarpApp) -> tuple[Flask, callable]:
         clientid = request.sid
         print(f"Client connected: {clientid}")
 
-        # if the session already exists, stop it
-        if clientid in sessions:
-            sessions[clientid].stop()
-            del sessions[clientid]
-
         # create a new session
         session = Session(socketio, clientid, laserharp)
         session.start()
@@ -79,6 +72,21 @@ def create_backend(laserharp: LaserHarpApp) -> tuple[Flask, callable]:
     @socketio.on_error()
     def on_error(e):
         print("Socket error:", e)
+
+    @socketio.on("app:setting:update")
+    def on_setting_update(data):
+        try:
+            laserharp.get_settings().set(data["componentKey"], data["settingKey"], data["value"])
+            return {
+                "status": "ok",
+                "value": laserharp.get_settings().get(data["componentKey"], data["settingKey"]).get_value(),
+            }
+        except Exception as e:
+            print("Failed to update setting:", e)
+            return {
+                "status": "error",
+                "error": str(e),
+            }
 
     @socketio.on("app:calibrate")
     def on_calibrate(_data):

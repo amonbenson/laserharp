@@ -1,11 +1,14 @@
 <script setup>
-import { computed } from "vue";
+import { computed, watch, inject } from "vue";
 import { useLaserharpStore } from "@/stores/laserharp";
 
 const COMPONENTS = [
+  "app",
+  "camera",
   "midi_converter",
 ];
 
+const api = inject("api");
 const laserharp = useLaserharpStore();
 
 const snakeCaseToTitleCase = (str) => str.split("_").map((word) => word[0].toUpperCase() + word.slice(1)).join(" ");
@@ -13,14 +16,39 @@ const snakeCaseToTitleCase = (str) => str.split("_").map((word) => word[0].toUpp
 const componentSettings = computed(() => COMPONENTS.map((componentKey) => ({
   componentKey,
   componentName: snakeCaseToTitleCase(componentKey),
-  settings: Object.entries(laserharp[componentKey]?.config.settings ?? {}).map(([key, description]) => ({
+  settings: Object.entries(laserharp[componentKey]?.config?.settings ?? {}).map(([key, description]) => ({
     key,
     name: snakeCaseToTitleCase(key),
-    ...description,
     value: laserharp[componentKey]?.settings[key],
+    description,
   })),
 })));
 
+const parseSetting = (description, value) => {
+  switch (description.type) {
+    case "float":
+      return parseFloat(value);
+    case "int":
+      return parseInt(value);
+    default:
+      throw new Error(`Unknown setting type: ${description.type}`);
+  }
+};
+
+const validateSetting = (description, value) => {
+  const v = parseSetting(description, value);
+
+  switch (description.type) {
+    case "float": {
+      return !isNaN(v) && v >= description.range[0] && v <= description.range[1];
+    }
+    case "int": {
+      return !isNaN(v) && v >= description.range[0] && v <= description.range[1];
+    }
+    default:
+      throw new Error(`Unknown setting type: ${description.type}`);
+  }
+};
 </script>
 
 <template>
@@ -33,7 +61,7 @@ const componentSettings = computed(() => COMPONENTS.map((componentKey) => ({
     </h2>
     <div class="space-y-2">
       <div
-        v-for="{ key, name, ...data } in settings"
+        v-for="{ key, name, value, description } in settings"
         :key="key"
         class="w-full flex flex-col md:flex-row justify-center items-center"
       >
@@ -45,9 +73,9 @@ const componentSettings = computed(() => COMPONENTS.map((componentKey) => ({
         </label>
         <input
           :id="`${componentKey}.${key}`"
-          :value="data.value"
+          :value="value"
           class="flex-grow w-full px-4 py-1 bg-gray-900"
-          @input="console.log($event)"
+          @input="validateSetting(description, $event.target.value) && api.updateSetting(componentKey, key, parseSetting(description, $event.target.value))"
         >
       </div>
     </div>

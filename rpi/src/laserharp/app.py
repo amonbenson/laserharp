@@ -59,6 +59,9 @@ class LaserHarpApp(Component):
     def get_global_state(self) -> ReactiveDictNode:
         return self._global_state
 
+    def get_settings(self) -> SettingsManager:
+        return self.settings
+
     def start(self, force_calibration=False):
         self._status_change(["stopped"], "starting")
 

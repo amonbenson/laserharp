@@ -1,6 +1,7 @@
 import axios from "axios";
 import { io } from "socket.io-client";
 import { useLaserharpStore } from "@/stores/laserharp";
+import { watch } from "vue";
 
 export class Api {
   constructor(baseUrl) {
@@ -70,6 +71,32 @@ export class Api {
 
   emit(endpoint, data) {
     this.socket.emit(endpoint, data);
+  }
+
+  async emitWithResponse(endpoint, data) {
+    return new Promise((resolve, reject) => {
+      this.socket.emit(endpoint, data, (response) => {
+        if (!response) {
+          reject(new Error("No response from server"));
+        } else if (response.error) {
+          reject(response.error);
+        } else {
+          resolve(response);
+        }
+      });
+    });
+  }
+
+  async updateSetting(componentKey, settingKey, value) {
+    try {
+      await this.emitWithResponse("app:setting:update", {
+        componentKey,
+        settingKey,
+        value,
+      });
+    } catch (error) {
+      console.error(`Failed to update setting ${componentKey}.${settingKey}: ${error}`);
+    }
   }
 }
 

@@ -44,12 +44,16 @@ class IntSetting(Setting[int]):
         self.set_value(self._default_value)
 
     def validate(self, value: Any) -> bool:
-        try:
-            value = int(value)
-            return self._min_value <= value <= self._max_value
-        except ValueError:
-            logging.warning(f"Failed to parse value '{value}' as int")
+        if not isinstance(value, int):
             return False
+
+        if value < self._min_value:
+            return False
+
+        if value > self._max_value:
+            return False
+
+        return True
 
 
 class FloatSetting(Setting[float]):
@@ -65,12 +69,16 @@ class FloatSetting(Setting[float]):
         self.set_value(self._default_value)
 
     def validate(self, value: Any) -> bool:
-        try:
-            value = int(value)
-            return self._min_value <= value <= self._max_value
-        except ValueError:
-            logging.warning(f"Failed to parse value '{value}' as int")
+        if not isinstance(value, float):
             return False
+
+        if value < self._min_value:
+            return False
+
+        if value > self._max_value:
+            return False
+
+        return True
 
 
 class SettingsManager:
@@ -88,7 +96,7 @@ class SettingsManager:
             if "settings" not in self._global_state[component]["config"]:
                 self._global_state[component]["config"]["settings"] = {}
             descriptions = self._global_state[component]["config"]["settings"]
-            
+
             if "settings" not in self._global_state[component]:
                 self._global_state[component]["settings"] = {}
             targets = self._global_state[component]["settings"]
@@ -114,7 +122,12 @@ class SettingsManager:
                 logging.info(f"Creating setting '{component}.{key}' of type '{setting_type}'")
                 self._settings[component + "." + key] = setting_class(key, target, desc)
 
+    def has(self, component: str, key: str) -> bool:
+        return component + "." + key in self._settings
+
     def get(self, component: str, key: str) -> Setting:
+        if not self.has(component, key):
+            raise ValueError(f"Setting '{component}.{key}' does not exist")
         return self._settings[component + "." + key]
 
     def set(self, component: str, key: str, value: Any):
