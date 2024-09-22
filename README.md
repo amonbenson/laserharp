@@ -20,6 +20,9 @@ dtoverlay=uart2-pi5
 dtoverlay=midi-uart2-pi5
 ```
 
+## Power via GPIO header
+http://blog.dddac.com/wp-content/uploads/Flash-RPi5-and-adding-5000mA-Line-tutorial.pdf
+
 ## Diode to Note Mapping
 
 - Root note: C3 (midi note 48, one octave below middle C)
