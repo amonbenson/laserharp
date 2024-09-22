@@ -24,9 +24,9 @@ const componentSettings = computed(() => COMPONENTS.map((componentKey) => ({
   })),
 })));
 
-const updateSetting = (componentKey, key, value, description) => {
+const updateSetting = (componentKey, key, value) => {
   try {
-    api.updateSetting(componentKey, key, value, description);
+    api.updateSetting(componentKey, key, value);
   } catch (error) {
     console.error(error);
   }
@@ -57,7 +57,7 @@ const updateSetting = (componentKey, key, value, description) => {
           :id="`${componentKey}.${key}`"
           :value="value"
           class="flex-grow w-full px-4 py-1 bg-gray-900"
-          @input="updateSetting(componentKey, key, $event.target.value, description)"
+          @input="updateSetting(componentKey, key, $event.target.value)"
         >
       </div>
     </div>

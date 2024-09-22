@@ -121,10 +121,17 @@ export class Api {
     }
   }
 
-  async updateSetting(componentKey, settingKey, rawValue, description) {
+  async updateSetting(componentKey, settingKey, newValue) {
+    const laserharp = useLaserharpStore();
+    const description = laserharp[componentKey]?.config?.settings?.[settingKey];
+    if (!description) {
+      console.error(`Setting ${componentKey}.${settingKey} not found`);
+      return;
+    }
+
     try {
       // parse the value (convert to the correct type, apply range limits, etc.)
-      const value = this._parseSetting(rawValue, description);
+      const value = this._parseSetting(newValue, description);
 
       // update the setting locally
       const laserharp = useLaserharpStore();

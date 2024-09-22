@@ -61,7 +61,7 @@ onBeforeUnmount(() => {
       </div>
     </header>
 
-    <main class="w-full h-full overflow-y-auto">
+    <main class="w-full h-full overflow-x-hidden overflow-y-auto">
       <div class="container mx-auto p-8 space-y-8 min-h-full flex flex-col">
         <RouterView />
       </div>
