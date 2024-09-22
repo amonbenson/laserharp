@@ -21,5 +21,11 @@ const actualFrameRate = computed(() => laserharp.camera?.state?.framerate ?? 0);
     </AccentButton>
   </div>
 
-  <CameraStream />
+  <CameraStream class="camera-stream" />
 </template>
+
+<style scoped>
+.camera-stream {
+  max-width: 100vh;
+}
+</style>

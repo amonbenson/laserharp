@@ -15,7 +15,29 @@
 			"*.wb": "c",
 			".dockerignore": "ignore",
 			"midi_usb.h": "c"
-		}
+		},
+		"restoreTerminals.terminals": [
+			{
+				"splitTerminals": [
+					{
+						"name": "backend",
+						"commands": [
+							"cd rpi",
+							"source .venv/bin/activate",
+							"just backend-dev"
+						]
+					},
+					{
+						"name": "frontend",
+						"commands": [
+							"cd rpi",
+							"source .venv/bin/activate",
+							"just frontend-dev"
+						]
+					}
+				]
+			}
+		]
 	},
 	"extensions": {
 		"recommendations": [
