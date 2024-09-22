@@ -36,44 +36,28 @@ const reindex = (i) => {
 
 <template>
   <div>
-    <div
-      class="aspect-[2/1] grid gap-1"
-      :style="{
-        gridTemplateRows: `repeat(${numSections}, 1fr) auto`,
-        gridTemplateColumns: `repeat(${numLasers}, 1fr)`,
-      }"
-    >
-      <div
-        v-for="_, i in (numSections * numLasers)"
-        :key="i"
-        class="flex justify-center items-center overflow-hidden"
-      >
-        <div
-          class="h-full bg-white rounded-full transition-all duration-300"
-          :class="`${activeArray[reindex(i)]
-            ? 'w-2 md:w-4 lg:w-6 opacity-100'
-            : 'w-1 opacity-25'
+    <div class="aspect-[2/1] grid gap-1" :style="{
+      gridTemplateRows: `repeat(${numSections}, 1fr) auto`,
+      gridTemplateColumns: `repeat(${numLasers}, 1fr)`,
+    }">
+      <div v-for="_, i in (numSections * numLasers)" :key="i" class="flex justify-center items-center overflow-hidden">
+        <div class="h-full bg-white rounded-full transition-all duration-100" :class="`${activeArray[reindex(i)]
+          ? 'w-2 md:w-4 lg:w-6 opacity-100'
+          : 'w-1 opacity-25'
           } ${getX(i) % 7 == 0
             ? 'bg-rose-500'
             : getX(i) % 7 == 3
               ? 'bg-sky-500'
               : 'bg-white'
-          }`"
-        />
+          }`" />
       </div>
 
       <!-- eslint-disable vue/no-v-html -->
-      <div
-        v-for="label, i in noteLabels"
-        :key="i"
-        class="pt-2 flex justify-center items-center"
-        :class="getX(i) % 7 == 0
-          ? 'text-rose-500'
-          : getX(i) % 7 == 3
-            ? 'text-sky-500'
-            : 'text-white'"
-        v-html="label"
-      />
+      <div v-for="label, i in noteLabels" :key="i" class="pt-2 flex justify-center items-center" :class="getX(i) % 7 == 0
+        ? 'text-rose-500'
+        : getX(i) % 7 == 3
+          ? 'text-sky-500'
+          : 'text-white'" v-html="label" />
       <!-- eslint-enable vue/no-v-html -->
     </div>
   </div>

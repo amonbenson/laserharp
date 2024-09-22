@@ -85,8 +85,13 @@ class SettingsManager:
 
     def setup(self):
         for component in self._global_state.keys():
-            descriptions = self._global_state[component]["config"].setdefault("settings", {})
-            targets = self._global_state[component].setdefault("settings", {})
+            if "settings" not in self._global_state[component]["config"]:
+                self._global_state[component]["config"]["settings"] = {}
+            descriptions = self._global_state[component]["config"]["settings"]
+            
+            if "settings" not in self._global_state[component]:
+                self._global_state[component]["settings"] = {}
+            targets = self._global_state[component]["settings"]
 
             for key in descriptions.keys():
                 # get the description node

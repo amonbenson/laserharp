@@ -63,7 +63,7 @@ midi_converter:
     root_note:
       type: int
       range: [0, 127]
-      default: 60
+      default: 48
 
     section_octave_spacing:
       type: int
@@ -77,11 +77,11 @@ midi_converter:
     section_start_1:
       type: float
       range: [0.0, 5.0]
-      default: 0.6
+      default: 0.5
     section_start_2:
       type: float
       range: [0.0, 5.0]
-      default: 1.0
+      default: 0.7
 
     pedal_position_c:
       type: int

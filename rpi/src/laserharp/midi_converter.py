@@ -34,6 +34,7 @@ class MidiConverter(Component):
         return start <= length < end
 
     def _apply_scale(self, step: int) -> int:
+        octave = step // len(self.MAJOR_SCALE)
         step = step % len(self.MAJOR_SCALE)
         step_name = self.STEP_NAMES[step]
 
@@ -42,6 +43,9 @@ class MidiConverter(Component):
 
         # apply alterations from the pedal positions
         note += self.settings["pedal_position_" + step_name]
+        
+        # apply octave
+        note += octave * 12
 
         return note
 
@@ -65,6 +69,11 @@ class MidiConverter(Component):
                 note = self.settings["root_note"]
                 note += y * self.settings["section_octave_spacing"] * 12
                 note += note_offset
+
+                if note < 0:
+                    note = 0
+                elif note > 127:
+                    note = 127
 
                 # send the note on/off message
                 if note_active:
