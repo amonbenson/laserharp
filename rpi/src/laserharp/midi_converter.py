@@ -43,7 +43,7 @@ class MidiConverter(Component):
 
         # apply alterations from the pedal positions
         note += self.settings["pedal_position_" + step_name]
-        
+
         # apply octave
         note += octave * 12
 

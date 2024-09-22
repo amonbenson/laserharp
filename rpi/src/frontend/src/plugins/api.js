@@ -35,6 +35,12 @@ export class Api {
     this.socket.on("app:global_state:change", change => {
       laserharp.globalStateChange(change);
     });
+
+    this.socket.on("app:global_state:changes", changes => {
+      changes.forEach(change => {
+        laserharp.globalStateChange(change);
+      });
+    });
   }
 
   disconnect() {

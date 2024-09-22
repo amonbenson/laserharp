@@ -11,10 +11,18 @@
     "files.insertFinalNewline": true,
     "editor.tabSize": 4,
     "[vue]": {
-        "editor.tabSize": 2
+        "editor.tabSize": 2,
+        "editor.formatOnSave": false,
+        "editor.codeActionsOnSave": {
+            "source.fixAll.eslint": "always"
+        }
     },
     "[javascript]": {
-        "editor.tabSize": 2
+        "editor.tabSize": 2,
+        "editor.formatOnSave": false,
+        "editor.codeActionsOnSave": {
+            "source.fixAll.eslint": "always"
+        }
     },
     "[python]": {
         "editor.defaultFormatter": "ms-python.black-formatter"

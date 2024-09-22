@@ -4,6 +4,8 @@ import { inject, onMounted, onBeforeUnmount, computed, watch } from "vue";
 import { storeToRefs } from "pinia";
 import { useLaserharpStore } from "./stores/laserharp";
 
+const DEVELOPMENT = process.env.NODE_ENV === "development";
+
 const api = inject("api");
 
 const laserharp = useLaserharpStore();
@@ -29,9 +31,7 @@ onBeforeUnmount(() => {
   <div class="w-full h-full flex flex-col select-none">
     <header class="w-full h-12 shrink-0 bg-gray-900 text-white">
       <div class="container mx-auto px-8 h-full flex items-center space-x-8">
-        <RouterLink
-          to="/"
-        >
+        <RouterLink to="/">
           <h1>
             Laserharp&nbsp;<span
               class="inline-block ml-2 size-4 rounded-full"
@@ -44,13 +44,16 @@ onBeforeUnmount(() => {
           </h1>
         </RouterLink>
 
-        <RouterLink
-          to="/calibrate"
-        >
+        <RouterLink to="/calibrate">
           Calibrate
         </RouterLink>
 
+        <RouterLink to="/settings">
+          Settings
+        </RouterLink>
+
         <RouterLink
+          v-if="DEVELOPMENT"
           to="/debug"
         >
           Debug

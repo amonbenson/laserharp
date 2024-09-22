@@ -13,6 +13,14 @@ const calibration = computed(() => laserharp.image_calibrator?.state?.calibratio
 const result = computed(() => laserharp.image_processor?.state?.result);
 const mountDistance = computed(() => laserharp.camera?.config?.mount_distance);
 
+const sectionStarts = computed(() => laserharp.midi_converter?.settings
+  ? [
+    laserharp.midi_converter.settings.section_start_0,
+    laserharp.midi_converter.settings.section_start_1,
+    laserharp.midi_converter.settings.section_start_2,
+  ]
+  : null);
+
 const canvas = ref(null);
 let canvasAnimationFrameHandle = null;
 
@@ -56,7 +64,7 @@ function onRedraw() {
   }
 
   // draw the calibration lines
-  if (calibration.value && result.value && mountDistance.value) {
+  if (calibration.value && result.value && mountDistance.value && sectionStarts.value) {
     const n = calibration.value.m.length;
 
     context.lineCap = "round";
@@ -98,6 +106,20 @@ function onRedraw() {
         context.arc(x, y, 5, 0, 2 * Math.PI);
         context.fill();
       }
+    }
+
+    // draw the section lines
+    context.strokeStyle = colors.sky[500];
+    context.lineWidth = 2;
+    context.setLineDash([5, 5]);
+
+    for (let i = 0; i < sectionStarts.value.length; i++) {
+      const y = calculateScreenY(sectionStarts.value[i], mountDistance.value, calibration.value.ya, calibration.value.yb);
+
+      context.beginPath();
+      context.moveTo(0, y);
+      context.lineTo(CAMERA_WIDTH, y);
+      context.stroke();
     }
   }
 }

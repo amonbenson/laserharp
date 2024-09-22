@@ -28,7 +28,7 @@ camera:
   rotation: 180 # configure any 90 degree rotation
 
   # exposure settings
-  shutter_speed: 10000 # in microseconds
+  shutter_speed: 50000 # in microseconds
   iso: 20
 
   # image settings
@@ -49,9 +49,9 @@ image_calibrator:
 image_processor:
   preblur: 1 # gaussian blur kernel size
 
-  threshold: 60 # minimum brightness to be considered a beam (0-255)
+  threshold: 100 # minimum brightness to be considered a beam (0-255)
   length_min: 0.05 # minimum beam length in meters
-  length_max: 2.0 # maximum beam length in meters
+  length_max: 1.5 # maximum beam length in meters
 
   filter_cutoff: 6 # cutoff frequency in Hz
   filter_size: 3 # filter kernel size
@@ -73,15 +73,15 @@ midi_converter:
     section_start_0:
       type: float
       range: [0.0, 5.0]
-      default: 0.2
+      default: 0.0
     section_start_1:
       type: float
       range: [0.0, 5.0]
-      default: 0.5
+      default: 0.4
     section_start_2:
       type: float
       range: [0.0, 5.0]
-      default: 0.7
+      default: 0.8
 
     pedal_position_c:
       type: int

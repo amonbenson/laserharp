@@ -1,10 +1,48 @@
+import time
+import threading
 from dataclasses import asdict
 from flask import Flask, Response, stream_with_context, request
 from flask_cors import CORS
 from flask_socketio import SocketIO
-from perci import Watcher, watch
+from perci import QueueWatcher, create_queue_watcher
 from perci.changes import Change
 from laserharp.app import LaserHarpApp
+
+
+class Session:
+    def __init__(self, socketio: SocketIO, clientid: str, laserharp: LaserHarpApp):
+        self.socketio = socketio
+        self.clientid = clientid
+        self.laserharp = laserharp
+
+        # send the initial state
+        self.socketio.emit("app:global_state:init", laserharp.get_global_state().json())
+
+        # create a new queue watcher
+        self.watcher = create_queue_watcher(laserharp.get_global_state())
+
+        # create a thread that watches for changes
+        self.running = False
+        self.thread = threading.Thread(target=self._run)
+        self.start()
+
+    def start(self):
+        self.running = True
+        self.thread.start()
+
+    def stop(self):
+        self.running = False
+        self.thread.join()
+        self.laserharp.get_global_state().get_namespace().remove_watcher(self.watcher)
+
+    def _run(self):
+        while self.running:
+            changes = [asdict(change) for change in self.watcher.get_changes()]
+
+            if changes:
+                self.socketio.emit("app:global_state:changes", changes, to=self.clientid)
+
+            time.sleep(0.1)
 
 
 def create_backend(laserharp: LaserHarpApp) -> tuple[Flask, callable]:
@@ -12,30 +50,31 @@ def create_backend(laserharp: LaserHarpApp) -> tuple[Flask, callable]:
     socketio = SocketIO(app, cors_allowed_origins="*", path="/ws")
     CORS(app, resources={r"/api/*": {"origins": "*"}})
 
-    watchers: dict[str, Watcher] = {}
+    sessions: dict[str, Session] = {}
 
     @socketio.on("connect")
     def on_connect():
         clientid = request.sid
         print(f"Client connected: {clientid}")
 
-        # send the initial state
-        socketio.emit("app:global_state:init", laserharp.get_global_state().json())
+        # if the session already exists, stop it
+        if clientid in sessions:
+            sessions[clientid].stop()
+            del sessions[clientid]
 
-        # watch any changes and send them to the client
-        def on_change(change: Change):
-            socketio.emit("app:global_state:change", asdict(change), to=clientid)
-
-        watchers[clientid] = watch(laserharp.get_global_state(), on_change)
+        # create a new session
+        session = Session(socketio, clientid, laserharp)
+        session.start()
+        sessions[clientid] = session
 
     @socketio.on("disconnect")
     def on_disconnect():
         clientid = request.sid
         print(f"Client disconnected: {clientid}")
 
-        # remove the session's watcher
-        watcher = watchers.pop(clientid)
-        laserharp.get_global_state().get_namespace().remove_watcher(watcher)
+        # remove and stop the session
+        session = sessions.pop(clientid)
+        session.stop()
 
     @socketio.on_error()
     def on_error(e):
