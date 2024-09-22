@@ -40,7 +40,7 @@ class Session:
             if changes:
                 self.socketio.emit("app:global_state:changes", changes, to=self.clientid)
 
-            time.sleep(0.1)
+            time.sleep(1 / 30)
 
 
 def create_backend(laserharp: LaserHarpApp) -> tuple[Flask, callable]:

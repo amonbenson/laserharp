@@ -87,8 +87,50 @@ export class Api {
     });
   }
 
-  async updateSetting(componentKey, settingKey, value) {
+  _parseSettingType(value, description) {
+    switch (description.type) {
+      case "int":
+        return parseInt(value);
+      case "float":
+        return parseFloat(value);
+      case "bool":
+        return Boolean(value);
+      case "str":
+        return String(value);
+      default:
+        throw new Error(`Unknown setting type: ${description.type}`);
+    }
+  }
+
+  _parseSetting(value, description) {
+    const v = this._parseSettingType(value, description);
+
+    switch (description.type) {
+      case "int":
+      case "float":
+        if (isNaN(v)) throw new Error("Invalid number");
+        if (v < description.range[0]) throw new Error("Value too low");
+        if (v > description.range[1]) throw new Error("Value too high");
+        return v;
+      case "bool":
+        return v;
+      case "str":
+        return v;
+      default:
+        throw new Error(`Unknown setting type: ${description.type}`);
+    }
+  }
+
+  async updateSetting(componentKey, settingKey, rawValue, description) {
     try {
+      // parse the value (convert to the correct type, apply range limits, etc.)
+      const value = this._parseSetting(rawValue, description);
+
+      // update the setting locally
+      const laserharp = useLaserharpStore();
+      laserharp.updateSetting(componentKey, settingKey, value);
+
+      // send the new value to the server
       await this.emitWithResponse("app:setting:update", {
         componentKey,
         settingKey,

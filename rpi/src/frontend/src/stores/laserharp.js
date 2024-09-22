@@ -73,7 +73,19 @@ export const useLaserharpStore = defineStore("laserharp", {
           break;
       }
     },
+    updateSetting(componentKey, settingKey, value) {
+      const component = this[componentKey];
+      if (!component) {
+        console.error(`Component ${componentKey} not found`);
+        return;
+      }
+
+      if (!component.settings?.hasOwnProperty(settingKey)) {
+        console.error(`Setting ${settingKey} not found in component ${componentKey}`);
+        return;
+      }
+
+      component.settings[settingKey] = value;
+    },
   },
 });
-
-export const useGlobalState = () => useLaserharpStore().globalState;

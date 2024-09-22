@@ -24,29 +24,11 @@ const componentSettings = computed(() => COMPONENTS.map((componentKey) => ({
   })),
 })));
 
-const parseSetting = (description, value) => {
-  switch (description.type) {
-    case "float":
-      return parseFloat(value);
-    case "int":
-      return parseInt(value);
-    default:
-      throw new Error(`Unknown setting type: ${description.type}`);
-  }
-};
-
-const validateSetting = (description, value) => {
-  const v = parseSetting(description, value);
-
-  switch (description.type) {
-    case "float": {
-      return !isNaN(v) && v >= description.range[0] && v <= description.range[1];
-    }
-    case "int": {
-      return !isNaN(v) && v >= description.range[0] && v <= description.range[1];
-    }
-    default:
-      throw new Error(`Unknown setting type: ${description.type}`);
+const updateSetting = (componentKey, key, value, description) => {
+  try {
+    api.updateSetting(componentKey, key, value, description);
+  } catch (error) {
+    console.error(error);
   }
 };
 </script>
@@ -75,7 +57,7 @@ const validateSetting = (description, value) => {
           :id="`${componentKey}.${key}`"
           :value="value"
           class="flex-grow w-full px-4 py-1 bg-gray-900"
-          @input="validateSetting(description, $event.target.value) && api.updateSetting(componentKey, key, parseSetting(description, $event.target.value))"
+          @input="updateSetting(componentKey, key, $event.target.value, description)"
         >
       </div>
     </div>
