@@ -4,10 +4,16 @@
 			"path": "."
 		},
 		{
-			"path": "rpi"
+			"path": "laserharp"
 		},
 		{
-			"path": "stm"
+			"path": "frontend"
+		},
+		{
+			"path": "hardware"
+		},
+		{
+			"path": "firmware"
 		}
 	],
 	"settings": {
@@ -22,17 +28,15 @@
 					{
 						"name": "backend",
 						"commands": [
-							"cd rpi",
 							"source .venv/bin/activate",
-							"just backend-dev"
+							"python3 -m laserharp"
 						]
 					},
 					{
 						"name": "frontend",
 						"commands": [
-							"cd rpi",
-							"source .venv/bin/activate",
-							"just frontend-dev"
+							"cd frontend",
+							"yarn dev"
 						]
 					}
 				]
