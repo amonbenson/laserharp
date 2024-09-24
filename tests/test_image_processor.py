@@ -1,9 +1,9 @@
 import unittest
 import numpy as np
 from perci import reactive
-from src.laserharp.laser_array import LaserArray
-from src.laserharp.image_processor import ImageProcessor
-from src.laserharp.image_calibrator import Calibration
+from laserharp.laser_array import LaserArray
+from laserharp.image_processor import ImageProcessor
+from laserharp.image_calibrator import Calibration
 from .mocks import MockIPCController, MockCamera
 
 

@@ -82,7 +82,7 @@ class Camera(Component):
                 self.frame = buf
                 self.condition.notify_all()
 
-    def __init__(self, name: str, global_state: ReactiveDictNode):
+    def __init__(self, name: str, global_state: ReactiveDictNode, skip_hardware_init: bool = False):
         super().__init__(name, global_state)
 
         self.state["status"] = "stopped"
@@ -93,7 +93,7 @@ class Camera(Component):
 
         self._frame = None
 
-        if self.enabled and PICAMERA2_AVAILABLE:
+        if PICAMERA2_AVAILABLE and self.enabled and not skip_hardware_init:
             self._init_camera()
 
             picamera2.Picamera2.set_logging(logging.INFO)

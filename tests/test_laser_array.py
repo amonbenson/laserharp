@@ -1,6 +1,6 @@
 import unittest
-from src.laserharp.laser_array import LaserArray
-from src.laserharp.ipc import IPCController
+from laserharp.laser_array import LaserArray
+from laserharp.ipc import IPCController
 from perci import reactive
 from .mocks import MockSerial
 

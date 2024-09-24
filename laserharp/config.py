@@ -5,7 +5,7 @@ import yaml
 
 def load_config(filename: str = None, config_logging: bool = True):
     if filename is None:
-        filename = os.path.abspath("../etc/config.yaml")
+        filename = os.path.abspath("./etc/config.yaml")
 
     # load the configuration
     with open(filename, "r", encoding="utf-8") as f:

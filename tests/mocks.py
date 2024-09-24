@@ -3,8 +3,8 @@ from typing import Optional
 import numpy as np
 import cv2
 from perci import ReactiveDictNode
-from src.laserharp.ipc import IPCController
-from src.laserharp.camera import Camera
+from laserharp.ipc import IPCController
+from laserharp.camera import Camera
 
 
 # pylint: disable=duplicate-code
@@ -74,7 +74,7 @@ class MockIPCController(IPCController):
 # pylint: disable=duplicate-code
 class MockCamera(Camera):
     def __init__(self, name: str, global_state: ReactiveDictNode):
-        super().__init__(name, global_state)
+        super().__init__(name, global_state, skip_hardware_init=True)
 
         # setup a test frame
         w, h = self.resolution

@@ -3,7 +3,7 @@ import time
 import logging
 import cv2
 from perci import reactive
-from src.laserharp.camera import Camera
+from laserharp.camera import Camera
 from . import OUTPUT_DIRECTORY
 
 
@@ -22,7 +22,7 @@ class TestCamera(unittest.TestCase):
             {
                 "camera": {
                     "config": {
-                        "resolution": (640, 480),
+                        "resolution": [640, 480],
                         "framerate": 50,
                         "rotation": 180,
                         "shutter_speed": 5000,
@@ -47,7 +47,7 @@ class TestCamera(unittest.TestCase):
 
     def test_running(self):
         time.sleep(3)
-        self.assertTrue(self.camera.state == Camera.State.RUNNING)
+        self.assertTrue(self.camera.state["status"] == "running")
 
     @unittest.skip("Not implemented for the updated camera class")
     def test_framerate(self):

@@ -5,8 +5,8 @@ from threading import Thread
 import numpy as np
 import yaml
 from perci import reactive
-from src.laserharp.laser_array import LaserArray
-from src.laserharp.image_calibrator import Calibration, ImageCalibrator
+from laserharp.laser_array import LaserArray
+from laserharp.image_calibrator import Calibration, ImageCalibrator
 from .mocks import MockIPCController, MockCamera
 from .utils import wait_until
 from . import OUTPUT_DIRECTORY
