@@ -3,6 +3,27 @@
 [![Firmware Tests](https://github.com/amonbenson/laserharp-rpi-py/actions/workflows/stm.yaml/badge.svg)](https://github.com/amonbenson/laserharp-rpi-py/actions/workflows/stm.yaml.yaml)
 
 
+## Development Setup
+
+### Backend
+```bash
+python3 -m venv .venv --system-site-packages
+source .venv/bin/activate
+pip install -r requirements.txt
+pip install -e ../perci
+
+python -m laserharp.server
+```
+
+### Frontend
+```bash
+cd frontend
+yarn install
+
+yarn dev
+```
+
+
 ## Raspberry Pi Performance Improvements:
 
 see https://wiki.linuxaudio.org/wiki/raspberrypi
