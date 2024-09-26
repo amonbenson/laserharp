@@ -13,7 +13,7 @@ from .image_calibrator import ImageCalibrator
 from .image_processor import ImageProcessor
 from .midi_converter import MidiConverter
 from .component import Component
-from .settings import SettingsManager
+from .store.settings import SettingsManager
 
 
 class LaserHarpApp(Component):

@@ -1,0 +1,5 @@
+    
+test_0:
+    type: int
+    range: [0, 100]
+    default: 50

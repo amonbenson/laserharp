@@ -1,5 +1,5 @@
 import argparse
-from laserharp.config import load_config
+from laserharp.store.config import load_config
 from laserharp.app import LaserHarpApp
 from . import create_backend
 

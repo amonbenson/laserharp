@@ -220,3 +220,6 @@ cap_*.jpg
 
 # calibration data
 calibration.yaml
+
+# sqlite database files
+*.db
