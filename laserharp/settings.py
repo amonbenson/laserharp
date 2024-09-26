@@ -3,6 +3,7 @@ from abc import ABC, abstractmethod
 from typing import Any, TypeVar, Generic
 import numpy as np
 from perci import ReactiveNode, ReactiveDictNode
+from .store import Store
 
 
 T = TypeVar("T")
@@ -91,6 +92,8 @@ class SettingsManager:
         self._global_state = global_state
         self._settings = {}
 
+        self._store = Store()
+
     def setup(self):
         for component in self._global_state.keys():
             if "settings" not in self._global_state[component]["config"]:
@@ -122,6 +125,10 @@ class SettingsManager:
                 logging.info(f"Creating setting '{component}.{key}' of type '{setting_type}'")
                 self._settings[component + "." + key] = setting_class(key, target, desc)
 
+                # fetch the initial value from the store
+                if value := self._store.fetch_setting(component + "." + key):
+                    self._settings[component + "." + key].set_value(value)
+
     def has(self, component: str, key: str) -> bool:
         return component + "." + key in self._settings
 
@@ -132,3 +139,7 @@ class SettingsManager:
 
     def set(self, component: str, key: str, value: Any):
         self.get(component, key).set_value(value)
+
+        # update the store value
+        # TODO: use a perci QueueWatcher to update the store in the background
+        self._store.update_setting(component + "." + key, value)
