@@ -1,12 +1,13 @@
 import logging
 from abc import ABC, abstractmethod
-from typing import Any, TypeVar, Generic, Optional
+from typing import Any, TypeVar, Generic, Optional, Union
 import numpy as np
 from perci import ReactiveNode, ReactiveDictNode, watch
 from .store import Store
 
 
 T = TypeVar("T")
+SettingRole = Union["client", "server"]
 
 
 class Setting(ABC, Generic[T]):
@@ -15,6 +16,8 @@ class Setting(ABC, Generic[T]):
         self._target = target
         self._desc = desc
 
+        self._client_writable = desc.get("client_writable", True)
+
     def get_key(self) -> str:
         return self._key
 
@@ -22,7 +25,12 @@ class Setting(ABC, Generic[T]):
     def validate(self, value: Any) -> (bool, Optional[T]):
         pass
 
-    def set_value(self, value: Any):
+    def set_value(self, value: Any, *, role: SettingRole = "server"):
+        # check permissions
+        if role == "client" and not self._client_writable:
+            raise ValueError(f"Setting '{self._key}' is not writable by the client")
+
+        # parse and set the target value
         valid, parsed_value = self.validate(value)
         if valid:
             self._target.set_value(parsed_value)
@@ -159,7 +167,7 @@ class SettingsManager:
                     self._settings[component + "." + key].set_value(value)
 
                 # when the target value changes, update the store
-                watch(target, lambda change, _component=component, _key=key: (print("SETTING UPDATE", _component, _key, change), self._store.update_setting(_component + "." + _key, change.value)))
+                watch(target, lambda change, _component=component, _key=key: self._store.update_setting(_component + "." + _key, change.value))
 
     def has(self, component: str, key: str) -> bool:
         return component + "." + key in self._settings
@@ -169,8 +177,8 @@ class SettingsManager:
             raise ValueError(f"Setting '{component}.{key}' does not exist")
         return self._settings[component + "." + key]
 
-    def set(self, component: str, key: str, value: Any):
-        self.get(component, key).set_value(value)
+    def set(self, component: str, key: str, value: Any, *, role: SettingRole = "server"):
+        self.get(component, key).set_value(value, role=role)
 
         # update the store value
         # TODO: use a perci QueueWatcher to update the store in the background

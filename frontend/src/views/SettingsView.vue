@@ -57,7 +57,8 @@ const updateSetting = (componentKey, key, value) => {
         <input
           :id="`${componentKey}.${key}`"
           :value="value"
-          class="flex-grow w-full px-4 py-1 bg-gray-900"
+          :disabled="!(description.client_writable ?? true)"
+          class="flex-grow w-full px-4 py-1 bg-gray-900 disabled:opacity-50"
           @input="updateSetting(componentKey, key, $event.target.value)"
         >
       </div>

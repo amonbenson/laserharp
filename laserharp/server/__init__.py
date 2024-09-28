@@ -76,7 +76,7 @@ def create_backend(laserharp: LaserHarpApp) -> tuple[Flask, callable]:
     @socketio.on("app:setting:update")
     def on_setting_update(data):
         try:
-            laserharp.get_settings().set(data["componentKey"], data["settingKey"], data["value"])
+            laserharp.get_settings().set(data["componentKey"], data["settingKey"], data["value"], role="client")
             return {
                 "status": "ok",
                 "value": laserharp.get_settings().get(data["componentKey"], data["settingKey"]).get_value(),

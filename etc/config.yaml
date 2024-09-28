@@ -43,6 +43,7 @@ image_calibrator:
     calibration_data:
       type: str
       default: "{}"
+      client_writable: false
 
   preblur: 3 # gaussian blur kernel size
   threshold: 150 # minimum brightness to be considered
