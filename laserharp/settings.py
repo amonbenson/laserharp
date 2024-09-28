@@ -1,6 +1,6 @@
 import logging
 from abc import ABC, abstractmethod
-from typing import Any, TypeVar, Generic
+from typing import Any, TypeVar, Generic, Optional
 import numpy as np
 from perci import ReactiveNode, ReactiveDictNode
 from .store import Store
@@ -19,12 +19,13 @@ class Setting(ABC, Generic[T]):
         return self._key
 
     @abstractmethod
-    def validate(self, value: Any) -> bool:
+    def validate(self, value: Any) -> (bool, Optional[T]):
         pass
 
     def set_value(self, value: Any):
-        if self.validate(value):
-            self._target.set_value(value)
+        valid, parsed_value = self.validate(value)
+        if valid:
+            self._target.set_value(parsed_value)
         else:
             raise ValueError(f"Invalid value for setting {self._key}")
 
@@ -44,17 +45,22 @@ class IntSetting(Setting[int]):
         # set the initial value
         self.set_value(self._default_value)
 
-    def validate(self, value: Any) -> bool:
-        if not isinstance(value, int):
-            return False
+    def validate(self, value: Any):
+        try:
+            value = int(value)
+        except ValueError:
+            return False, None
+
+        if np.isnan(value):
+            return False, None
 
         if value < self._min_value:
-            return False
+            return False, None
 
         if value > self._max_value:
-            return False
+            return False, None
 
-        return True
+        return True, value
 
 
 class FloatSetting(Setting[float]):
@@ -69,17 +75,22 @@ class FloatSetting(Setting[float]):
         # set the initial value
         self.set_value(self._default_value)
 
-    def validate(self, value: Any) -> bool:
-        if not isinstance(value, float):
-            return False
+    def validate(self, value: Any):
+        try:
+            value = float(value)
+        except ValueError:
+            return False, None
+
+        if np.isnan(value):
+            return False, None
 
         if value < self._min_value:
-            return False
+            return False, None
 
         if value > self._max_value:
-            return False
+            return False, None
 
-        return True
+        return True, value
 
 
 class SettingsManager:

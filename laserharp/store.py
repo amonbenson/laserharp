@@ -23,7 +23,7 @@ class Store:
         # connect to the database
         logging.info(f"Connecting to database at {self._db_file}")
         db_empty = not os.path.exists(self._db_file)
-        self._db_conn = sqlite3.connect(self._db_file)
+        self._db_conn = sqlite3.connect(self._db_file, check_same_thread=False)
 
         # initialize the database
         if db_empty:
