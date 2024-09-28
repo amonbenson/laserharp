@@ -4,8 +4,6 @@ import { useLaserharpStore } from "@/stores/laserharp";
 import NoteLabel from "@/components/NoteLabel.vue";
 import PedalSetting from "@/components/PedalSetting.vue";
 
-const MAJOR_SCALE_NOTES = ["C", "D", "E", "F", "G", "A", "B"];
-
 const api = inject("api");
 const laserharp = useLaserharpStore();
 
@@ -14,15 +12,11 @@ const numLasers = computed(() => laserharp.laser_array?.config?.size ?? 0);
 const activeArray = computed(() => laserharp.midi_converter?.state?.active?.flat() ?? []);
 
 const midiConverterSettings = computed(() => laserharp.midi_converter?.settings);
-const pedals = computed(() => Array(7).fill(null)
-  .map((_, i) => MAJOR_SCALE_NOTES[i].toLocaleLowerCase())
-  .map((noteName) => ({
-    noteName,
-    position: midiConverterSettings.value?.[`pedal_position_${noteName}`] ?? 0,
-  })));
+const pedalPositions = computed(() => Array(7).fill(null)
+  .map((_, step) => midiConverterSettings.value?.[`pedal_position_${step}`] ?? 0));
 
 const setPedalPosition = (step, position) => {
-  api.updateSetting("midi_converter", `pedal_position_${MAJOR_SCALE_NOTES[step].toLocaleLowerCase()}`, position);
+  api.updateSetting("midi_converter", `pedal_position_${step}`, position);
 };
 
 const getX = (i) => i % numLasers.value;
@@ -75,7 +69,7 @@ const reindex = (i) => {
       >
         <NoteLabel
           :step="getX(i)"
-          :alteration="pedals[getX(i) % 7].position"
+          :alteration="pedalPositions[getX(i) % 7]"
         />
       </div>
       <!-- eslint-enable vue/no-v-html -->
@@ -87,7 +81,7 @@ const reindex = (i) => {
   <div class="flex justify-start sm:justify-center items-center overflow-x-auto">
     <div class="pt-2 flex space-x-8">
       <PedalSetting
-        v-for="{ position }, i in pedals"
+        v-for="position, i in pedalPositions"
         :key="i"
         :step="i"
         :position="position"

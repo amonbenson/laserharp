@@ -9,8 +9,7 @@ from .din_midi import DinMidi
 
 class MidiConverter(Component):
     NUM_SECTIONS = 3
-    MAJOR_SCALE = [0, 2, 4, 5, 7, 9, 11]
-    STEP_NAMES = ["c", "d", "e", "f", "g", "a", "b"]
+    MAJOR_SCALE_NOTES = [0, 2, 4, 5, 7, 9, 11]
 
     def __init__(self, name: str, global_state: ReactiveDictNode, laser_array: LaserArray, din_midi: DinMidi):
         super().__init__(name, global_state)
@@ -34,15 +33,14 @@ class MidiConverter(Component):
         return start <= length < end
 
     def _apply_scale(self, step: int) -> int:
-        octave = step // len(self.MAJOR_SCALE)
-        step = step % len(self.MAJOR_SCALE)
-        step_name = self.STEP_NAMES[step]
+        octave = step // len(self.MAJOR_SCALE_NOTES)
+        step = step % len(self.MAJOR_SCALE_NOTES)
 
         # apply major scale
-        note = self.MAJOR_SCALE[step]
+        note = self.MAJOR_SCALE_NOTES[step]
 
         # apply alterations from the pedal positions
-        note += self.settings["pedal_position_" + step_name]
+        note += self.settings[f"pedal_position_{step}"]
 
         # apply octave
         note += octave * 12

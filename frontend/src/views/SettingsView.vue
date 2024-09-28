@@ -5,6 +5,7 @@ import { useLaserharpStore } from "@/stores/laserharp";
 const COMPONENTS = [
   "app",
   "camera",
+  "image_calibrator",
   "midi_converter",
 ];
 

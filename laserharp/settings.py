@@ -2,7 +2,7 @@ import logging
 from abc import ABC, abstractmethod
 from typing import Any, TypeVar, Generic, Optional
 import numpy as np
-from perci import ReactiveNode, ReactiveDictNode
+from perci import ReactiveNode, ReactiveDictNode, watch
 from .store import Store
 
 
@@ -93,10 +93,28 @@ class FloatSetting(Setting[float]):
         return True, value
 
 
+class StrSetting(Setting[str]):
+    def __init__(self, key: str, target: ReactiveNode, desc: dict[str, Any]):
+        super().__init__(key, target, desc)
+
+        # parse the description
+        self._default_value = str(desc.get("default", ""))
+
+        # set the initial value
+        self.set_value(self._default_value)
+
+    def validate(self, value: Any):
+        if not isinstance(value, str):
+            return False, None
+
+        return True, value
+
+
 class SettingsManager:
     SETTING_CLASSES = {
         "int": IntSetting,
         "float": FloatSetting,
+        "str": StrSetting,
     }
 
     def __init__(self, global_state: ReactiveDictNode):
@@ -139,6 +157,9 @@ class SettingsManager:
                 # fetch the initial value from the store
                 if value := self._store.fetch_setting(component + "." + key):
                     self._settings[component + "." + key].set_value(value)
+
+                # when the target value changes, update the store
+                watch(target, lambda change, _component=component, _key=key: (print("SETTING UPDATE", _component, _key, change), self._store.update_setting(_component + "." + _key, change.value)))
 
     def has(self, component: str, key: str) -> bool:
         return component + "." + key in self._settings

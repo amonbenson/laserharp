@@ -5,6 +5,7 @@ import os
 import numpy as np
 import cv2
 import yaml
+import json
 from perci import ReactiveDictNode
 from .camera import Camera
 from .laser_array import LaserArray
@@ -77,7 +78,7 @@ class ImageCalibrator(Component):
         self.laser_array = laser_array
         self.camera = camera
 
-        self.filename = os.path.abspath(self.config["calibration_file"])
+        # load the stored calibration data
         self.calibration = None
 
         self.state["calibration"] = None
@@ -105,24 +106,22 @@ class ImageCalibrator(Component):
         }
 
     def load(self) -> bool:
-        if not os.path.exists(self.filename):
+        d = json.loads(self.settings["calibration_data"])
+        if not d:
             logging.warning("No calibration data available")
             return False
 
-        with open(self.filename, "r", encoding="utf-8") as f:
-            d = yaml.safe_load(f)
+        # check if the config is compatible
+        required_config = d["required_config"]
+        if not _compare_config(required_config, self.required_config()):
+            logging.warning("Calibration data is incompatible with current configuration")
+            return False
 
-            # check if the config is compatible
-            required_config = d["required_config"]
-            if not _compare_config(required_config, self.required_config()):
-                logging.warning("Calibration data is incompatible with current configuration")
-                return False
+        self.calibration = Calibration.from_dict(d["calibration"])
 
-            self.calibration = Calibration.from_dict(d["calibration"])
-
-            # set the calibration data in the state
-            self.state["calibration"] = self.calibration.to_dict()
-            self.state["current_index"] = None
+        # set the calibration data in the state
+        self.state["calibration"] = self.calibration.to_dict()
+        self.state["current_index"] = None
 
         return True
 
@@ -130,14 +129,14 @@ class ImageCalibrator(Component):
         if self.calibration is None:
             raise RuntimeError("Not calibrated yet")
 
-        with open(self.filename, "w", encoding="utf-8") as f:
-            yaml.safe_dump(
-                {
-                    "required_config": self.required_config(),
-                    "calibration": self.calibration.to_dict(),
-                },
-                f,
-            )
+        # update the stored calibration data
+        self.settings["calibration_data"] = json.dumps(
+            {
+                "required_config": self.required_config(),
+                "calibration": self.calibration.to_dict(),
+            },
+            separators=(",", ":"),
+        )
 
     def _angle_to_ypos(self, angle: float):
         fov_y = np.radians(self.camera.config["fov"][1])
@@ -287,6 +286,7 @@ class ImageCalibrator(Component):
                 break
 
             self.laser_array.set_all(0)
+            time.sleep(0.2)
 
         # STEP 3: store the fitted line data
         self.laser_array.set_all(0)

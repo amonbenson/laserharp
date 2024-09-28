@@ -39,10 +39,13 @@ camera:
 
 # settings during the calibration process
 image_calibrator:
-  calibration_file: calibration.yaml # path to the calibration file
+  settings:
+    calibration_data:
+      type: str
+      default: "{}"
 
   preblur: 3 # gaussian blur kernel size
-  threshold: 50 # minimum brightness to be considered
+  threshold: 150 # minimum brightness to be considered
   min_coverage: 0.4 # percentual number of blobs that must be captured for each beam
 
 # settings during normal operation
@@ -83,31 +86,31 @@ midi_converter:
       range: [0.0, 5.0]
       default: 0.8
 
-    pedal_position_c:
+    pedal_position_0:
       type: int
       range: [-1, 1]
       default: 0
-    pedal_position_d:
+    pedal_position_1:
       type: int
       range: [-1, 1]
       default: 0
-    pedal_position_e:
+    pedal_position_2:
       type: int
       range: [-1, 1]
       default: 0
-    pedal_position_f:
+    pedal_position_3:
       type: int
       range: [-1, 1]
       default: 0
-    pedal_position_g:
+    pedal_position_4:
       type: int
       range: [-1, 1]
       default: 0
-    pedal_position_a:
+    pedal_position_5:
       type: int
       range: [-1, 1]
       default: 0
-    pedal_position_b:
+    pedal_position_6:
       type: int
       range: [-1, 1]
       default: 0
