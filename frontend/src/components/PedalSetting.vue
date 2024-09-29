@@ -19,30 +19,25 @@ const emit = defineEmits([
       class="relative w-8 h-8"
       @click="emit('update:position', position === 1 ? 0 : 1), emit('update:mute', false)"
     >
-      <div class="absolute left-0 top-0 w-1/3 h-full bg-gray-900" />
-      <div
-        v-if="position === 1"
-        class="absolute left-1/2 top-1/2 transform -translate-x-full -translate-y-3/4 w-6 h-6 bg-white rounded-full"
-      />
+      <div class="absolute left-0 bottom-0 w-1/3 h-1/2 bg-darker" />
     </div>
     <div
-      class="relative w-8 h-8 bg-gray-900"
+      class="w-8 h-8 bg-darker flex justify-center items-center"
       @click="emit('update:position', 0), emit('update:mute', false)"
     >
       <div 
-        v-if="position === 0"
-        class="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 w-6 h-6 bg-white rounded-full"
+        class="bg-light w-3/4 h-3/4 rounded-full z-10 transform transition-transform duration-100"
+        :class="{
+          'translate-x-1/2 translate-y-full': position === -1,
+          '-translate-x-1/2 -translate-y-full': position === 1,
+        }"
       />
     </div>
     <div
       class="relative w-8 h-8"
       @click="emit('update:position', position === -1 ? 0 : -1), emit('update:mute', false)"
     >
-      <div class="absolute right-0 top-0 w-1/3 h-full bg-gray-900" />
-      <div 
-        v-if="position === -1"
-        class="absolute left-1/2 top-1/2 transform -translate-y-1/4 w-6 h-6 bg-white rounded-full"
-      />
+      <div class="absolute right-0 top-0 w-1/3 h-1/2 bg-darker" />
     </div>
 
     <!-- <div
@@ -51,7 +46,7 @@ const emit = defineEmits([
     >
       <span
         class="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 text-xl"
-        :class="mute ? 'text-rose-600' : 'text-gray-500'"
+        :class="mute ? 'text-error' : 'text-muted'"
       >&cross;</span>
     </div> -->
 

@@ -29,17 +29,17 @@ onBeforeUnmount(() => {
 
 <template>
   <div class="w-full h-full flex flex-col select-none">
-    <header class="w-full h-12 shrink-0 bg-gray-900 text-white">
+    <header class="w-full h-12 shrink-0 bg-darker text-light">
       <div class="container mx-auto px-8 h-full flex items-center space-x-8">
         <RouterLink to="/">
           <h1>
             Laserharp&nbsp;<span
               class="inline-block ml-2 size-4 rounded-full"
               :class="status === 'running'
-                ? 'bg-green-500'
+                ? 'bg-success'
                 : (status === 'calibrating'
-                  ? 'bg-yellow-500'
-                  : 'bg-gray-500')"
+                  ? 'bg-warning'
+                  : 'bg-muted')"
             />
           </h1>
         </RouterLink>

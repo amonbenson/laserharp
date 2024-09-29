@@ -18,10 +18,10 @@ const isF = computed(() => scaleIndex.value === 3);
   <span
     class="truncate"
     :class="isC
-      ? 'text-rose-500'
+      ? 'text-primary-lighter'
       : isF
-        ? 'text-sky-500'
-        : 'text-white'"
+        ? 'text-secondary-lighter'
+        : 'text-light'"
   >
     {{ label }}<template v-if="props.alteration === -1">&flat;</template><template v-else-if="props.alteration === 1">&sharp;</template>
   </span>

@@ -48,15 +48,15 @@ const reindex = (i) => {
         class="min-w-8 flex justify-center items-center overflow-hidden"
       >
         <div
-          class="h-full bg-white rounded-full transition-all duration-100"
+          class="h-full bg-light rounded-full transition-all duration-100"
           :class="`${activeArray[reindex(i)]
             ? 'w-2 md:w-4 lg:w-6 opacity-100'
             : 'w-1 opacity-25'
           } ${getX(i) % 7 == 0
-            ? 'bg-rose-500'
+            ? 'bg-primary'
             : getX(i) % 7 == 3
-              ? 'bg-sky-500'
-              : 'bg-white'
+              ? 'bg-secondary'
+              : 'bg-light'
           }`"
         />
       </div>

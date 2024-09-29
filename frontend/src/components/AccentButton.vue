@@ -1,5 +1,5 @@
 <template>
-  <button class="bg-rose-600 hover:bg-rose-700 text-white py-1 px-4 rounded">
+  <button class="py-1 px-4 bg-primary text-light rounded shadow transition-color duration-100">
     <slot />
   </button>
 </template>

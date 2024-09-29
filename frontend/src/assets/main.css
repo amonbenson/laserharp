@@ -7,7 +7,7 @@
 html,
 body,
 #app {
-    @apply w-screen h-screen overflow-hidden bg-gray-800 text-white;
+    @apply w-screen h-screen overflow-hidden bg-dark text-light;
     font-family: "Poppins", sans-serif;
 }
 
@@ -27,4 +27,8 @@ h4,
 h5,
 h6 {
     @apply text-base font-semibold;
+}
+
+input {
+    @apply px-2 py-1 bg-darker disabled:opacity-50;
 }
