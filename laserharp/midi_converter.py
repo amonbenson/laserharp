@@ -21,6 +21,8 @@ class MidiConverter(Component):
         self._prev_beam_acive = [False] * len(self._laser_array)
         self.state["active"] = [[False] * len(self._laser_array) for _ in range(self.NUM_SECTIONS)]
 
+        self._first_iteration = True
+
     def start(self):
         pass
 
@@ -49,6 +51,12 @@ class MidiConverter(Component):
         return note
 
     def process(self, interceptions: ImageProcessor.Result):
+        # set initial beam brightness
+        if self._first_iteration:
+            self._laser_array.set_all(self.settings["unplucked_beam_brightness"])
+            self._first_iteration = False
+            return
+
         for x in range(len(self._laser_array)):  # pylint: disable=consider-using-enumerate
             active = bool(interceptions.active[x])
             length = float(interceptions.length[x])

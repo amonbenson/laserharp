@@ -89,8 +89,8 @@ class LaserHarpApp(Component):
             # run a new calibration
             self.run_calibration()
 
-        # enable all lasers
-        self.laser_array.set_all(127)
+        # lasers will be set by the midi converter
+        # self.laser_array.set_all(127)
 
         self._status_change(["starting"], "running")
 
