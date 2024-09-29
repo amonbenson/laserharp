@@ -18,6 +18,7 @@ class MidiConverter(Component):
         self._din_midi = din_midi
 
         # setup an array of shape (num_sections, num_lasers) to keep track of which lasers are active
+        self._prev_beam_acive = [False] * len(self._laser_array)
         self.state["active"] = [[False] * len(self._laser_array) for _ in range(self.NUM_SECTIONS)]
 
     def start(self):
@@ -48,10 +49,17 @@ class MidiConverter(Component):
         return note
 
     def process(self, interceptions: ImageProcessor.Result):
-        for x in range(len(self._laser_array)):
+        for x in range(len(self._laser_array)):  # pylint: disable=consider-using-enumerate
             active = bool(interceptions.active[x])
             length = float(interceptions.length[x])
             _modulation = float(interceptions.modulation[x])
+
+            # set the beam brightness
+            if active and not self._prev_beam_acive[x]:
+                self._laser_array[x] = self.settings["plucked_beam_brightness"]
+            elif not active and self._prev_beam_acive[x]:
+                self._laser_array[x] = self.settings["unplucked_beam_brightness"]
+            self._prev_beam_acive[x] = active
 
             # use the diode index x as the step position and apply the current scale
             note_offset = self._apply_scale(x)

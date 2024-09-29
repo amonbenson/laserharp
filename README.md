@@ -59,6 +59,32 @@ http://blog.dddac.com/wp-content/uploads/Flash-RPi5-and-adding-5000mA-Line-tutor
 
 - The harp is divided into three horizontal sections resulting in 3 different octave ranges
 
+## MIDI In Messages
+
+### Set Laser Brightness Directly
+```
+Host -> Laserharp: 0x90 <note> <velocity>
+```
+Set the brightness of the laser corresponding to the note to the velocity value. Note that multiple notes may control the same laser diode depending on the section spacing. A note value of 127 will set the brightness of all lasers at once.
+
+### Set Laser Brightness Directly
+```
+Host -> Laserharp: 0x80 <note> <velocity>
+```
+Turn off the laser corresponding to the note. A note value of 127 will turn off all lasers at once.
+
+### Set Unplucked Laser Brightness
+```
+Host -> Laserharp: 0xb0 102 <brightness>
+```
+Set the brightness for unplucked lasers.
+
+### Set Plucked Laser Brightness
+```
+Host -> Laserharp: 0xb0 103 <brightness>
+```
+Set the brightness when a laser is plucked.
+
 ## IPC Protocol
 
 ### USB Midi

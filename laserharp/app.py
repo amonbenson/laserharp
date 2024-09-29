@@ -208,39 +208,7 @@ class LaserHarpApp(Component):
                 continue
 
             # TODO: handle the midi event
-
-    def _note_to_laser(self, note: int):
-        if note == 127:
-            return 127
-
-        return note - self.config["root_note"]
-
-    def _laser_to_note(self, index: int):
-        if index == 127:
-            return 127
-
-        return index + self.config["root_note"]
-
-    def _handle_midi_event(self, event: MidiEvent):
-        # handle midi note on/off messages from any interface
-        if event.message.type == "note_on":
-            index = self._note_to_laser(event.message.note)
-            brightness = event.message.velocity
-        elif event.message.type == "note_off":
-            index = self._note_to_laser(event.message.note)
-            brightness = 0
-        else:
-            logging.warning(f"Unhandled midi event: {event}")
-            return
-
-        # set the laser brightness (this will send an IPC packet to the STM)
-        if index <= len(self.laser_array):
-            self.laser_array[index] = brightness
-        elif index == 127:
-            self.laser_array.set_all(brightness)
-        else:
-            logging.warning(f"Midi note out of range: {index}")
-            return
+            print(event)
 
     def run_calibration(self):
         # notify the calibration thread
