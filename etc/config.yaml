@@ -28,8 +28,8 @@ camera:
   rotation: 180 # configure any 90 degree rotation
 
   # exposure settings
-  shutter_speed: 50000 # in microseconds
-  iso: 20
+  shutter_speed: 200000 # in microseconds
+  iso: 200
 
   # image settings
   brightness: 50

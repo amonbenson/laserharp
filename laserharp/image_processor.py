@@ -79,7 +79,7 @@ class ImageProcessor(Component):
 
         # calculate the grid of beam interception points
         self.beam_yv = np.round(y[:, np.newaxis]).astype(np.int32)
-        self.beam_xv = np.round(calibration.x0[np.newaxis, :] + calibration.m[np.newaxis, :] * y[:, np.newaxis]).astype(np.int32)
+        self.beam_xv = np.clip(np.round(calibration.x0[np.newaxis, :] + calibration.m[np.newaxis, :] * y[:, np.newaxis]).astype(np.int32), 0, self.camera.resolution[0] - 1)
 
     @property
     def is_calibrated(self):
