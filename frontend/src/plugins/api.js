@@ -4,13 +4,17 @@ import { useLaserharpStore } from "@/stores/laserharp";
 import { watch } from "vue";
 
 export class Api {
-  constructor(baseUrl) {
-    // create axios and socket.io instances
+  constructor(options) {
+    console.log("Creating API instance with options:", options);
+
+    // create axios instance
     this.axios = axios.create({
-      baseURL: baseUrl,
+      baseURL: options.baseUrl ?? "/api",
     });
-    this.socket = io("http://localhost:5000", {
-      path: "/ws",
+
+    // create socket.io instance
+    this.socket = io(options.ws.host, {
+      path: options.ws.path,
       transports: ["websocket"],
     });
 
@@ -151,7 +155,7 @@ export class Api {
 
 export default {
   install(app, options) {
-    const api = new Api(options?.baseUrl || "http://localhost:5000/api");
+    const api = new Api(options);
     app.config.globalProperties.$api = api;
     app.provide("api", api);
   },

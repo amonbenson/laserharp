@@ -92,13 +92,12 @@ def create_backend(laserharp: LaserHarpApp) -> tuple[Flask, callable]:
     def on_calibrate(_data):
         laserharp.run_calibration()
 
-    # will be set when calling run further down
-    output = None
-
     @app.route("/api/stream.mjpg")
     def stream():
         if not laserharp.camera.enabled:
             return Response("Camera is not enabled", status=503)
+
+        output = laserharp.get_debug_stream_output()
 
         @stream_with_context
         def generate():
@@ -115,10 +114,6 @@ def create_backend(laserharp: LaserHarpApp) -> tuple[Flask, callable]:
         return Response(generate(), mimetype="multipart/x-mixed-replace; boundary=frame")
 
     def run(*kargs, **kwargs):
-        # setup the streaming output
-        nonlocal output
-        output = laserharp.camera.start_debug_stream()
-
         # run the app with the socketio wrapper
         socketio.run(app, *kargs, **kwargs)
 

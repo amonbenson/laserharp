@@ -3,9 +3,15 @@ import logging
 import yaml
 
 
+DEFAULT_CONFIG_FILENAME = os.path.abspath(os.path.join(os.path.dirname(__file__), "config.yaml"))
+
+
 def load_config(filename: str = None, config_logging: bool = True):
     if filename is None:
-        filename = os.path.abspath("./etc/config.yaml")
+        filename = DEFAULT_CONFIG_FILENAME
+
+    if not os.path.exists(filename):
+        raise FileNotFoundError(f"Config file not found at: {filename}")
 
     # load the configuration
     with open(filename, "r", encoding="utf-8") as f:

@@ -1,4 +1,6 @@
-from setuptools import setup
+from setuptools import setup, find_packages
+from setuptools.command.install import install
+
 
 setup(
     name="laserharp",
@@ -7,7 +9,11 @@ setup(
     description="Laserharp Python Backend",
     license="MIT",
     keywords="laser harp music midi midi-controller",
-    packages=["laserharp"],
+    packages=find_packages(),
+    include_package_data=True,
+    package_data={
+        "": ["*.yaml"],
+    },
     long_description=open("README.md", "r", encoding="utf-8").read(),
     long_description_content_type="text/markdown",
     install_requires=[
@@ -16,7 +22,8 @@ setup(
         "pyserial",
         "pyyaml",
         "numpy",
-        "cv2",
+        "appdirs",
+        "perci",
         "flask",
         "flask-cors",
         "flask-socketio",

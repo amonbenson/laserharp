@@ -47,6 +47,8 @@ class LaserHarpApp(Component):
         self._prev_result = None
         self._prev_pitch_bend = 8192
 
+        self._debug_stream_output = None
+
         self.state["status"] = "stopped"
 
     def _status_change(self, origin_states: list[str], target_status: str):
@@ -61,6 +63,13 @@ class LaserHarpApp(Component):
 
     def get_settings(self) -> SettingsManager:
         return self.settings
+
+    def get_debug_stream_output(self):
+        # start the debug stream if it is not running
+        if self._debug_stream_output is None:
+            self._debug_stream_output = self.camera.start_debug_stream()
+
+        return self._debug_stream_output
 
     def start(self, force_calibration=False):
         self._status_change(["stopped"], "starting")
