@@ -3,7 +3,6 @@ set -eux
 
 # stop related services
 sudo systemctl stop nginx || true
-sudo systemctl stop laserharp.socket || true
 sudo systemctl stop laserharp || true
 
 # build and install frontend
@@ -17,7 +16,6 @@ cd ..
 # build and install laserharp service
 pip3 install . --break-system-packages
 sudo cp laserharp.service /etc/systemd/system/laserharp.service
-sudo cp laserharp.socket /etc/systemd/system/laserharp.socket
 sudo systemctl enable laserharp
 sudo systemctl daemon-reload
 
@@ -29,11 +27,9 @@ sudo ln -s /etc/nginx/sites-available/laserharp.local /etc/nginx/sites-enabled/l
 
 # start services
 sudo systemctl start nginx
-sudo systemctl start laserharp.socket
 sudo systemctl start laserharp
 
 sudo systemctl enable nginx
-sudo systemctl enable laserharp.socket
 sudo systemctl enable laserharp
 
 # print service status

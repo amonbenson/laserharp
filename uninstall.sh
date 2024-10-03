@@ -3,11 +3,9 @@ set -eux
 
 # stop related services
 sudo systemctl stop nginx
-sudo systemctl stop laserharp.socket
 sudo systemctl stop laserharp
 
 sudo systemctl disable nginx
-sudo systemctl disable laserharp.socket
 sudo systemctl disable laserharp
 
 # remove frontend
