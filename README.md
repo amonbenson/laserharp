@@ -33,6 +33,18 @@ for cpu in /sys/devices/system/cpu/cpu[0-9]*; do echo -n performance \
 | sudo tee $cpu/cpufreq/scaling_governor; done
 ```
 
+## Raspberry Pi Reduce Power Consumption
+
+see https://www.jeffgeerling.com/blog/2023/reducing-raspberry-pi-5s-power-consumption-140x
+
+```bash
+# sudo rpi-eeprom-config -e
+[all]
+BOOT_UART=1
+WAKE_ON_GPIO=0
+POWER_OFF_ON_HALT=1
+```
+
 ## Midi uart
 - do a `rpi-update` to get the latest kernel firmware
 - add to `/boot/firmware/config.txt`:
