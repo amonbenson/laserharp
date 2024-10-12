@@ -140,7 +140,17 @@ class Camera(Component):
             buffer_count=1,
         )
         self._picam.align_configuration(config)
-        self._picam.configure(config)
+        
+        try:
+            self._picam.configure(config)
+        except RuntimeError as e:
+            if "lores stream must be YUV" in str(e):
+                # try again with a YUV lores stream
+                config["lores"]["format"] = "YUV420"
+                self._picam.align_configuration(config)
+                self._picam.configure(config)
+            else:
+                raise e
 
         # for some reason, the framerate needs to be set again. While we're at it, let's set all controls again
         self._picam.set_controls(controls)

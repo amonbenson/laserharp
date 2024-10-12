@@ -36,7 +36,7 @@ din_midi:
   # # Add to /boot/config.txt:
   # # dtoverlay=disable-bt
   # # enable_uart=1
-  # # dtoverlay=uart1
+  # # dtoverlay=uart1,txd1_pin=32,rxd1_pin=33
   # # dtoverlay=midi-uart0
   port: /dev/serial0 # PL011 UART
   baudrate: 38400
