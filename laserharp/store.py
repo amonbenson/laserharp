@@ -22,6 +22,7 @@ class Store:
 
         # connect to the database
         logging.info(f"Connecting to database at {self._db_file}")
+        os.makedirs(os.path.dirname(self._db_file), exist_ok=True)
         db_empty = not os.path.exists(self._db_file)
         self._db_conn = sqlite3.connect(self._db_file, check_same_thread=False)
 

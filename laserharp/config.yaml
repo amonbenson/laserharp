@@ -9,12 +9,37 @@ laser_array:
   translation_table: [4, 5, 6, 7, 8, 9, 10, 11, 13, 14, 15, 16, 17, 18, 19] # mapping from note to laser index
 
 ipc:
-  port: /dev/ttyAMA0
+  # How to enable the primary UART:
+  # - run raspi-config
+  # - go to "Interfacing Options" > "Serial"
+  # - disable the login shell over serial
+  # - enable the serial port hardware
+  # - reboot
+
+  # # for Raspberry Pi 5:
+  # port: /dev/ttyAMA0
+  # baudrate: 115200
+
+  # for Raspberry Pi 3 Model B+:
+  port: /dev/serial1 # Mini UART
   baudrate: 115200
 
 din_midi:
-  port: /dev/ttyAMA2
-  baudrate: 38400 # note: this results in 31250 baud when using "dtoverlay=midi-uart2" in /boot/config.txt
+  # # for Raspberry Pi 5:
+  # # Add to /boot/firmware/config.txt:
+  # # dtoverlay=uart2-pi5 # enable the second UART
+  # # dtoverlay=midi-uart2-pi5 # configure clock rate for MIDI
+  # port: /dev/ttyAMA2
+  # baudrate: 38400 # note: this results in 31250 baud when using "dtoverlay=midi-uart2" in /boot/config.txt
+
+  # for Raspberry Pi 3 Model B+:
+  # # Add to /boot/config.txt:
+  # # dtoverlay=disable-bt
+  # # enable_uart=1
+  # # dtoverlay=uart1
+  # # dtoverlay=midi-uart0
+  port: /dev/serial0 # PL011 UART
+  baudrate: 38400
 
 camera:
   # mechanical parameters
