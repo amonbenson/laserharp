@@ -8,6 +8,9 @@ sudo systemctl stop laserharp
 sudo systemctl disable nginx
 sudo systemctl disable laserharp
 
+# invoke kill script
+./scripts/kill.sh
+
 # remove frontend
 sudo rm -rf /var/www/html
 

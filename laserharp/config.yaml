@@ -80,7 +80,7 @@ image_processor:
 
   threshold: 100 # minimum brightness to be considered a beam (0-255)
   length_min: 0.05 # minimum beam length in meters
-  length_max: 1.5 # maximum beam length in meters
+  length_max: 1.2 # maximum beam length in meters
 
   filter_cutoff: 6 # cutoff frequency in Hz
   filter_size: 3 # filter kernel size
