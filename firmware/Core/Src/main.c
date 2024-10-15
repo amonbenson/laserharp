@@ -29,6 +29,8 @@
 #include "log.h"
 #include "midi_types.h"
 #include "usbd_midi.h"
+#include <math.h>
+#include <stdbool.h>
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -96,6 +98,9 @@ osEventFlagsId_t globalStatusHandle;
 const osEventFlagsAttr_t globalStatus_attributes = { .name = "globalStatus" };
 /* USER CODE BEGIN PV */
 laser_array_t laser_array;
+
+bool intro_animation_enabled = true;
+float intro_animation_progress = 0.0;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -650,7 +655,26 @@ void StartDefaultTask(void *argument) {
     }
 
     for (;;) {
-        osDelay(1);
+        if (intro_animation_enabled) {
+            float pos = (sinf(intro_animation_progress * 2 * M_PI) * 0.3 + 0.5) * LA_NUM_DIODES;
+            uint8_t pos_int = (uint8_t) pos;
+            uint8_t pos_frac = (uint8_t) ((pos - pos_int) * LA_NUM_BRIGHTNESS_LEVELS - 1);
+
+            for (uint8_t i = 0; i < LA_NUM_DIODES; i++) {
+                uint8_t brightness = 0;
+                if (i == pos_int) {
+                    brightness = pos_frac;
+                } else if (i == pos_int - 1) {
+                    brightness = LA_NUM_BRIGHTNESS_LEVELS - 1 - pos_frac;
+                }
+
+                laser_array_set_brightness(&laser_array, i, brightness);
+            }
+
+            intro_animation_progress += 0.005;
+        }
+
+        osDelay(10);
     }
     /* USER CODE END 5 */
 }
@@ -707,6 +731,9 @@ void StartIpcReceiveTask(void *argument) {
 
         // print the received packet
         LOG_TRACE("IPC: Received packet: " IPC_PACKET_FMT, IPC_PACKET_FMT_ARGS(&packet));
+
+        // disable intro animation as soon as any IPC packet is received
+        intro_animation_enabled = false;
 
         uint8_t major_code = packet[0] & 0xF0;
         uint8_t code = packet[0];
