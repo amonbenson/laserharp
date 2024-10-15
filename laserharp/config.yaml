@@ -17,20 +17,20 @@ ipc:
   # - reboot
 
   # # for Raspberry Pi 5:
-  # port: /dev/ttyAMA0
-  # baudrate: 115200
-
-  # for Raspberry Pi 3 Model B+:
-  port: /dev/serial1 # Mini UART
+  port: /dev/ttyAMA0
   baudrate: 115200
 
+  # for Raspberry Pi 3 Model B+:
+  # port: /dev/serial1 # Mini UART
+  # baudrate: 115200
+
 din_midi:
-  # # for Raspberry Pi 5:
-  # # Add to /boot/firmware/config.txt:
-  # # dtoverlay=uart2-pi5 # enable the second UART
-  # # dtoverlay=midi-uart2-pi5 # configure clock rate for MIDI
-  # port: /dev/ttyAMA2
-  # baudrate: 38400 # note: this results in 31250 baud when using "dtoverlay=midi-uart2" in /boot/config.txt
+  # for Raspberry Pi 5:
+  # Add to /boot/firmware/config.txt:
+  # dtoverlay=uart2-pi5 # enable the second UART
+  # dtoverlay=midi-uart2-pi5 # configure clock rate for MIDI
+  port: /dev/ttyAMA2
+  baudrate: 38400 # note: this results in 31250 baud when using "dtoverlay=midi-uart2" in /boot/config.txt
 
   # for Raspberry Pi 3 Model B+:
   # # Add to /boot/config.txt:
@@ -38,8 +38,8 @@ din_midi:
   # # enable_uart=1
   # # dtoverlay=uart1,txd1_pin=32,rxd1_pin=33
   # # dtoverlay=midi-uart0
-  port: /dev/serial0 # PL011 UART
-  baudrate: 38400
+  # port: /dev/serial0 # PL011 UART
+  # baudrate: 38400
 
 camera:
   # mechanical parameters

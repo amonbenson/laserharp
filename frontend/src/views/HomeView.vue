@@ -32,7 +32,7 @@ const reindex = (i) => {
 </script>
 
 <template>
-  <h2>String Sections</h2>
+  <h2>Strings</h2>
 
   <div class="flex justify-start sm:justify-center items-center overflow-x-auto">
     <div
