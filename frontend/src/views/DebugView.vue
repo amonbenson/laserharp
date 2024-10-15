@@ -3,7 +3,15 @@ import { computed } from "vue";
 import { useLaserharpStore } from "@/stores/laserharp";
 
 const laserharp = useLaserharpStore();
-const laserharpString = computed(() => JSON.stringify(laserharp, null, 2));
+
+const keysToKeep = ["app", "ipc", "laser_array", "camera", "image_processor", "image_calibrator", "midi_converter"];
+const laserharpReduced = computed(() => {
+  return Object.fromEntries(
+    Object.entries(laserharp).filter(([key]) => keysToKeep.includes(key))
+  );
+});
+
+const laserharpString = computed(() => JSON.stringify(laserharpReduced.value, null, 2));
 </script>
 
 <template>
