@@ -40,7 +40,9 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-
+#ifndef M_PI
+#define M_PI 3.14159265358979323846
+#endif
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -668,7 +670,7 @@ void StartDefaultTask(void *argument) {
                     brightness = LA_NUM_BRIGHTNESS_LEVELS - 1 - pos_frac;
                 }
 
-                laser_array_set_brightness(&laser_array, i, brightness);
+                laser_array_set_brightness(&laser_array, i, brightness / 2);
             }
 
             intro_animation_progress += 0.005;
