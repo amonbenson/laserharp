@@ -3,6 +3,9 @@ import { RouterLink, RouterView } from "vue-router";
 import { inject, onMounted, onBeforeUnmount, computed, watch } from "vue";
 import { storeToRefs } from "pinia";
 import { useLaserharpStore } from "./stores/laserharp";
+import NavBar from "./components/NavBar.vue";
+import FooterBar from "./components/FooterBar.vue";
+import IconLoader from "./components/IconLoader.vue";
 
 const DEVELOPMENT = process.env.NODE_ENV === "development";
 
@@ -30,35 +33,7 @@ onBeforeUnmount(() => {
 <template>
   <div class="w-full h-full flex flex-col select-none">
     <header class="w-full h-12 shrink-0 bg-darker text-light">
-      <div class="container mx-auto px-8 h-full flex items-center space-x-8">
-        <RouterLink to="/">
-          <h1>
-            Laserharp&nbsp;<span
-              class="inline-block ml-2 size-4 rounded-full"
-              :class="status === 'running'
-                ? 'bg-success'
-                : (status === 'calibrating'
-                  ? 'bg-warning'
-                  : 'bg-muted')"
-            />
-          </h1>
-        </RouterLink>
-
-        <RouterLink to="/calibrate">
-          Calibrate
-        </RouterLink>
-
-        <RouterLink to="/settings">
-          Settings
-        </RouterLink>
-
-        <RouterLink
-          v-if="DEVELOPMENT"
-          to="/debug"
-        >
-          Debug
-        </RouterLink>
-      </div>
+      <NavBar class="container mx-auto px-8 h-full" />
     </header>
 
     <main class="w-full h-full overflow-x-hidden overflow-y-auto">
@@ -66,5 +41,16 @@ onBeforeUnmount(() => {
         <RouterView />
       </div>
     </main>
+
+    <footer class="w-full h-8 shrink-0 bg-darker text-light">
+      <FooterBar class="container mx-auto px-8 h-full" />
+    </footer>
+
+    <div
+      v-if="status === 'disconnected'"
+      class="fixed inset-0 z-10 bg-black bg-opacity-75 flex items-center justify-center"
+    >
+      <IconLoader class="scale-50" />
+    </div>
   </div>
 </template>

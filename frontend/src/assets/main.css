@@ -29,6 +29,10 @@ h6 {
     @apply text-base font-semibold;
 }
 
+a {
+    @apply text-secondary-lighter;
+}
+
 input {
     @apply px-2 py-1 bg-darker disabled:opacity-50;
 }
