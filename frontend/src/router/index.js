@@ -23,7 +23,7 @@ const router = createRouter({
       path: "/debug",
       name: "debug",
       component: () => import("@/views/DebugView.vue"),
-    }
+    },
   ],
 });
 

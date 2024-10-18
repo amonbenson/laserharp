@@ -7,7 +7,7 @@ const laserharp = useLaserharpStore();
 const keysToKeep = ["app", "ipc", "laser_array", "camera", "image_processor", "image_calibrator", "midi_converter"];
 const laserharpReduced = computed(() => {
   return Object.fromEntries(
-    Object.entries(laserharp).filter(([key]) => keysToKeep.includes(key))
+    Object.entries(laserharp).filter(([key]) => keysToKeep.includes(key)),
   );
 });
 

@@ -37,6 +37,7 @@ const open = defineModel("open", {
 
     <NavItemCollection class="hidden md:flex items-center justify-center space-x-8" />
 
+    <!-- eslint-disable vue/require-explicit-emits -->
     <button
       class="md:hidden z-20 text-light"
       @click="$emit('update:open', !open)"

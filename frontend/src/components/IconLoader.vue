@@ -1,9 +1,40 @@
 <template>
-  <svg class="loader" width="128" height="128" viewBox="0 0 128 128" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <path class="beam-0" d="M64 114L64 14" stroke="#E11D48" stroke-width="16" stroke-linecap="round"/>
-    <path class="beam-1" d="M64 114L14 27" stroke="#E11D48" stroke-width="16" stroke-linecap="round"/>
-    <path class="beam-2" d="M64 114L114 27" stroke="#E11D48" stroke-width="16" stroke-linecap="round"/>
-    <path class="base" d="M39 114H89" stroke="white" stroke-width="16" stroke-linecap="round"/>
+  <svg
+    class="loader"
+    width="128"
+    height="128"
+    viewBox="0 0 128 128"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <path
+      class="beam-0"
+      d="M64 114L64 14"
+      stroke="#E11D48"
+      stroke-width="16"
+      stroke-linecap="round"
+    />
+    <path
+      class="beam-1"
+      d="M64 114L14 27"
+      stroke="#E11D48"
+      stroke-width="16"
+      stroke-linecap="round"
+    />
+    <path
+      class="beam-2"
+      d="M64 114L114 27"
+      stroke="#E11D48"
+      stroke-width="16"
+      stroke-linecap="round"
+    />
+    <path
+      class="base"
+      d="M39 114H89"
+      stroke="white"
+      stroke-width="16"
+      stroke-linecap="round"
+    />
   </svg>
 </template>
 
