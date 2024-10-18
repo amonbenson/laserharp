@@ -9,21 +9,28 @@ const COMPONENTS = [
   "midi_converter",
 ];
 
+const DEVELOPMENT = process.env.NODE_ENV === "development";
+
 const api = inject("api");
 const laserharp = useLaserharpStore();
 
 const snakeCaseToTitleCase = (str) => str.split("_").map((word) => word[0].toUpperCase() + word.slice(1)).join(" ");
 
-const componentSettings = computed(() => COMPONENTS.map((componentKey) => ({
-  componentKey,
-  componentName: snakeCaseToTitleCase(componentKey),
-  settings: Object.entries(laserharp[componentKey]?.config?.settings ?? {}).map(([key, description]) => ({
-    key,
-    name: snakeCaseToTitleCase(key),
-    value: laserharp[componentKey]?.settings[key],
-    description,
-  })),
-})));
+const componentSettings = computed(() => COMPONENTS
+  .map((componentKey) => ({
+    componentKey,
+    componentName: snakeCaseToTitleCase(componentKey),
+    settings: Object
+      .entries(laserharp[componentKey]?.config?.settings ?? {})
+      .map(([key, description]) => ({
+        key,
+        name: snakeCaseToTitleCase(key),
+        value: laserharp[componentKey]?.settings[key],
+        description,
+      }))
+      .filter(({ description }) => (description.client_writable ?? true) || DEVELOPMENT),
+  }))
+  .filter(({ settings }) => settings.length > 0));
 
 const updateSetting = (componentKey, key, value) => {
   try {

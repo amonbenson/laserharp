@@ -1,5 +1,18 @@
 <script setup>
+import { computed } from "vue";
+import { useLaserharpStore } from "@/stores/laserharp";
 import NavItem from "./NavItem.vue";
+
+const DEVELOPMENT = process.env.NODE_ENV === "development";
+
+const laserharp = useLaserharpStore();
+const status = computed(() => {
+  if (laserharp.connected) {
+    return laserharp.app?.state?.status ?? "unknown";
+  } else {
+    return "disconnected";
+  }
+});
 </script>
 
 <template>
