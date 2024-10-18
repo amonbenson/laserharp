@@ -1847,6 +1847,11 @@ vue-router@^4.3.3:
   dependencies:
     "@vue/devtools-api" "^6.6.3"
 
+vue3-icons@^0.1.13:
+  version "0.1.13"
+  resolved "https://registry.yarnpkg.com/vue3-icons/-/vue3-icons-0.1.13.tgz#2450bcbc932744455f64fba2161ceeba79378a56"
+  integrity sha512-rZPuJBghHHrE6UjYZcHGUDBWbASxBso3Q7NVQ0QFiRmUGO+2DtIncM5biakXRg33Xo/jj5H0z0cqQJ6tTVsFsg==
+
 vue@^3.4.29:
   version "3.4.37"
   resolved "https://registry.yarnpkg.com/vue/-/vue-3.4.37.tgz#64ce0eeb8de16a29fb74e504777ee8c0c1cf229e"

@@ -3,6 +3,7 @@ import { ref, computed } from "vue";
 import { useLaserharpStore } from "@/stores/laserharp";
 import NavItem from "./NavItem.vue";
 import NavItemCollection from "./NavItemCollection.vue";
+import { FiMenu, FiX } from "vue3-icons/fi";
 
 const laserharp = useLaserharpStore();
 const status = computed(() => {
@@ -36,11 +37,18 @@ const open = defineModel("open", {
 
     <NavItemCollection class="hidden md:flex items-center justify-center space-x-8" />
 
-    <div
-      class="md:hidden z-10"
+    <button
+      class="md:hidden z-20 text-light"
       @click="$emit('update:open', !open)"
     >
-      <span>M</span>
-    </div>
+      <FiMenu
+        v-if="!open"
+        size="1.5rem"
+      />
+      <FiX
+        v-else
+        size="1.5rem"
+      />
+    </button>
   </div>
 </template>

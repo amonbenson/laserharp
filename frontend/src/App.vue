@@ -46,7 +46,7 @@ const menuOpen = ref();
 
     <div
       v-if="menuOpen"
-      class="fixed inset-0 z-10 bg-darker bg-opacity-95"
+      class="fixed md:hidden inset-0 z-10 bg-darker bg-opacity-95"
       @click="menuOpen = false"
     >
       <NavItemCollection class="w-full h-full flex flex-col items-center justify-center space-y-8" />
