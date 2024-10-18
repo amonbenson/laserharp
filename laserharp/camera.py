@@ -140,7 +140,7 @@ class Camera(Component):
             buffer_count=1,
         )
         self._picam.align_configuration(config)
-        
+
         try:
             self._picam.configure(config)
         except RuntimeError as e:

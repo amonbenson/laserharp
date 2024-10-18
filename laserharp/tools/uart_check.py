@@ -1,6 +1,7 @@
 from serial import Serial
 from ..config import load_config
 
+
 def test_serial(name: str, port: str, baudrate: int, test_byte: int):
     serial = Serial(port, baudrate)
 
@@ -17,6 +18,7 @@ def test_serial(name: str, port: str, baudrate: int, test_byte: int):
         print("Received expected response.")
 
     serial.close()
+
 
 if __name__ == "__main__":
     config = load_config()
