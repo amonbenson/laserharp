@@ -23,9 +23,9 @@ jobs:
           node-version: "20"
 
       - name: Install dependencies
-        working-directory: ./rpi/frontend
+        working-directory: ./frontend
         run: yarn install
 
       - name: Run lint
-        working-directory: ./rpi/frontend
+        working-directory: ./frontend
         run: yarn lint

@@ -38,5 +38,5 @@ jobs:
           release: 13.3.Rel1
 
       - name: Build firmware
-        working-directory: ./stm
+        working-directory: ./firmware
         run: make -j4 all
