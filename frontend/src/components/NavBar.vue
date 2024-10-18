@@ -1,9 +1,8 @@
 <script setup>
-import { computed } from "vue";
+import { ref, computed } from "vue";
 import { useLaserharpStore } from "@/stores/laserharp";
 import NavItem from "./NavItem.vue";
-
-const DEVELOPMENT = process.env.NODE_ENV === "development";
+import NavItemCollection from "./NavItemCollection.vue";
 
 const laserharp = useLaserharpStore();
 const status = computed(() => {
@@ -13,10 +12,15 @@ const status = computed(() => {
     return "disconnected";
   }
 });
+
+const open = defineModel("open", {
+  type: Boolean,
+  default: false,
+});
 </script>
 
 <template>
-  <div class="flex items-center space-x-8">
+  <div class="flex items-center justify-between md:justify-start space-x-8">
     <NavItem to="/">
       <h1 class="text-light">
         Laserharp&nbsp;<span
@@ -30,19 +34,13 @@ const status = computed(() => {
       </h1>
     </NavItem>
 
-    <NavItem to="/calibrate">
-      Calibrate
-    </NavItem>
+    <NavItemCollection class="hidden md:flex items-center justify-center space-x-8" />
 
-    <NavItem to="/settings">
-      Settings
-    </NavItem>
-
-    <NavItem
-      v-if="DEVELOPMENT"
-      to="/debug"
+    <div
+      class="md:hidden z-10"
+      @click="$emit('update:open', !open)"
     >
-      Debug
-    </NavItem>
+      <span>M</span>
+    </div>
   </div>
 </template>

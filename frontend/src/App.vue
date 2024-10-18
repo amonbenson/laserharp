@@ -1,8 +1,9 @@
 <script setup>
 import { RouterView } from "vue-router";
-import { inject, onMounted, onBeforeUnmount, computed, watch } from "vue";
+import { inject, onMounted, onBeforeUnmount, computed, ref } from "vue";
 import { useLaserharpStore } from "./stores/laserharp";
 import NavBar from "./components/NavBar.vue";
+import NavItemCollection from "./components/NavItemCollection.vue";
 import FooterBar from "./components/FooterBar.vue";
 import IconLoader from "./components/IconLoader.vue";
 
@@ -18,12 +19,17 @@ onMounted(() => {
 onBeforeUnmount(() => {
   api.disconnect();
 });
+
+const menuOpen = ref();
 </script>
 
 <template>
   <div class="w-full h-full flex flex-col select-none">
     <header class="w-full h-12 z-5 shrink-0 bg-darker shadow-lg">
-      <NavBar class="container mx-auto px-8 h-full" />
+      <NavBar
+        v-model:open="menuOpen"
+        class="container mx-auto px-8 h-full"
+      />
     </header>
 
     <main class="w-full h-full overflow-x-hidden overflow-y-auto">
@@ -37,6 +43,14 @@ onBeforeUnmount(() => {
     <footer class="w-full h-8 z-5 shrink-0 bg-darker shadow-lg">
       <FooterBar class="container mx-auto px-8 h-full" />
     </footer>
+
+    <div
+      v-if="menuOpen"
+      class="fixed inset-0 z-10 bg-darker bg-opacity-95"
+      @click="menuOpen = false"
+    >
+      <NavItemCollection class="w-full h-full flex flex-col items-center justify-center space-y-8" />
+    </div>
 
     <div
       v-if="!connected"
