@@ -144,7 +144,7 @@ midi_converter:
     unplucked_beam_brightness:
       type: int
       range: [0, 127]
-      default: 127
+      default: 64
     plucked_beam_brightness:
       type: int
       range: [0, 127]
