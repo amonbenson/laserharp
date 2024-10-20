@@ -1,6 +1,6 @@
-[![Backend Tests](https://github.com/amonbenson/laserharp-rpi-py/actions/workflows/rpi-backend.yaml/badge.svg)](https://github.com/amonbenson/laserharp-rpi-py/actions/workflows/rpi-backend.yaml)
-[![Frontend Tests](https://github.com/amonbenson/laserharp-rpi-py/actions/workflows/rpi-frontend.yaml/badge.svg)](https://github.com/amonbenson/laserharp-rpi-py/actions/workflows/rpi-frontend.yaml.yaml)
-[![Firmware Tests](https://github.com/amonbenson/laserharp-rpi-py/actions/workflows/stm.yaml/badge.svg)](https://github.com/amonbenson/laserharp-rpi-py/actions/workflows/stm.yaml.yaml)
+[![Backend Tests](https://github.com/amonbenson/laserharp-rpi-py/actions/workflows/backend.yaml/badge.svg)](https://github.com/amonbenson/laserharp-rpi-py/actions/workflows/backend.yaml)
+[![Frontend Tests](https://github.com/amonbenson/laserharp-rpi-py/actions/workflows/frontend.yaml/badge.svg)](https://github.com/amonbenson/laserharp-rpi-py/actions/workflows/frontend.yaml)
+[![Firmware Tests](https://github.com/amonbenson/laserharp-rpi-py/actions/workflows/firmware.yaml/badge.svg)](https://github.com/amonbenson/laserharp-rpi-py/actions/workflows/firmware.yaml)
 
 
 ## Development Setup
