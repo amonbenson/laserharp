@@ -94,25 +94,25 @@ http://blog.dddac.com/wp-content/uploads/Flash-RPi5-and-adding-5000mA-Line-tutor
 :heavy_check_mark: &ndash; Implemented<br>
 :x: &ndash; Not implemented
 
-### Set Laser Brightness Directly (:x:)
+### Set Laser Brightness Directly :x:
 ```
 Host -> Laserharp: 0x90 <note> <velocity>
 ```
 Set the brightness of the laser corresponding to the note to the velocity value. Note that multiple notes may control the same laser diode depending on the section spacing. A note value of 127 will set the brightness of all lasers at once.
 
-### Set Laser Brightness Directly (:x:)
+### Set Laser Brightness Directly :x:
 ```
 Host -> Laserharp: 0x80 <note> <velocity>
 ```
 Turn off the laser corresponding to the note. A note value of 127 will turn off all lasers at once.
 
-### Set Unplucked Laser Brightness (:x:)
+### Set Unplucked Laser Brightness :x:
 ```
 Host -> Laserharp: 0xb0 102 <brightness>
 ```
 Set the brightness for unplucked lasers.
 
-### Set Plucked Laser Brightness (:x:)
+### Set Plucked Laser Brightness :x:
 ```
 Host -> Laserharp: 0xb0 103 <brightness>
 ```
@@ -125,34 +125,34 @@ Set the brightness when a laser is plucked.
 :heavy_check_mark: &ndash; Implemented<br>
 :x: &ndash; Not implemented
 
-### USB Midi (RPi: :x:, STM: :heavy_check_mark:)
+### USB Midi :x:
 ```
 Bidirectional: 0x0N <byte0> <byte1> <byte2>
 ```
 
-### Din Midi (RPi: :x:, STM: :heavy_check_mark:)
+### Din Midi :x:
 _Note: With the current version, Din Midi is handled directly by the Raspberry Pi, so this message won't be used._
 ```
 Bidirectional: 0x1N <byte0> <byte1> <byte2>
 ```
 
-### Set Brightness for Single Laser (:heavy_check_mark:)
+### Set Brightness for Single Laser :heavy_check_mark:
 ```
 RPi -> STM: 0x80 <diode_index> <brightness> 0x00
 ```
 
-### Set Brightness for All Lasers (:heavy_check_mark:)
+### Set Brightness for All Lasers :heavy_check_mark:
 ```
 RPi -> STM: 0x81 <brightness> 0x00 0x00
 ```
 
-### Firmware Version Inquiry (:x:)
+### Firmware Version Inquiry :x:
 ```
 RPi -> STM: 0xf0 0x00 0x00 0x00
 STM -> RPi: 0xf0 <major> <minor> <patch>
 ```
 
-### Reboot STM (:x:)
+### Reboot STM :x:
 ```
 RPi -> STM: 0xf1 0x00 0x00 0x00
 ```
