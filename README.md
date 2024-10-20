@@ -6,20 +6,38 @@
 ## Development Setup
 
 ### Backend
+
+Setup a virtual environment and install the dependencies:
 ```bash
 python3 -m venv .venv --system-site-packages
 source .venv/bin/activate
 pip install -r requirements.txt
-pip install -e ../perci
+```
 
+Run the server in development mode:
+```bash
+source .venv/bin/activate
 python -m laserharp.server
 ```
 
 ### Frontend
+
+Install node js and yarn:
+```bash
+wget -qO- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash
+nvm install --lts
+nvm use --lts
+npm install -g yarn
+```
+
+Install all dependencies:
 ```bash
 cd frontend
 yarn install
+```
 
+Run the development server:
+```bash
 yarn dev
 ```
 
@@ -73,59 +91,68 @@ http://blog.dddac.com/wp-content/uploads/Flash-RPi5-and-adding-5000mA-Line-tutor
 
 ## MIDI In Messages
 
-### Set Laser Brightness Directly
+:heavy_check_mark: &ndash; Implemented<br>
+:x: &ndash; Not implemented
+
+### Set Laser Brightness Directly (:x:)
 ```
 Host -> Laserharp: 0x90 <note> <velocity>
 ```
 Set the brightness of the laser corresponding to the note to the velocity value. Note that multiple notes may control the same laser diode depending on the section spacing. A note value of 127 will set the brightness of all lasers at once.
 
-### Set Laser Brightness Directly
+### Set Laser Brightness Directly (:x:)
 ```
 Host -> Laserharp: 0x80 <note> <velocity>
 ```
 Turn off the laser corresponding to the note. A note value of 127 will turn off all lasers at once.
 
-### Set Unplucked Laser Brightness
+### Set Unplucked Laser Brightness (:x:)
 ```
 Host -> Laserharp: 0xb0 102 <brightness>
 ```
 Set the brightness for unplucked lasers.
 
-### Set Plucked Laser Brightness
+### Set Plucked Laser Brightness (:x:)
 ```
 Host -> Laserharp: 0xb0 103 <brightness>
 ```
 Set the brightness when a laser is plucked.
 
+
+
 ## IPC Protocol
 
-### USB Midi
+:heavy_check_mark: &ndash; Implemented<br>
+:x: &ndash; Not implemented
+
+### USB Midi (RPi: :x:, STM: :heavy_check_mark:)
 ```
 Bidirectional: 0x0N <byte0> <byte1> <byte2>
 ```
 
-### Din Midi (Unused)
+### Din Midi (RPi: :x:, STM: :heavy_check_mark:)
+_Note: With the current version, Din Midi is handled directly by the Raspberry Pi, so this message won't be used._
 ```
 Bidirectional: 0x1N <byte0> <byte1> <byte2>
 ```
 
-### Set Brightness for Single Laser
+### Set Brightness for Single Laser (:heavy_check_mark:)
 ```
 RPi -> STM: 0x80 <diode_index> <brightness> 0x00
 ```
 
-### Set Brightness for All Lasers
+### Set Brightness for All Lasers (:heavy_check_mark:)
 ```
 RPi -> STM: 0x81 <brightness> 0x00 0x00
 ```
 
-### Firmware Version Inquiry
+### Firmware Version Inquiry (:x:)
 ```
 RPi -> STM: 0xf0 0x00 0x00 0x00
 STM -> RPi: 0xf0 <major> <minor> <patch>
 ```
 
-### Reboot STM
+### Reboot STM (:x:)
 ```
 RPi -> STM: 0xf1 0x00 0x00 0x00
 ```
