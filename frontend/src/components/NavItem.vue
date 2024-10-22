@@ -4,9 +4,9 @@ import { RouterLink } from "vue-router";
 
 <template>
   <RouterLink
-    class="flex items-center justify-center text-muted truncate transition-colors duration-200 hover:text-secondary-lighter"
-    inactive-class="text-muted"
-    active-class="text-secondary-lighter"
+    v-slot="{ isActive }"
+    class="flex items-center justify-center truncate transition-colors duration-200 hover:text-light"
+    active-class="text-light"
   >
     <slot />
   </RouterLink>

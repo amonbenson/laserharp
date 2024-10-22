@@ -21,18 +21,23 @@ const open = defineModel("open", {
 </script>
 
 <template>
-  <div class="flex items-center justify-between md:justify-start space-x-8">
-    <NavItem to="/">
-      <h1 class="text-light">
-        Laserharp&nbsp;<span
-          class="inline-block ml-2 size-4 rounded-full"
-          :class="status === 'running'
-            ? 'bg-success'
-            : (status === 'calibrating'
-              ? 'bg-warning'
-              : 'bg-muted')"
-        />
-      </h1>
+  <nav class="flex items-center justify-between md:justify-start space-x-8">
+    <NavItem
+      class="z-20"
+      active-class="text-light"
+      to="/"
+      @click="$emit('update:open', false)"
+    >
+      <h1 class="inline-block">
+        Laserharp
+      </h1>&ensp;<span
+        class="inline-block size-4 rounded-full"
+        :class="status === 'running'
+          ? 'bg-success'
+          : (status === 'calibrating'
+            ? 'bg-warning'
+            : 'bg-muted')"
+      />
     </NavItem>
 
     <NavItemCollection class="hidden md:flex items-center justify-center space-x-8" />
@@ -51,5 +56,5 @@ const open = defineModel("open", {
         size="1.5rem"
       />
     </button>
-  </div>
+  </nav>
 </template>
