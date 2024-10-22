@@ -49,7 +49,9 @@ const menuOpen = ref();
       class="fixed md:hidden inset-0 z-10 bg-darker bg-opacity-95"
       @click="menuOpen = false"
     >
-      <NavItemCollection class="w-full h-full flex flex-col items-center justify-center space-y-8" />
+      <nav class="w-full h-full">
+        <NavItemCollection class="w-full h-full flex flex-col items-center justify-center space-y-8" />
+      </nav>
     </div>
 
     <div
