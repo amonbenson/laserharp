@@ -155,7 +155,8 @@ class Camera(Component):
         # for some reason, the framerate needs to be set again. While we're at it, let's set all controls again
         self._picam.set_controls(controls)
 
-        logging.debug(f"Camera configuration: {self._picam.stream_configuration('main')}")
+        logging.debug(f"Main configuration: {self._picam.stream_configuration('main')}")
+        logging.debug(f"Lores/Stream configuration: {self._picam.stream_configuration('lores')}")
 
         self.state["status"] = "stopped"
 

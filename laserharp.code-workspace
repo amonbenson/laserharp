@@ -32,8 +32,7 @@
 					{
 						"name": "frontend",
 						"commands": [
-							"cd frontend",
-							"yarn dev"
+							"yarn --cwd frontend dev"
 						]
 					}
 				]
@@ -47,7 +46,8 @@
 			"ms-python.black-formatter",
 			"ms-vscode.cpptools",
 			"vue.volar",
-			"dbaeumer.vscode-eslint"
+			"dbaeumer.vscode-eslint",
+			"EthanSK.restore-terminals"
 		]
 	}
 }

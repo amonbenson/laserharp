@@ -159,7 +159,7 @@ class SettingsManager:
                 # create the setting
                 setting_class = self.SETTING_CLASSES[setting_type]
 
-                logging.info(f"Creating setting '{component}.{key}' of type '{setting_type}'")
+                logging.debug(f"Creating setting '{component}.{key}' of type '{setting_type}'")
                 self._settings[component + "." + key] = setting_class(key, target, desc)
 
                 # fetch the initial value from the store

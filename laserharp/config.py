@@ -6,7 +6,7 @@ import yaml
 DEFAULT_CONFIG_FILENAME = os.path.abspath(os.path.join(os.path.dirname(__file__), "config.yaml"))
 
 
-def load_config(filename: str = None, config_logging: bool = True):
+def load_config(filename: str = None, config_logging: bool = True, verbose_logging: bool = False):
     if filename is None:
         filename = DEFAULT_CONFIG_FILENAME
 
@@ -20,7 +20,7 @@ def load_config(filename: str = None, config_logging: bool = True):
     # configure logging
     if config_logging:
         logging.basicConfig(
-            level=_config["app"]["log_level"],
+            level=_config["app"]["log_level"] if not verbose_logging else "DEBUG",
             format="%(asctime)s %(levelname)s %(pathname)s: %(message)s",
         )
 
