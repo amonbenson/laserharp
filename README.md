@@ -126,33 +126,68 @@ Set the brightness when a laser is plucked.
 :x: &ndash; Not implemented
 
 ### USB Midi :x:
+
 ```
 Bidirectional: 0x0N <byte0> <byte1> <byte2>
 ```
 
+These packets are equivalent to the USB Midi Protocol with `CN = 1`.
+
 ### Din Midi :x:
-_Note: With the current version, Din Midi is handled directly by the Raspberry Pi, so this message won't be used._
+
 ```
 Bidirectional: 0x1N <byte0> <byte1> <byte2>
 ```
 
+_Note: With the current version, Din Midi is handled directly by the Raspberry Pi, so this message won't be used._
+
+These packets are equivalent to the USB Midi Protocol with `CN = 1`.
+
 ### Set Brightness for Single Laser :heavy_check_mark:
+
 ```
-RPi -> STM: 0x80 <diode_index> <brightness> 0x00
+RPi -> STM: 0x80 <diode_index> <brightness> <unused>
 ```
 
 ### Set Brightness for All Lasers :heavy_check_mark:
+
 ```
-RPi -> STM: 0x81 <brightness> 0x00 0x00
+RPi -> STM: 0x81 <brightness> <unused> <unused>
 ```
 
-### Firmware Version Inquiry :x:
+### Play Animation :x:
+
 ```
-RPi -> STM: 0xf0 0x00 0x00 0x00
+RPi -> STM: 0x82 <animation_id> <follow_action> <unused>
+```
+
+**Animation Ids**:<br>
+0 &ndash; Boot animation<br>
+1 &ndash; Flip animation
+
+**Follow Actions**:<br>
+0 &ndash; Loop the animation indefinitely<br>
+1 &ndash; Play the animation once and stop on the last frame<br>
+2 &ndash; Play the animation once and stop with all lasers off<br>
+3 &ndash; Play the animation once and stop with all lasers set to their previous brightness
+
+### Stop Animation :x:
+
+```
+RPi -> STM: 0x83 <unused> <unused> <unused>
+```
+
+Stop the current animation from playing.
+
+### Firmware Version Inquiry :x:
+
+```
+RPi -> STM: 0xf0 <unused> <unused> <unused>
 STM -> RPi: 0xf0 <major> <minor> <patch>
 ```
 
 ### Reboot STM :x:
+
 ```
-RPi -> STM: 0xf1 0x00 0x00 0x00
+RPi -> STM: 0xf1 <unused> <unused> <unused>
 ```
