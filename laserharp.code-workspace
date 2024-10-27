@@ -17,7 +17,8 @@
 		"files.associations": {
 			"*.wb": "c",
 			".dockerignore": "ignore",
-			"midi_usb.h": "c"
+			"midi_usb.h": "c",
+			"laser_array.h": "c"
 		},
 		"restoreTerminals.terminals": [
 			{

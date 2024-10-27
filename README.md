@@ -165,12 +165,13 @@ STM -> RPi: 0x82 <diode_index> <brightness> <unused>
 ### Play Animation :x:
 
 ```
-RPi -> STM: 0x83 <animation_id> <follow_action> <unused>
+RPi -> STM: 0x83 <animation_id> <duration> <follow_action>
 ```
 
 **Animation Ids**:<br>
-0 &ndash; Boot animation<br>
-1 &ndash; Flip animation
+0 &ndash; **Boot animation** &ndash; Played during powerup of the Raspberry Pi<br>
+1 &ndash; **Flip animation** &ndash; Played when flipping the harp view<br>
+2 &ndash; **Test animation** &ndash; Used for internal testing, cycles through the first 10 diodes
 
 **Follow Actions**:<br>
 0 &ndash; Loop the animation indefinitely<br>
