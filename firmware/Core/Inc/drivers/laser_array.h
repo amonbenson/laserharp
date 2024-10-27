@@ -42,6 +42,7 @@ typedef struct {
 } laser_array_t;
 
 int laser_array_init(laser_array_t *la, const laser_array_config_t *config);
+uint8_t laser_array_get_brightness(laser_array_t *la, uint8_t diode_index);
 int laser_array_set_brightness(laser_array_t *la, uint8_t diode_index, uint8_t brightness);
 int laser_array_fade_brightness(laser_array_t *la, uint8_t diode_index, uint8_t brightness, uint32_t duration);
 
