@@ -33,7 +33,7 @@
 					{
 						"name": "frontend",
 						"commands": [
-							"yarn --cwd frontend dev --host"
+							"yarn --cwd frontend dev --port 8080 --host"
 						]
 					}
 				]

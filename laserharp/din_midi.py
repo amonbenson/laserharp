@@ -45,7 +45,6 @@ class DinMidi(Component):
         if self.enabled:
             self._serial.write_timeout = timeout
             self._serial.write(data)
-            # self._serial.flush()
 
     def read(self, timeout=1.0) -> MidiEvent:
         if not self.enabled:

@@ -1,5 +1,7 @@
+from typing import Optional
 import numpy as np
-from perci import ReactiveDictNode
+from perci import ReactiveDictNode, watch
+from perci.changes import Change, UpdateChange
 from .component import Component
 from .midi import MidiEvent
 from .image_processor import ImageProcessor
@@ -18,16 +20,56 @@ class Orchtestrator(Component):
         self._din_midi = din_midi
 
         # setup an array of shape (num_sections, num_lasers) to keep track of which lasers are active
-        self._prev_beam_acive = [False] * len(self._laser_array)
         self.state["active"] = [[False] * len(self._laser_array) for _ in range(self.NUM_SECTIONS)]
+        self.state["velocities"] = [0] * 128
 
-        self._first_iteration = True
+        watch(self.state["velocities"], self.on_velocity_change)
 
     def start(self):
         pass
 
     def stop(self):
-        pass
+        # set all notes off
+        for note, _ in enumerate(self.state["velocities"]):
+            self.state["velocities"][note] = 0
+
+    def process(self, interceptions: ImageProcessor.Result):
+        self.update_sections(interceptions)
+        self.update_brightness()
+
+    def update_sections(self, interceptions: ImageProcessor.Result):
+        velocities = [0] * 128
+
+        # iterate over each section and calculate the corresponding midi note and velocity
+        for x, _ in enumerate(self._laser_array):
+            active = bool(interceptions.active[x])
+            length = float(interceptions.length[x])
+            _modulation = float(interceptions.modulation[x])
+
+            # use the diode index x as the step position and apply the current scale
+            note_offset = self._apply_scale(x)
+
+            for y in range(self.NUM_SECTIONS):
+                note_active = active and self._is_in_section(y, length)
+
+                # calculate the midi note
+                note = self.settings["root_note"]
+                note += y * self.settings["section_octave_spacing"] * 12
+                note += note_offset
+
+                if note < 0 or note > 127:
+                    continue
+
+                # store the velocity
+                velocity = 127 if note_active else 0
+                velocities[note] = max(velocities[note], velocity)
+
+                # store the new state
+                self.state["active"][y][x] = note_active
+
+        # apply the new velocities
+        for note, velocity in enumerate(velocities):
+            self.state["velocities"][note] = velocity
 
     def _is_in_section(self, section: int, length: float) -> bool:
         start = self.settings["section_start_" + str(section)]
@@ -50,50 +92,29 @@ class Orchtestrator(Component):
 
         return note
 
-    def process(self, interceptions: ImageProcessor.Result):
-        # set initial beam brightness
-        if self._first_iteration:
-            self._laser_array.set_all(self.settings["unplucked_beam_brightness"])
-            self._first_iteration = False
+    def on_velocity_change(self, change: Change):
+        if not isinstance(change, UpdateChange):
             return
 
-        for x in range(len(self._laser_array)):  # pylint: disable=consider-using-enumerate
-            active = bool(interceptions.active[x])
-            length = float(interceptions.length[x])
-            _modulation = float(interceptions.modulation[x])
+        if len(change.path) < 2:
+            return
+        if change.path[-2] != "velocities":
+            return
+
+        note = int(change.path[-1])
+        velocity = change.value
+
+        # send the note on or off event
+        if velocity == 0:
+            self._din_midi.send(MidiEvent(0, "note_off", note=note))
+        else:
+            self._din_midi.send(MidiEvent(0, "note_on", note=note, velocity=velocity))
+
+    def update_brightness(self):
+        for x, _ in enumerate(self._laser_array):
+            # check if any of the corresponding sections are active
+            active = any(self.state["active"][y][x] for y in range(self.NUM_SECTIONS))
 
             # set the beam brightness
-            if active and not self._prev_beam_acive[x]:
-                self._laser_array[x] = self.settings["plucked_beam_brightness"]
-            elif not active and self._prev_beam_acive[x]:
-                self._laser_array[x] = self.settings["unplucked_beam_brightness"]
-            self._prev_beam_acive[x] = active
-
-            # use the diode index x as the step position and apply the current scale
-            note_offset = self._apply_scale(x)
-
-            for y in range(self.NUM_SECTIONS):
-                note_active = active and self._is_in_section(y, length)
-
-                # skip if the note does not need to be updated
-                if self.state["active"][y][x] == note_active:
-                    continue
-
-                # calculate the midi note
-                note = self.settings["root_note"]
-                note += y * self.settings["section_octave_spacing"] * 12
-                note += note_offset
-
-                if note < 0:
-                    note = 0
-                elif note > 127:
-                    note = 127
-
-                # send the note on/off message
-                if note_active:
-                    self._din_midi.send(MidiEvent(0, "note_on", note=note, velocity=127))
-                else:
-                    self._din_midi.send(MidiEvent(0, "note_off", note=note))
-
-                # set the new state
-                self.state["active"][y][x] = note_active
+            brightness = self.settings["plucked_beam_brightness"] if active else self.settings["unplucked_beam_brightness"]
+            self._laser_array[x] = brightness
