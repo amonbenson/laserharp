@@ -162,29 +162,33 @@ RPi -> STM: 0x82 <diode_index> <unused> <unused>
 STM -> RPi: 0x82 <diode_index> <brightness> <unused>
 ```
 
-### Play Animation :x:
+### Play Animation :heavy_check_mark:
 
 ```
-RPi -> STM: 0x83 <animation_id> <follow_action> <unused>
+RPi -> STM: 0x83 <animation_id> <duration> <follow_action>
 ```
+
+Play one of the predefined animations.
 
 **Animation Ids**:<br>
-0 &ndash; Boot animation<br>
-1 &ndash; Flip animation
+0 &ndash; **Boot animation** &ndash; Played during powerup of the Raspberry Pi<br>
+1 &ndash; **Flip animation** &ndash; Played when flipping the harp view<br>
+2 &ndash; **Test animation** &ndash; Used for internal testing, alternates between diodes 4 and 5
+
+**Duration**: Given in tenths of a second. E.g. a value of 20 will play the animation for 2 seconds.
 
 **Follow Actions**:<br>
 0 &ndash; Loop the animation indefinitely<br>
 1 &ndash; Play the animation once and stop on the last frame<br>
-2 &ndash; Play the animation once and stop with all lasers off<br>
-3 &ndash; Play the animation once and stop with all lasers set to their previous brightness
+2 &ndash; Play the animation once and stop with all lasers off
 
-### Stop Animation :x:
+### Stop Animation :heavy_check_mark:
 
 ```
-RPi -> STM: 0x83 <unused> <unused> <unused>
+RPi -> STM: 0x84 <unused> <unused> <unused>
 ```
 
-Stop the current animation from playing.
+Stop the current animation from playing and execute the follow action immediately. If the follow action was set to 0 (loop indefinitely), the animation will stop and the lasers will remain in their current state.
 
 ### Firmware Version Inquiry :heavy_check_mark:
 

@@ -47,6 +47,7 @@ Core/Src/stm32f1xx_hal_msp.c \
 Core/Src/drivers/midi_usb.c \
 Core/Src/drivers/ipc.c \
 Core/Src/drivers/laser_array.c \
+Core/Src/animation.c \
 USB_DEVICE/App/usb_device.c \
 USB_DEVICE/App/usbd_desc.c \
 USB_DEVICE/Target/usbd_conf.c \
