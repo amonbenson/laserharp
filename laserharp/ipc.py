@@ -49,7 +49,6 @@ class IPCController(Component):
         if self.enabled:
             self._serial.write_timeout = timeout
             self._serial.write(data)
-            # self._serial.flush()
 
     def read_raw(self, timeout=1.0) -> bytes:
         if not self.enabled:
