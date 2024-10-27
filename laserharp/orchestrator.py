@@ -7,7 +7,7 @@ from .laser_array import LaserArray
 from .din_midi import DinMidi
 
 
-class MidiConverter(Component):
+class Orchtestrator(Component):
     NUM_SECTIONS = 3
     MAJOR_SCALE_NOTES = [0, 2, 4, 5, 7, 9, 11]
 

@@ -6,7 +6,7 @@ const COMPONENTS = [
   "app",
   "camera",
   "image_calibrator",
-  "midi_converter",
+  "orchestrator",
 ];
 
 const DEVELOPMENT = process.env.NODE_ENV === "development";

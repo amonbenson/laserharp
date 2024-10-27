@@ -13,11 +13,11 @@ const calibration = computed(() => laserharp.image_calibrator?.state?.calibratio
 const result = computed(() => laserharp.image_processor?.state?.result);
 const mountDistance = computed(() => laserharp.camera?.config?.mount_distance);
 
-const sectionStarts = computed(() => laserharp.midi_converter?.settings
+const sectionStarts = computed(() => laserharp.orchestrator?.settings
   ? [
-    laserharp.midi_converter.settings.section_start_0,
-    laserharp.midi_converter.settings.section_start_1,
-    laserharp.midi_converter.settings.section_start_2,
+    laserharp.orchestrator.settings.section_start_0,
+    laserharp.orchestrator.settings.section_start_1,
+    laserharp.orchestrator.settings.section_start_2,
   ]
   : null);
 

@@ -87,7 +87,7 @@ image_processor:
 
   modulation_gain: 15 # vibrato factor before soft-clipping (e. g. "drive")
 
-midi_converter:
+orchestrator:
   settings:
     root_note:
       type: int

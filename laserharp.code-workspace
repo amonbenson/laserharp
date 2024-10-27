@@ -33,7 +33,7 @@
 					{
 						"name": "frontend",
 						"commands": [
-							"yarn --cwd frontend dev"
+							"yarn --cwd frontend dev --host"
 						]
 					}
 				]
