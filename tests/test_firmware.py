@@ -27,7 +27,13 @@ class TestFirmware(unittest.TestCase):
         self.ipc = IPCController("ipc", self.global_state)
         self.ipc.start()
 
+        # turn off all lasers
+        self.ipc.send_raw(b"\x81\x00\x00\x00")
+
     def tearDown(self):
+        # turn off all lasers
+        self.ipc.send_raw(b"\x81\x00\x00\x00")
+
         self.ipc.stop()
         del self.ipc
 
@@ -67,7 +73,7 @@ class TestFirmware(unittest.TestCase):
         self.ipc.send_raw(b"\xf1\x00\x00\x00")
 
         # wait for the device to reboot
-        time.sleep(1)
+        time.sleep(0.2)
 
         # send any command to stop the boot animation (in this case a version inquiry)
         self.ipc.send_raw(b"\xf0\x00\x00\x00")
