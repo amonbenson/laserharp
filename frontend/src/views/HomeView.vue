@@ -9,14 +9,14 @@ const laserharp = useLaserharpStore();
 
 const numSections = ref(3);
 const numLasers = computed(() => laserharp.laser_array?.config?.size ?? 0);
-const activeArray = computed(() => laserharp.midi_converter?.state?.active?.flat() ?? []);
+const activeArray = computed(() => laserharp.orchestrator?.state?.active?.flat() ?? []);
 
-const midiConverterSettings = computed(() => laserharp.midi_converter?.settings);
+const midiConverterSettings = computed(() => laserharp.orchestrator?.settings);
 const pedalPositions = computed(() => Array(7).fill(null)
   .map((_, step) => midiConverterSettings.value?.[`pedal_position_${step}`] ?? 0));
 
 const setPedalPosition = (step, position) => {
-  api.updateSetting("midi_converter", `pedal_position_${step}`, position);
+  api.updateSetting("orchestrator", `pedal_position_${step}`, position);
 };
 
 const getX = (i) => i % numLasers.value;

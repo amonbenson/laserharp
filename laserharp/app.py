@@ -11,14 +11,14 @@ from .laser_array import LaserArray
 from .camera import Camera
 from .image_calibrator import ImageCalibrator
 from .image_processor import ImageProcessor
-from .midi_converter import MidiConverter
+from .orchestrator import Orchtestrator
 from .component import Component
 from .settings import SettingsManager
 
 
 class LaserHarpApp(Component):
     def __init__(self, config: dict):
-        self._component_names = ["app", "ipc", "din_midi", "laser_array", "camera", "image_processor", "image_calibrator", "midi_converter"]
+        self._component_names = ["app", "ipc", "din_midi", "laser_array", "camera", "image_processor", "image_calibrator", "orchestrator"]
         self._global_state = reactive({name: {"config": config[name]} for name in self._component_names})
 
         super().__init__("app", self._global_state)
@@ -34,7 +34,7 @@ class LaserHarpApp(Component):
         self.camera = Camera("camera", self._global_state)
         self.calibrator = ImageCalibrator("image_calibrator", self._global_state, self.laser_array, self.camera)
         self.processor = ImageProcessor("image_processor", self._global_state, self.laser_array, self.camera)
-        self.midi_converter = MidiConverter("midi_converter", self._global_state, self.laser_array, self.din_midi)
+        self.orchestrator = Orchtestrator("orchestrator", self._global_state, self.laser_array, self.din_midi)
 
         # setup all processing threads
         self._capture_thread = threading.Thread(target=self._capture_thread_run, daemon=True)
@@ -98,7 +98,7 @@ class LaserHarpApp(Component):
             # run a new calibration
             self.run_calibration()
 
-        # lasers will be set by the midi converter
+        # lasers will be set by the orchestrator
         # self.laser_array.set_all(127)
 
         self._status_change(["starting"], "running")
@@ -172,8 +172,8 @@ class LaserHarpApp(Component):
             # invoke the image processor
             result = self.processor.process(frame)
 
-            # invoke the midi converter
-            self.midi_converter.process(result)
+            # invoke the orchestrator
+            self.orchestrator.process(result)
 
             # # set the laser brightness
             # for i, active in enumerate(result.active):
