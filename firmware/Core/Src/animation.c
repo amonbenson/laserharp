@@ -18,7 +18,7 @@ static void boot_animation_update(laser_array_t *la, float progress) {
             brightness = LA_NUM_BRIGHTNESS_LEVELS - 1 - pos_frac;
         }
 
-        laser_array_set_brightness(la, i, brightness / 2);
+        laser_array_set_brightness(la, i, brightness);
     }
 }
 
@@ -29,18 +29,20 @@ static void flip_animation_update(laser_array_t *la, float progress) {
             brightness = LA_NUM_BRIGHTNESS_LEVELS - 1;
         }
 
-        laser_array_set_brightness(la, i, brightness / 2);
+        laser_array_set_brightness(la, i, brightness);
     }
 }
 
 static void test_animation_update(laser_array_t *la, float progress) {
     for (uint8_t i = 0; i < LA_NUM_DIODES; i++) {
         uint8_t brightness = 0;
-        if (i == (uint8_t) (progress * 10)) {
+        if (i == 4 && progress < 0.5) {
+            brightness = LA_NUM_BRIGHTNESS_LEVELS - 1;
+        } else if (i == 5 && progress >= 0.5) {
             brightness = LA_NUM_BRIGHTNESS_LEVELS - 1;
         }
 
-        laser_array_set_brightness(la, i, brightness / 2);
+        laser_array_set_brightness(la, i, brightness);
     }
 }
 
@@ -63,6 +65,7 @@ int animator_init(animator_t *animator, const animator_config_t *config) {
 
 int animator_play(animator_t *animator, uint8_t id, float duration, animation_follow_action_t follow_action) {
     if (id >= NUM_ANIMATIONS) {
+        LOG_ERROR("Invalid animation ID: %u", id);
         return 1;
     }
 
@@ -73,25 +76,24 @@ int animator_play(animator_t *animator, uint8_t id, float duration, animation_fo
     }
 
     if (follow_action >= ANIMATION_FOLLOW_ACTION_COUNT) {
+        LOG_ERROR("Invalid follow action: %u", follow_action);
         return 1;
     }
 
     // set the animation parameters
+    LOG_TRACE("Playing animation %u for %.2fs. Follow action: %u", id, duration, follow_action);
     animator->current_animation = id;
     animator->duration = duration;
     animator->follow_action = follow_action;
     animator->progress = 0.0;
     animator->playing = true;
 
-    // store the current diode brightness
-    for (uint8_t i = 0; i < LA_NUM_DIODES; i++) {
-        animator->previous_diode_brightness[i] = laser_array_get_brightness(animator->config.laser_array, i);
-    }
-
     return 0;
 }
 
 int animator_stop(animator_t *animator) {
+    LOG_TRACE("Stopping animation %u. Running follow action: %u", animator->current_animation, animator->follow_action);
+
     animator->progress = 1.0;
     animator->playing = false;
 
@@ -104,12 +106,6 @@ int animator_stop(animator_t *animator) {
             // turn off all diodes
             for (uint8_t i = 0; i < LA_NUM_DIODES; i++) {
                 laser_array_set_brightness(animator->config.laser_array, i, 0);
-            }
-            break;
-        case ANIMATION_STOP_PREVIOUS_STATE:
-            // restore the previous diode brightness
-            for (uint8_t i = 0; i < LA_NUM_DIODES; i++) {
-                laser_array_set_brightness(animator->config.laser_array, i, animator->previous_diode_brightness[i]);
             }
             break;
         default:

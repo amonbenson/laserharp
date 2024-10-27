@@ -662,25 +662,6 @@ void StartDefaultTask(void *argument) {
     animator_play(&animator, ANIMATION_BOOT, 1.5, ANIMATION_LOOP);
 
     for (;;) {
-        /* if (intro_animation_enabled) {
-            float pos = (sinf(intro_animation_progress * 2 * M_PI) * 0.3 + 0.5) * LA_NUM_DIODES;
-            uint8_t pos_int = (uint8_t) pos;
-            uint8_t pos_frac = (uint8_t) ((pos - pos_int) * LA_NUM_BRIGHTNESS_LEVELS - 1);
-
-            for (uint8_t i = 0; i < LA_NUM_DIODES; i++) {
-                uint8_t brightness = 0;
-                if (i == pos_int) {
-                    brightness = pos_frac;
-                } else if (i == pos_int - 1) {
-                    brightness = LA_NUM_BRIGHTNESS_LEVELS - 1 - pos_frac;
-                }
-
-                laser_array_set_brightness(&laser_array, i, brightness / 2);
-            }
-
-            intro_animation_progress += 0.005;
-        } */
-
         // update the animator. Assume a fixed time step of 20ms
         animator_update(&animator, 0.02);
         osDelay(20);
@@ -787,6 +768,14 @@ void StartIpcReceiveTask(void *argument) {
                         response[1] = packet[1];
                         response[2] = ipc_brightness_to_velocity(laser_array_get_brightness(&laser_array, packet[1]));
                         ipc_driver_transmit(&response);
+                        break;
+                    case 0x83: // play animation
+                        LOG_DEBUG("IPC: Play animation %d", packet[1]);
+                        animator_play(&animator, packet[1], packet[2] * 0.1f, packet[3]);
+                        break;
+                    case 0x84: // stop animation
+                        LOG_DEBUG("IPC: Stop animation");
+                        animator_stop(&animator);
                         break;
                     case 0xf0: // firmware version inquiry
                         LOG_DEBUG("IPC: Firmware version inquiry");

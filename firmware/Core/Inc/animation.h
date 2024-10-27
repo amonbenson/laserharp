@@ -17,7 +17,6 @@ typedef enum {
     ANIMATION_LOOP = 0,
     ANIMATION_STOP_LAST_FRAME,
     ANIMATION_STOP_OFF,
-    ANIMATION_STOP_PREVIOUS_STATE,
     ANIMATION_FOLLOW_ACTION_COUNT
 } animation_follow_action_t;
 
@@ -34,8 +33,6 @@ typedef struct {
 
     float progress;
     bool playing;
-
-    uint8_t previous_diode_brightness[LA_NUM_DIODES];
 } animator_t;
 
 int animator_init(animator_t *animator, const animator_config_t *config);
