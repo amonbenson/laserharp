@@ -190,6 +190,31 @@ RPi -> STM: 0x84 <unused> <unused> <unused>
 
 Stop the current animation from playing and execute the follow action immediately. If the follow action was set to 0 (loop indefinitely), the animation will stop and the lasers will remain in their current state.
 
+### Calibration Button Pressed :x:
+
+```
+STM -> RPi: 0x90 <press_type> <unused> <unused>
+```
+
+**Press Type**:<br>
+0 &ndash; Single press<br>
+1 &ndash; Long press<br>
+2 &ndash; Double press<br>
+3 &ndash; Triple press
+
+### Get Voltage :x:
+
+```
+RPi -> STM: 0x91 <00> <unused> <unused>
+STM -> RPi: 0x91 <00> <voltage_int> <voltage_frac>
+```
+
+Returns the current voltage. Currently only the Laser Diode voltage (index 0) can be measured. The result is given as a decimal number with a resolution of 0.01V and can be calculated as follows:
+
+```python
+voltage = voltage_int + voltage_frac / 100
+```
+
 ### Firmware Version Inquiry :heavy_check_mark:
 
 ```
