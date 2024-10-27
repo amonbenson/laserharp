@@ -714,6 +714,14 @@ void StartUsbReceiveTask(void *argument) {
 }
 
 /* USER CODE BEGIN Header_StartIpcReceiveTask */
+static uint8_t ipc_velocity_to_brightness(uint8_t velocity) {
+    return (uint8_t) ((uint32_t) velocity * (LA_NUM_BRIGHTNESS_LEVELS - 1) / 127);
+}
+
+static uint8_t ipc_brightness_to_velocity(uint8_t brightness) {
+    return (uint8_t) ((uint32_t) brightness * 127 / (LA_NUM_BRIGHTNESS_LEVELS - 1));
+}
+
 /**
  * @brief Function implementing the ipcReceiveTask thread.
  * @param argument: Not used
@@ -722,7 +730,7 @@ void StartUsbReceiveTask(void *argument) {
 /* USER CODE END Header_StartIpcReceiveTask */
 void StartIpcReceiveTask(void *argument) {
     /* USER CODE BEGIN StartIpcReceiveTask */
-    ipc_packet_t packet;
+    ipc_packet_t packet, response;
 
     for (;;) {
         // wait for a packet to be received
@@ -739,34 +747,51 @@ void StartIpcReceiveTask(void *argument) {
 
         uint8_t major_code = packet[0] & 0xF0;
         uint8_t code = packet[0];
+
+        // initialize response
+        response[0] = code;
+        response[1] = 0;
+        response[2] = 0;
+        response[3] = 0;
+
         switch (major_code) {
-            case 0x00: // Usb Midi Out
-                LOG_INFO("USB Midi Out not implemented");
+            case 0x00: // forward USB midi out packet
+                LOG_WARN("IPC: USB Midi Out not implemented");
                 break;
-            case 0x10: // Din Midi Out
-                LOG_INFO("Din Midi Out not implemented");
+            case 0x10: // forward DIN midi out packet
+                LOG_WARN("IPC: Din Midi Out not implemented");
                 break;
-            default: // Handle other IPC codes
+            default: // check full code
                 switch (code) {
-                    case 0x80: // Set Brightness for Single Laser
-                        laser_array_set_brightness(
-                            &laser_array, packet[1], packet[2] * (LA_NUM_BRIGHTNESS_LEVELS - 1) / 127);
+                    case 0x80: // set brightness of a single laser
+                        LOG_DEBUG("IPC: Set brightness of laser %d", packet[1]);
+                        laser_array_set_brightness(&laser_array, packet[1], ipc_velocity_to_brightness(packet[2]));
                         break;
-                    case 0x81: // Set Brightness for All Lasers
+                    case 0x81: // set brightness of multiple lasers
+                        LOG_DEBUG("IPC: Set brightness of all lasers");
                         for (uint8_t i = 0; i < LA_NUM_DIODES; i++) {
-                            laser_array_set_brightness(
-                                &laser_array, i, packet[1] * (LA_NUM_BRIGHTNESS_LEVELS - 1) / 127);
+                            laser_array_set_brightness(&laser_array, i, ipc_velocity_to_brightness(packet[1]));
                         }
                         break;
-                    case 0xf0: // Firmware Version Inquiry
-                        LOG_INFO("Firmware Version Inquiry not implemented");
+                    case 0x82: // get brightness of a single laser
+                        LOG_DEBUG("IPC: Get brightness of laser %d", packet[1]);
+                        response[1] = packet[1];
+                        response[2] = ipc_brightness_to_velocity(laser_array_get_brightness(&laser_array, packet[1]));
+                        ipc_driver_transmit(&response);
                         break;
-                    case 0xf1: // Reboot
-                        LOG_INFO("Rebooting...");
+                    case 0xf0: // firmware version inquiry
+                        LOG_DEBUG("IPC: Firmware version inquiry");
+                        response[1] = FIRMWARE_VERSION_MAJOR;
+                        response[2] = FIRMWARE_VERSION_MINOR;
+                        response[3] = FIRMWARE_VERSION_PATCH;
+                        ipc_driver_transmit(&response);
+                        break;
+                    case 0xf1: // reboot
+                        LOG_INFO("IPC: Rebooting");
                         NVIC_SystemReset();
                         break;
                     default:
-                        LOG_ERROR("Unknown IPC code: %02X", packet[0]);
+                        LOG_ERROR("IPC: Unknown command %02X", code);
                         break;
                 }
         }

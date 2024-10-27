@@ -156,6 +156,16 @@ static void _LaserArray_ApplyBrightness(laser_array_t *la, uint8_t diode_index, 
     }
 }
 
+uint8_t laser_array_get_brightness(laser_array_t *la, uint8_t diode_index) {
+    // validate the diode index
+    if (diode_index >= LA_NUM_DIODES) {
+        LOG_ERROR("Invalid diode index: %u", diode_index);
+        return 0;
+    }
+
+    return la->diodes[diode_index].current_brightness;
+}
+
 int laser_array_set_brightness(laser_array_t *la, uint8_t diode_index, uint8_t brightness) {
     // validate the diode index
     if (diode_index >= LA_NUM_DIODES) {

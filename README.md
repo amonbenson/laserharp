@@ -143,22 +143,29 @@ _Note: With the current version, Din Midi is handled directly by the Raspberry P
 
 These packets are equivalent to the USB Midi Protocol with `CN = 1`.
 
-### Set Brightness for Single Laser :heavy_check_mark:
+### Set Brightness of a Single Laser :heavy_check_mark:
 
 ```
 RPi -> STM: 0x80 <diode_index> <brightness> <unused>
 ```
 
-### Set Brightness for All Lasers :heavy_check_mark:
+### Set Brightness of All Lasers :heavy_check_mark:
 
 ```
 RPi -> STM: 0x81 <brightness> <unused> <unused>
 ```
 
+### Get Brightness of a Single Laser :heavy_check_mark:
+
+```
+RPi -> STM: 0x82 <diode_index> <unused> <unused>
+STM -> RPi: 0x82 <diode_index> <brightness> <unused>
+```
+
 ### Play Animation :x:
 
 ```
-RPi -> STM: 0x82 <animation_id> <follow_action> <unused>
+RPi -> STM: 0x83 <animation_id> <follow_action> <unused>
 ```
 
 **Animation Ids**:<br>
@@ -179,14 +186,14 @@ RPi -> STM: 0x83 <unused> <unused> <unused>
 
 Stop the current animation from playing.
 
-### Firmware Version Inquiry :x:
+### Firmware Version Inquiry :heavy_check_mark:
 
 ```
 RPi -> STM: 0xf0 <unused> <unused> <unused>
 STM -> RPi: 0xf0 <major> <minor> <patch>
 ```
 
-### Reboot STM :x:
+### Reboot STM :heavy_check_mark:
 
 ```
 RPi -> STM: 0xf1 <unused> <unused> <unused>
