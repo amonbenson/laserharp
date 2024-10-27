@@ -31,7 +31,8 @@ class TestFirmware(unittest.TestCase):
         self.ipc.send_raw(b"\x81\x00\x00\x00")
 
     def tearDown(self):
-        # turn off all lasers
+        # stop animations and turn off all lasers
+        self.ipc.send_raw(b"\x83\x00\x00\x00")
         self.ipc.send_raw(b"\x81\x00\x00\x00")
 
         self.ipc.stop()
@@ -82,6 +83,61 @@ class TestFirmware(unittest.TestCase):
         # get the brightness of diode 4. After a reboot it should be 0%
         self.ipc.send_raw(b"\x82\x04\x00\x00")
         self.assertEqual(self.ipc.read_raw(), b"\x82\x04\x00\x00")
+
+    def test_animation_loop(self):
+        # start the test animation at 1s duration. This toggle between diodes 4 and 5 every 500ms
+        self.ipc.send_raw(b"\x83\x02\x0a\x00")
+
+        # check if the first frame is correct
+        time.sleep(0.05)
+        self.ipc.send_raw(b"\x82\x04\x00\x00")
+        self.assertEqual(self.ipc.read_raw(), b"\x82\x04\x7f\x00")
+
+        self.ipc.send_raw(b"\x82\x05\x00\x00")
+        self.assertEqual(self.ipc.read_raw(), b"\x82\x05\x00\x00")
+
+        # check if the second frame is correct
+        time.sleep(0.5)
+        self.ipc.send_raw(b"\x82\x04\x00\x00")
+        self.assertEqual(self.ipc.read_raw(), b"\x82\x04\x00\x00")
+
+        self.ipc.send_raw(b"\x82\x05\x00\x00")
+        self.assertEqual(self.ipc.read_raw(), b"\x82\x05\x7f\x00")
+
+        # check if the animation loops after one second
+        time.sleep(0.5)
+        self.ipc.send_raw(b"\x82\x04\x00\x00")
+        self.assertEqual(self.ipc.read_raw(), b"\x82\x04\x7f\x00")
+
+        self.ipc.send_raw(b"\x82\x05\x00\x00")
+        self.assertEqual(self.ipc.read_raw(), b"\x82\x05\x00\x00")
+
+    def test_animation_stop(self):
+        # set all lasers to 100% brightness
+        self.ipc.send_raw(b"\x81\x7f\x00\x00")  # turn on all lasers
+
+        # start the test animation at 0.1s duration with follow action 1 (stop last frame)
+        self.ipc.send_raw(b"\x83\x02\x01\x01")  # start the animation
+
+        # check if the last frame is still displayed when the animation stops (diode 5 is on)
+        time.sleep(0.2)
+        self.ipc.send_raw(b"\x82\x04\x00\x00")
+        self.assertEqual(self.ipc.read_raw(), b"\x82\x04\x00\x00")
+
+        self.ipc.send_raw(b"\x82\x05\x00\x00")
+        self.assertEqual(self.ipc.read_raw(), b"\x82\x05\x7f\x00")
+
+        # now start the animation with follow action 2 (turn off all lasers)
+        self.ipc.send_raw(b"\x81\x7f\x00\x00")  # turn on all lasers
+        self.ipc.send_raw(b"\x83\x02\x01\x02")  # start the animation
+
+        # check if all lasers are off
+        time.sleep(0.2)
+        self.ipc.send_raw(b"\x82\x04\x00\x00")
+        self.assertEqual(self.ipc.read_raw(), b"\x82\x04\x00\x00")
+
+        self.ipc.send_raw(b"\x82\x05\x00\x00")
+        self.assertEqual(self.ipc.read_raw(), b"\x82\x05\x00\x00")
 
 
 if __name__ == "__main__":
