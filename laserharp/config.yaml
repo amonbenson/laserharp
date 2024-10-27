@@ -94,6 +94,10 @@ orchestrator:
       range: [0, 127]
       default: 48
 
+    flipped:
+      type: bool
+      default: false
+
     section_octave_spacing:
       type: int
       range: [0, 4]

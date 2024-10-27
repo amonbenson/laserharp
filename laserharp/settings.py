@@ -118,11 +118,33 @@ class StrSetting(Setting[str]):
         return True, value
 
 
+class BoolSetting(Setting[bool]):
+    def __init__(self, key: str, target: ReactiveNode, desc: dict[str, Any]):
+        super().__init__(key, target, desc)
+
+        # parse the description
+        self._default_value = bool(desc.get("default", False))
+
+        # set the initial value
+        self.set_value(self._default_value)
+
+    def validate(self, value: Any):
+        if isinstance(value, bool):
+            return True, value
+        if isinstance(value, str):
+            return True, value.lower() in ["true", "1", "yes"]
+        if isinstance(value, int):
+            return True, value != 0
+        else:
+            return False, None
+
+
 class SettingsManager:
     SETTING_CLASSES = {
         "int": IntSetting,
         "float": FloatSetting,
         "str": StrSetting,
+        "bool": BoolSetting,
     }
 
     def __init__(self, global_state: ReactiveDictNode):
@@ -164,7 +186,10 @@ class SettingsManager:
 
                 # fetch the initial value from the store
                 if value := self._store.fetch_setting(component + "." + key):
-                    self._settings[component + "." + key].set_value(value)
+                    try:
+                        self._settings[component + "." + key].set_value(value)
+                    except ValueError:
+                        logging.error(f"Invalid value '{value}' for setting '{component}.{key}'")
 
                 # when the target value changes, update the store
                 watch(target, lambda change, _component=component, _key=key: self._store.update_setting(_component + "." + _key, change.value))
