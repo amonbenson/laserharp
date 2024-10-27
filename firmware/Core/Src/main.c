@@ -663,7 +663,7 @@ void StartDefaultTask(void *argument) {
     }
 
     // play the boot animation
-    animator_play(&animator, ANIMATION_BOOT, 1.5, ANIMATION_LOOP);
+    animator_play(&animator, ANIMATION_BOOT, 5.0, ANIMATION_LOOP);
 
     for (;;) {
         // update the animator. Assume a fixed time step of 20ms

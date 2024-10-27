@@ -5,19 +5,27 @@
 #define M_PI 3.14159265358979323846
 #endif
 
+// static void boot_animation_update(laser_array_t *la, float progress) {
+//     float pos = (sinf(progress * 2 * M_PI) * 0.3 + 0.5) * LA_NUM_DIODES + 0.5;
+//     uint8_t pos_int = (uint8_t) pos;
+//     uint8_t pos_frac = (uint8_t) ((pos - pos_int) * LA_NUM_BRIGHTNESS_LEVELS - 1);
+
+//     for (uint8_t i = 0; i < LA_NUM_DIODES; i++) {
+//         uint8_t brightness = 0;
+//         if (i == pos_int) {
+//             brightness = pos_frac;
+//         } else if (i == pos_int - 1) {
+//             brightness = LA_NUM_BRIGHTNESS_LEVELS - 1 - pos_frac;
+//         }
+
+//         laser_array_set_brightness(la, i, brightness);
+//     }
+// }
+
 static void boot_animation_update(laser_array_t *la, float progress) {
-    float pos = (sinf(progress * 2 * M_PI) * 0.3 + 0.5) * LA_NUM_DIODES;
-    uint8_t pos_int = (uint8_t) pos;
-    uint8_t pos_frac = (uint8_t) ((pos - pos_int) * LA_NUM_BRIGHTNESS_LEVELS - 1);
-
     for (uint8_t i = 0; i < LA_NUM_DIODES; i++) {
-        uint8_t brightness = 0;
-        if (i == pos_int) {
-            brightness = pos_frac;
-        } else if (i == pos_int - 1) {
-            brightness = LA_NUM_BRIGHTNESS_LEVELS - 1 - pos_frac;
-        }
-
+        float perc = fmodf(i * 0.61803398875 + progress, 1.0);
+        uint8_t brightness = (uint8_t) ((1.0 - fmin(perc * 3.0, 1.0)) * LA_NUM_BRIGHTNESS_LEVELS - 1);
         laser_array_set_brightness(la, i, brightness);
     }
 }
