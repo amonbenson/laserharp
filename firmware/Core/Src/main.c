@@ -132,8 +132,12 @@ int _write(int file, char *ptr, int len) {
     return len;
 }
 
-void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size) {
-    ipc_driver_HAL_UARTEx_RxEventCallback(huart, Size);
+// void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size) {
+//     ipc_driver_HAL_UARTEx_RxEventCallback(huart, Size);
+// }
+
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
+    ipc_driver_HAL_UART_RxCpltCallback(huart);
 }
 /* USER CODE END 0 */
 

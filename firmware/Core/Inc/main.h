@@ -31,8 +31,6 @@ extern "C" {
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#define LOG_GLOBAL_LEVEL LOG_LEVEL_TRACE
-#define LOG_USE_COLOR 1
 #include "log.h"
 /* USER CODE END Includes */
 

@@ -20,4 +20,6 @@ void ipc_driver_init(UART_HandleTypeDef *huart, osMessageQueueId_t rx_queue);
 
 void ipc_driver_transmit(ipc_packet_t *packet);
 
-void ipc_driver_HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size);
+// void ipc_driver_HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size);
+
+void ipc_driver_HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart);
