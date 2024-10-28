@@ -1,6 +1,9 @@
 <script setup>
 import { computed, watch, inject } from "vue";
 import { useLaserharpStore } from "@/stores/laserharp";
+import TextField from "@/components/ui/TextField.vue";
+import NumberField from "@/components/ui/NumberField.vue";
+import ToggleSwitchField from "@/components/ui/ToggleSwitchField.vue";
 
 const COMPONENTS = [
   "app",
@@ -61,13 +64,40 @@ const updateSetting = (componentKey, key, value) => {
         >
           {{ name }}
         </label>
-        <input
+        <!-- <input
           :id="`${componentKey}.${key}`"
           :value="value"
           :disabled="!(description.client_writable ?? true)"
           class="flex-grow w-full"
           @input="updateSetting(componentKey, key, $event.target.value)"
-        >
+        > -->
+        <NumberField
+          v-if="['int', 'float'].includes(description.type)"
+          :id="`${componentKey}.${key}`"
+          :model-value="value"
+          :disabled="!(description.client_writable ?? true)"
+          :min="description.range[0]"
+          :max="description.range[1]"
+          :step="description.step ?? (description.type === 'int' ? 1 : 0.1)"
+          class="flex-grow w-full"
+          @update:model-value="updateSetting(componentKey, key, $event)"
+        />
+        <ToggleSwitchField
+          v-else-if="description.type === 'bool'"
+          :id="`${componentKey}.${key}`"
+          :model-value="value"
+          :disabled="!(description.client_writable ?? true)"
+          class="flex-grow w-full"
+          @update:model-value="updateSetting(componentKey, key, $event)"
+        />
+        <TextField
+          v-else
+          :id="`${componentKey}.${key}`"
+          :model-value="value"
+          :disabled="!(description.client_writable ?? true)"
+          class="flex-grow w-full"
+          @update:model-value="updateSetting(componentKey, key, $event)"
+        />
       </div>
     </div>
   </div>
