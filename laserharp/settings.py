@@ -22,8 +22,11 @@ class Setting(ABC, Generic[T]):
         return self._key
 
     @abstractmethod
-    def validate(self, value: Any) -> (bool, Optional[T]):
+    def validate(self, value: Any) -> tuple[bool, Optional[T]]:
         pass
+
+    def __str__(self) -> str:
+        return str(self.get_value())
 
     def set_value(self, value: Any, *, role: SettingRole = "server"):
         # check permissions
@@ -138,6 +141,9 @@ class BoolSetting(Setting[bool]):
         else:
             return False, None
 
+    def __str__(self) -> str:
+        return "true" if self.get_value() else "false"
+
 
 class SettingsManager:
     SETTING_CLASSES = {
@@ -179,20 +185,31 @@ class SettingsManager:
                     raise ValueError(f"Setting type '{setting_type}' for '{key}' in '{component}' is not supported")
 
                 # create the setting
-                setting_class = self.SETTING_CLASSES[setting_type]
-
                 logging.debug(f"Creating setting '{component}.{key}' of type '{setting_type}'")
+                setting_class = self.SETTING_CLASSES[setting_type]
                 self._settings[component + "." + key] = setting_class(key, target, desc)
 
                 # fetch the initial value from the store
-                if value := self._store.fetch_setting(component + "." + key):
-                    try:
-                        self._settings[component + "." + key].set_value(value)
-                    except ValueError:
-                        logging.error(f"Invalid value '{value}' for setting '{component}.{key}'")
+                self._fetch_store(component, key)
 
                 # when the target value changes, update the store
-                watch(target, lambda change, _component=component, _key=key: self._store.update_setting(_component + "." + _key, change.value))
+                watch(target, lambda _, _component=component, _key=key: self._update_store(_component, _key))
+
+    def _fetch_store(self, component: str, key: str):
+        value = self._store.fetch_setting(component + "." + key)
+        if value is None:
+            return
+
+        try:
+            logging.debug(f"Setting initial value '{value}' for setting '{component}.{key}'")
+            self.get(component, key).set_value(value)
+        except ValueError:
+            logging.error(f"Failed to set initial value '{value}' for setting '{component}.{key}'")
+
+    def _update_store(self, component: str, key: str):
+        setting = self.get(component, key)
+        logging.debug(f"Updating store for setting '{component}.{key}' to '{setting.get_value()}'")
+        self._store.update_setting(component + "." + key, str(setting.get_value()))
 
     def has(self, component: str, key: str) -> bool:
         return component + "." + key in self._settings
@@ -207,4 +224,4 @@ class SettingsManager:
 
         # update the store value
         # TODO: use a perci QueueWatcher to update the store in the background
-        self._store.update_setting(component + "." + key, value)
+        # self._store.update_setting(component + "." + key, str(value))

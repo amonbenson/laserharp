@@ -109,10 +109,7 @@ def create_backend(laserharp: LaserHarpApp) -> tuple[Flask, callable]:
                     if frame is None:
                         continue
 
-                    yield (
-                        b"--frame\r\n"
-                        b"Content-Type: image/jpeg\r\n\r\n" + frame + b"\r\n\r\n"
-                    )
+                    yield (b"--frame\r\n" b"Content-Type: image/jpeg\r\n\r\n" + frame + b"\r\n\r\n")
 
         return Response(generate(), mimetype="multipart/x-mixed-replace; boundary=frame")
 
