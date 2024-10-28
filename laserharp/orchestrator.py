@@ -24,6 +24,7 @@ class Orchtestrator(Component):
         self.state["velocities"] = [0] * 128
 
         watch(self.state["velocities"], self.on_velocity_change)
+        watch(self.settings.get_child("flipped"), lambda x: print(x))
 
     def start(self):
         pass

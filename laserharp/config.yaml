@@ -1,5 +1,5 @@
 app:
-  log_level: INFO # DEBUG, INFO, WARNING, ERROR
+  log_level: DEBUG # DEBUG, INFO, WARNING, ERROR
 
   save_debug_images: false # save camera visualization images when calibrating
   generate_debug_intersections: true # generate random intersections when the camera is disabled
