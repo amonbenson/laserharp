@@ -178,9 +178,10 @@ Play one of the predefined animations.
 **Duration**: Given in tenths of a second. E.g. a value of 20 will play the animation for 2 seconds.
 
 **Follow Actions**:<br>
-0 &ndash; Loop the animation indefinitely<br>
-1 &ndash; Play the animation once and stop on the last frame<br>
-2 &ndash; Play the animation once and stop with all lasers off
+0 &ndash; **Loop** &ndash; Loop the animation indefinitely<br>
+1 &ndash; **Freeze** &ndash; Play the animation once and stop on the last frame<br>
+2 &ndash; **Off** &ndash; Play the animation once and stop with all lasers off<br>
+3 &ndash; **Restore** &ndash; Play the animation once and restore the laser brightnesses
 
 ### Stop Animation :heavy_check_mark:
 

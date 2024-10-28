@@ -1,3 +1,4 @@
+import time
 from typing import Optional
 import numpy as np
 from perci import ReactiveDictNode, watch
@@ -23,8 +24,8 @@ class Orchtestrator(Component):
         self.state["active"] = [[False] * len(self._laser_array) for _ in range(self.NUM_SECTIONS)]
         self.state["velocities"] = [0] * 128
 
-        watch(self.state["velocities"], self.on_velocity_change)
-        watch(self.settings.get_child("flipped"), lambda x: print(x))
+        watch(self.state["velocities"], lambda change: self._send_note_message(int(change.path[-1]), change.value))
+        watch(self.settings.get_child("flipped"), lambda change: self._on_flipped(change.value))
 
     def start(self):
         pass
@@ -95,23 +96,15 @@ class Orchtestrator(Component):
 
         return note
 
-    def on_velocity_change(self, change: Change):
-        if not isinstance(change, UpdateChange):
-            return
-
-        if len(change.path) < 2:
-            return
-        if change.path[-2] != "velocities":
-            return
-
-        note = int(change.path[-1])
-        velocity = change.value
-
-        # send the note on or off event
+    def _send_note_message(self, note: int, velocity: int):
         if velocity == 0:
             self._din_midi.send(MidiEvent(0, "note_off", note=note))
         else:
             self._din_midi.send(MidiEvent(0, "note_on", note=note, velocity=velocity))
+
+    def _on_flipped(self, _: bool):
+        # play flip animation
+        self._laser_array.play_animation("flip", 0.5, "restore")
 
     def update_brightness(self):
         for x, _ in enumerate(self._laser_array):
