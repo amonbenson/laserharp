@@ -5,6 +5,10 @@
 #define M_PI 3.14159265358979323846
 #endif
 
+#ifndef max
+#define max(a, b) ((a) > (b) ? (a) : (b))
+#endif
+
 // static void boot_animation_update(laser_array_t *la, float progress) {
 //     float pos = (sinf(progress * 2 * M_PI) * 0.3 + 0.5) * LA_NUM_DIODES + 0.5;
 //     uint8_t pos_int = (uint8_t) pos;
@@ -31,13 +35,27 @@ static void boot_animation_update(laser_array_t *la, float progress) {
 }
 
 static void flip_animation_update(laser_array_t *la, float progress) {
+    float pos = progress * (LA_NUM_DIODES - 1);
+    uint8_t pos_int = (uint8_t) pos;
+    uint8_t pos_frac = (uint8_t) ((pos - pos_int) * LA_NUM_BRIGHTNESS_LEVELS - 1);
+    uint8_t pos_frac_inv = LA_NUM_BRIGHTNESS_LEVELS - 1 - pos_frac;
+
     for (uint8_t i = 0; i < LA_NUM_DIODES; i++) {
         uint8_t brightness = 0;
-        if (i == (uint8_t) (progress * LA_NUM_DIODES)) {
-            brightness = LA_NUM_BRIGHTNESS_LEVELS - 1;
+        if (i == pos_int || i == LA_NUM_DIODES - pos_int - 3) {
+            brightness = pos_frac;
+        }
+        if (i == pos_int - 1 || i == LA_NUM_DIODES - pos_int - 2) {
+            brightness = max(pos_frac_inv, brightness);
+        }
+        if ((i == pos_int - 2 || i == LA_NUM_DIODES - pos_int - 1) && progress < 0.5) {
+            brightness = 0;
+            laser_array_set_brightness(la, i, 0);
         }
 
-        laser_array_set_brightness(la, i, brightness);
+        if (brightness > 0 || progress >= 0.5) {
+            laser_array_set_brightness(la, i, brightness);
+        }
     }
 }
 
@@ -67,6 +85,7 @@ int animator_init(animator_t *animator, const animator_config_t *config) {
     animator->follow_action = ANIMATION_LOOP;
     animator->progress = 0.0;
     animator->playing = false;
+    animator->restore_required = false;
 
     return 0;
 }
@@ -106,7 +125,7 @@ int animator_stop(animator_t *animator) {
     animator->playing = false;
 
     switch (animator->follow_action) {
-        case ANIMATION_STOP_LAST_FRAME:
+        case ANIMATION_STOP_FREEZE:
             // run the last frame of the animation
             animation_update_fns[animator->current_animation](animator->config.laser_array, 1.0);
             break;
@@ -116,6 +135,9 @@ int animator_stop(animator_t *animator) {
                 laser_array_set_brightness(animator->config.laser_array, i, 0);
             }
             break;
+        case ANIMATION_STOP_RESTORE:
+            // set the restore flag
+            animator->restore_required = true;
         default:
             break;
     }
@@ -124,6 +146,9 @@ int animator_stop(animator_t *animator) {
 }
 
 int animator_update(animator_t *animator, float dt) {
+    // reset restore flag
+    animator->restore_required = false;
+
     if (!animator->playing) {
         return 0;
     }
@@ -171,4 +196,8 @@ float animator_get_progress(animator_t *animator) {
 
 bool animator_is_playing(animator_t *animator) {
     return animator->playing;
+}
+
+bool animator_is_restore_required(animator_t *animator) {
+    return animator->restore_required;
 }

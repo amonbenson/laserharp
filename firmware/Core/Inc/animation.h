@@ -15,8 +15,9 @@ typedef void (*animation_update_fn_t)(laser_array_t *la, float progress);
 
 typedef enum {
     ANIMATION_LOOP = 0,
-    ANIMATION_STOP_LAST_FRAME,
+    ANIMATION_STOP_FREEZE,
     ANIMATION_STOP_OFF,
+    ANIMATION_STOP_RESTORE,
     ANIMATION_FOLLOW_ACTION_COUNT
 } animation_follow_action_t;
 
@@ -33,6 +34,7 @@ typedef struct {
 
     float progress;
     bool playing;
+    bool restore_required;
 } animator_t;
 
 int animator_init(animator_t *animator, const animator_config_t *config);
@@ -46,3 +48,4 @@ float animator_get_duration(animator_t *animator);
 animation_follow_action_t animator_get_follow_action(animator_t *animator);
 float animator_get_progress(animator_t *animator);
 bool animator_is_playing(animator_t *animator);
+bool animator_is_restore_required(animator_t *animator);

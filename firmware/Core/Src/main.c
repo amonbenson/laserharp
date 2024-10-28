@@ -99,6 +99,8 @@ const osEventFlagsAttr_t globalStatus_attributes = { .name = "globalStatus" };
 /* USER CODE BEGIN PV */
 laser_array_t laser_array;
 animator_t animator;
+
+uint8_t stored_brightness[LA_NUM_DIODES];
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -668,6 +670,15 @@ void StartDefaultTask(void *argument) {
     for (;;) {
         // update the animator. Assume a fixed time step of 20ms
         animator_update(&animator, 0.02);
+
+        // check if we need to restore the stored brightness values. This will happen at the end of an animation if the
+        // follow_action was set to ANIMATION_STOP_RESTORE
+        if (animator_is_restore_required(&animator)) {
+            for (uint8_t i = 0; i < LA_NUM_DIODES; i++) {
+                laser_array_set_brightness(&laser_array, i, stored_brightness[i]);
+            }
+        }
+
         osDelay(20);
     }
     /* USER CODE END 5 */
@@ -759,12 +770,41 @@ void StartIpcReceiveTask(void *argument) {
                 switch (code) {
                     case 0x80: // set brightness of a single laser
                         LOG_DEBUG("IPC: Set brightness of laser %d", packet[1]);
-                        laser_array_set_brightness(&laser_array, packet[1], ipc_velocity_to_brightness(packet[2]));
+
+                        // validate the parameters
+                        if (packet[1] >= LA_NUM_DIODES) {
+                            LOG_ERROR("IPC: Invalid laser number %d", packet[1]);
+                            break;
+                        }
+                        if (packet[2] > 127) {
+                            LOG_ERROR("IPC: Invalid brightness %d", packet[2]);
+                            break;
+                        }
+
+                        // update the laser diode only if the animator is not playing
+                        if (!animator_is_playing(&animator)) {
+                            laser_array_set_brightness(&laser_array, packet[1], ipc_velocity_to_brightness(packet[2]));
+                        }
+
+                        // store the brightness value
+                        stored_brightness[packet[1]] = packet[2];
                         break;
                     case 0x81: // set brightness of multiple lasers
                         LOG_DEBUG("IPC: Set brightness of all lasers");
+
+                        // validate the parameters
+                        if (packet[1] > 127) {
+                            LOG_ERROR("IPC: Invalid brightness %d", packet[1]);
+                            break;
+                        }
+
+                        // update all laser diodes at once. Again, skip if the animator is playing
                         for (uint8_t i = 0; i < LA_NUM_DIODES; i++) {
-                            laser_array_set_brightness(&laser_array, i, ipc_velocity_to_brightness(packet[1]));
+                            if (!animator_is_playing(&animator)) {
+                                laser_array_set_brightness(&laser_array, i, ipc_velocity_to_brightness(packet[1]));
+                            }
+
+                            stored_brightness[i] = packet[1];
                         }
                         break;
                     case 0x82: // get brightness of a single laser
