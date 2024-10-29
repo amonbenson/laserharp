@@ -44,7 +44,7 @@ class Orchtestrator(Component):
 
         # iterate over each section and calculate the corresponding midi note and velocity
         for x, _ in enumerate(self._laser_array):
-            beam_x = x if self.settings["flipped"] else len(self._laser_array) - x - 1
+            beam_x = len(self._laser_array) - x - 1 if self.settings["flipped"] else x
 
             active = bool(interceptions.active[beam_x])
             length = float(interceptions.length[beam_x])
@@ -108,7 +108,7 @@ class Orchtestrator(Component):
 
     def update_brightness(self):
         for x, _ in enumerate(self._laser_array):
-            beam_x = x if self.settings["flipped"] else len(self._laser_array) - x - 1
+            beam_x = len(self._laser_array) - x - 1 if self.settings["flipped"] else x
 
             # check if any of the corresponding sections are active
             active = any(self.state["active"][y][x] for y in range(self.NUM_SECTIONS))
