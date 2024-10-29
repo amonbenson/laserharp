@@ -108,7 +108,7 @@ int animator_play(animator_t *animator, uint8_t id, float duration, animation_fo
     }
 
     // set the animation parameters
-    LOG_TRACE("Playing animation %u for %.2fs. Follow action: %u", id, duration, follow_action);
+    LOG_TRACE("Playing animation %u for %d ms with follow action %u", id, (int) (duration * 1000), follow_action);
     animator->current_animation = id;
     animator->duration = duration;
     animator->follow_action = follow_action;
@@ -125,6 +125,9 @@ int animator_stop(animator_t *animator) {
     animator->playing = false;
 
     switch (animator->follow_action) {
+        case ANIMATION_LOOP:
+            // if we land here, the animation was probably stopped manually so don't do anything
+            break;
         case ANIMATION_STOP_FREEZE:
             // run the last frame of the animation
             animation_update_fns[animator->current_animation](animator->config.laser_array, 1.0);

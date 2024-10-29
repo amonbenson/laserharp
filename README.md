@@ -146,14 +146,18 @@ These packets are equivalent to the USB Midi Protocol with `CN = 1`.
 ### Set Brightness of a Single Laser :heavy_check_mark:
 
 ```
-RPi -> STM: 0x80 <diode_index> <brightness> <unused>
+RPi -> STM: 0x80 <diode_index> <brightness> <fade_duration>
 ```
+
+Set the brightness of a single laser diode. The fade duration is given in tenths of a second. E.g. a value of 20 will fade the laser to the new brightness over 2 seconds. A duration of 0 will set the brightness immediately.
 
 ### Set Brightness of All Lasers :heavy_check_mark:
 
 ```
-RPi -> STM: 0x81 <brightness> <unused> <unused>
+RPi -> STM: 0x81 <brightness> <fade_duration> <unused>
 ```
+
+Set the brightness of all laser diodes. The fade duration is given in tenths of a second. E.g. a value of 20 will fade the lasers to the new brightness over 2 seconds. A duration of 0 will set the brightness immediately.
 
 ### Get Brightness of a Single Laser :heavy_check_mark:
 

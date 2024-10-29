@@ -245,7 +245,7 @@ int main(void) {
     };
     laser_array_init(&laser_array, &laser_array_config);
 
-    // initialize animator
+    // initialize animator (note: the boot animation is started in the default task)
     const animator_config_t animator_config = {
         .laser_array = &laser_array,
     };
@@ -783,7 +783,13 @@ void StartIpcReceiveTask(void *argument) {
 
                         // update the laser diode only if the animator is not playing
                         if (!animator_is_playing(&animator)) {
-                            laser_array_set_brightness(&laser_array, packet[1], ipc_velocity_to_brightness(packet[2]));
+                            if (packet[3] == 0) {
+                                laser_array_set_brightness(
+                                    &laser_array, packet[1], ipc_velocity_to_brightness(packet[2]));
+                            } else {
+                                laser_array_fade_brightness(&laser_array, packet[1],
+                                    ipc_velocity_to_brightness(packet[2]), (uint32_t) packet[3] * 100);
+                            }
                         }
 
                         // store the brightness value
@@ -801,7 +807,12 @@ void StartIpcReceiveTask(void *argument) {
                         // update all laser diodes at once. Again, skip if the animator is playing
                         for (uint8_t i = 0; i < LA_NUM_DIODES; i++) {
                             if (!animator_is_playing(&animator)) {
-                                laser_array_set_brightness(&laser_array, i, ipc_velocity_to_brightness(packet[1]));
+                                if (packet[2] == 0) {
+                                    laser_array_set_brightness(&laser_array, i, ipc_velocity_to_brightness(packet[1]));
+                                } else {
+                                    laser_array_fade_brightness(&laser_array, i, ipc_velocity_to_brightness(packet[1]),
+                                        (uint32_t) packet[2] * 100);
+                                }
                             }
 
                             stored_brightness[i] = packet[1];
