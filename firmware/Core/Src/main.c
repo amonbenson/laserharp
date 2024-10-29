@@ -68,21 +68,28 @@ osThreadId_t defaultTaskHandle;
 const osThreadAttr_t defaultTask_attributes = {
     .name = "defaultTask",
     .stack_size = 256 * 4,
-    .priority = (osPriority_t) osPriorityLow,
+    .priority = (osPriority_t) osPriorityBelowNormal,
 };
 /* Definitions for usbReceiveTask */
 osThreadId_t usbReceiveTaskHandle;
 const osThreadAttr_t usbReceiveTask_attributes = {
     .name = "usbReceiveTask",
     .stack_size = 128 * 4,
-    .priority = (osPriority_t) osPriorityLow,
+    .priority = (osPriority_t) osPriorityNormal,
 };
 /* Definitions for ipcReceiveTask */
 osThreadId_t ipcReceiveTaskHandle;
 const osThreadAttr_t ipcReceiveTask_attributes = {
     .name = "ipcReceiveTask",
     .stack_size = 128 * 4,
-    .priority = (osPriority_t) osPriorityLow,
+    .priority = (osPriority_t) osPriorityNormal,
+};
+/* Definitions for buttonTask */
+osThreadId_t buttonTaskHandle;
+const osThreadAttr_t buttonTask_attributes = {
+    .name = "buttonTask",
+    .stack_size = 128 * 4,
+    .priority = (osPriority_t) osPriorityBelowNormal,
 };
 /* Definitions for usbRxData */
 osMessageQueueId_t usbRxDataHandle;
@@ -118,6 +125,7 @@ static void MX_ADC1_Init(void);
 void StartDefaultTask(void *argument);
 void StartUsbReceiveTask(void *argument);
 void StartIpcReceiveTask(void *argument);
+void StartButtonTask(void *argument);
 
 /* USER CODE BEGIN PFP */
 int _write(int file, char *ptr, int len);
@@ -222,6 +230,9 @@ int main(void) {
 
     /* creation of ipcReceiveTask */
     ipcReceiveTaskHandle = osThreadNew(StartIpcReceiveTask, NULL, &ipcReceiveTask_attributes);
+
+    /* creation of buttonTask */
+    buttonTaskHandle = osThreadNew(StartButtonTask, NULL, &buttonTask_attributes);
 
     /* USER CODE BEGIN RTOS_THREADS */
     /* add threads, ... */
@@ -850,6 +861,111 @@ void StartIpcReceiveTask(void *argument) {
         }
     }
     /* USER CODE END StartIpcReceiveTask */
+}
+
+/* USER CODE BEGIN Header_StartButtonTask */
+/**
+ * @brief Function implementing the buttonTask thread.
+ * @param argument: Not used
+ * @retval None
+ */
+/* USER CODE END Header_StartButtonTask */
+static bool is_btn_cal_pressed(void) {
+    return HAL_GPIO_ReadPin(BTN_CAL_GPIO_Port, BTN_CAL_Pin) == GPIO_PIN_RESET;
+}
+
+#define BTN_NONE 0
+#define BTN_SHORT_PRESS 1
+#define BTN_LONG_PRESS 2
+
+#define BTN_STATES 3
+
+void StartButtonTask(void *argument) {
+    /* USER CODE BEGIN StartButtonTask */
+    uint32_t num_states = 3;
+    uint8_t btn_pattern[3];
+
+    /* Infinite loop */
+    for (;;) {
+        // reset the button pattern
+        for (uint32_t i = 0; i < num_states; i++) {
+            btn_pattern[i] = BTN_NONE;
+        }
+
+        for (uint32_t i = 0; i < num_states; i++) {
+            // wait until button is pressed
+            while (!is_btn_cal_pressed()) {
+                osDelay(20);
+            }
+
+            // wait if the button gets released within the duration of a short press
+            bool released = false;
+            for (int i = 0; i < BTN_CAL_SHORT_PRESS_DURATION / 20; i++) {
+                osDelay(20);
+                if (!is_btn_cal_pressed()) {
+                    released = true;
+                    break;
+                }
+            }
+
+            // register the button press
+            if (released) {
+                btn_pattern[i] = BTN_SHORT_PRESS;
+            } else {
+                btn_pattern[i] = BTN_LONG_PRESS;
+
+                // // wait until the button is released
+                // while (is_btn_cal_pressed()) {
+                //     osDelay(20);
+                // }
+
+                // break the outer loop as a long press ends the sequence
+                break;
+            }
+
+            // check if the button gets pressed again within the duration of a short press
+            bool pressed_again = false;
+            for (int i = 0; i < BTN_CAL_SHORT_PRESS_DURATION / 20; i++) {
+                osDelay(20);
+                if (is_btn_cal_pressed()) {
+                    pressed_again = true;
+                    break;
+                }
+            }
+
+            // if the button was not pressed again, break the outer loop
+            if (!pressed_again) {
+                break;
+            }
+        }
+
+        // send the button pattern to the ipc
+        LOG_TRACE("Button pattern: %d %d %d", btn_pattern[0], btn_pattern[1], btn_pattern[2]);
+        ipc_packet_t packet = { 0 };
+        packet[0] = 0x90;
+        packet[1] = btn_pattern[0];
+        packet[2] = btn_pattern[1];
+        packet[3] = btn_pattern[2];
+        ipc_driver_transmit(&packet);
+
+        // wait until button is released for at least the duration of a short press
+        bool released = false;
+        int i = 0;
+        while (!released) {
+            osDelay(20);
+
+            if (!is_btn_cal_pressed()) {
+                i++;
+            } else {
+                i = 0;
+            }
+
+            if (i >= BTN_CAL_SHORT_PRESS_DURATION / 20) {
+                released = true;
+            }
+        }
+    }
+    /* USER CODE END StartButtonTask */
 }
 
 /**

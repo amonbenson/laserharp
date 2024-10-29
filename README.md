@@ -195,17 +195,18 @@ RPi -> STM: 0x84 <unused> <unused> <unused>
 
 Stop the current animation from playing and execute the follow action immediately. If the follow action was set to 0 (loop indefinitely), the animation will stop and the lasers will remain in their current state.
 
-### Calibration Button Pressed :x:
+### Calibration Button Pressed :heavy_check_mark:
 
 ```
-STM -> RPi: 0x90 <press_type> <unused> <unused>
+STM -> RPi: 0x90 <state_0> <state_1> <state_2>
 ```
 
-**Press Type**:<br>
-0 &ndash; Single press<br>
-1 &ndash; Long press<br>
-2 &ndash; Double press<br>
-3 &ndash; Triple press
+Sent when the calibration button is pressed. The states are given as follows:
+0 &ndash; released<br>
+1 &ndash; short press<br>
+2 &ndash; long press
+
+For example, if the button is short-pressed, then long-pressed, and then released, the states will be `0x01 0x02 0x00`.
 
 ### Get Voltage :x:
 

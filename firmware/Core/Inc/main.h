@@ -102,7 +102,7 @@ void Error_Handler(void);
 #define IPC_SDA_GPIO_Port GPIOB
 
 /* USER CODE BEGIN Private defines */
-
+#define BTN_CAL_SHORT_PRESS_DURATION 500
 /* USER CODE END Private defines */
 
 #ifdef __cplusplus
