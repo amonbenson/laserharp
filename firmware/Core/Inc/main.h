@@ -103,6 +103,8 @@ void Error_Handler(void);
 
 /* USER CODE BEGIN Private defines */
 #define BTN_CAL_SHORT_PRESS_DURATION 500
+
+#define ANIMATION_BOOT_SPEED 5.0f
 /* USER CODE END Private defines */
 
 #ifdef __cplusplus

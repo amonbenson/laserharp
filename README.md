@@ -233,3 +233,13 @@ STM -> RPi: 0xf0 <major> <minor> <patch>
 ```
 RPi -> STM: 0xf1 <unused> <unused> <unused>
 ```
+
+### Enter Standby :heavy_check_mark:
+
+```
+RPi -> STM: 0xf2 <fade_delay> <fade_duration> <unused>
+```
+
+Starts by playing the boot animation, waits for the fade delay, and then fades the lasers to black over the fade duration. Both delay and duration are given in tenths of a second.
+
+**Important: This is intended to be used when the harp is turned off. It will block any further IPC commands and the STM will not respond until it is power cycled.**

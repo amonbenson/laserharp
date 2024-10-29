@@ -676,7 +676,7 @@ void StartDefaultTask(void *argument) {
     }
 
     // play the boot animation
-    animator_play(&animator, ANIMATION_BOOT, 5.0, ANIMATION_LOOP);
+    animator_play(&animator, ANIMATION_BOOT, ANIMATION_BOOT_SPEED, ANIMATION_LOOP);
 
     for (;;) {
         // update the animator. Assume a fixed time step of 20ms
@@ -853,6 +853,30 @@ void StartIpcReceiveTask(void *argument) {
                     case 0xf1: // reboot
                         LOG_INFO("IPC: Rebooting");
                         NVIC_SystemReset();
+                        break;
+                    case 0xf2: // enter standby
+                        LOG_INFO("IPC: Entering standby");
+
+                        // play the boot animation
+                        animator_play(&animator, ANIMATION_BOOT, ANIMATION_BOOT_SPEED, ANIMATION_LOOP);
+
+                        // sleep for the specified delay
+                        osDelay(packet[1] * 100);
+
+                        // fade all lasers to zero brightness
+                        animator_stop(&animator);
+                        for (uint8_t i = 0; i < LA_NUM_DIODES; i++) {
+                            laser_array_fade_brightness(&laser_array, i, 0, (uint32_t) packet[2] * 100);
+                        }
+
+                        // wait until the fade is complete
+                        osDelay(packet[2] * 100 + 100);
+
+                        // enter standby mode
+                        // __HAL_PWR_CLEAR_FLAG(PWR_FLAG_WU); // clear the wake-up flag
+                        // HAL_PWR_EnterSTANDBYMode(); // enter standby mode
+                        // while (1) { } // should never reach here
+
                         break;
                     default:
                         LOG_ERROR("IPC: Unknown command %02X", code);
