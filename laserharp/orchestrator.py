@@ -28,7 +28,9 @@ class Orchtestrator(Component):
         watch(self.settings.get_child("flipped"), lambda change: self._on_flipped(change.value))
 
     def start(self):
-        pass
+        # fade in the initial color
+        print("ORCHESTRATOR INITIALIZED")
+        self._laser_array.set_all(self.settings["unplucked_beam_brightness"], fade_duration=0.5)
 
     def stop(self):
         # set all notes off
@@ -36,10 +38,10 @@ class Orchtestrator(Component):
             self.state["velocities"][note] = 0
 
     def process(self, interceptions: ImageProcessor.Result):
-        self.update_sections(interceptions)
+        self.update_velocities(interceptions)
         self.update_brightness()
 
-    def update_sections(self, interceptions: ImageProcessor.Result):
+    def update_velocities(self, interceptions: ImageProcessor.Result):
         velocities = [0] * 128
 
         # iterate over each section and calculate the corresponding midi note and velocity

@@ -43,7 +43,7 @@ class LaserArray(Component):
             # set a single laser
             self.set(key, value)
 
-    def set(self, index: int, brightness: int):
+    def set(self, index: int, brightness: int, fade_duration: float = 0.0):
         assert 0 <= index < len(self)
         assert 0 <= brightness <= 127
 
@@ -56,13 +56,13 @@ class LaserArray(Component):
         # apply the translation table and send the message
         if self._translation_table is not None:
             index = self._translation_table[index]
-        self.ipc.send_raw(bytes([0x80, index, brightness, 0x00]))
+        self.ipc.send_raw(bytes([0x80, index, brightness, np.clip(int(fade_duration * 10), 0, 255)]))
 
-    def set_all(self, brightness: int):
+    def set_all(self, brightness: int, fade_duration: float = 0.0):
         self._laser_state[:] = brightness
 
         # send a message to set all lasers at once
-        self.ipc.send_raw(bytes([0x81, brightness, 0x00, 0x00]))
+        self.ipc.send_raw(bytes([0x81, brightness, np.clip(int(fade_duration * 10), 0, 255), 0x00]))
 
     def push_state(self):
         self._state_stack.append(self._laser_state.copy())

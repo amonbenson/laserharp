@@ -82,6 +82,7 @@ class LaserHarpApp(Component):
         self.camera.start()
         self.calibrator.start()
         self.processor.start()
+        self.orchestrator.start()
 
         # start all threads
         logging.info("Starting threads...")
@@ -97,9 +98,6 @@ class LaserHarpApp(Component):
         else:
             # run a new calibration
             self.run_calibration()
-
-        # lasers will be set by the orchestrator
-        # self.laser_array.set_all(127)
 
         self._status_change(["starting"], "running")
 
@@ -121,6 +119,7 @@ class LaserHarpApp(Component):
         self._din_midi_read_thread.join(timeout=1)
 
         # stop all components
+        self.orchestrator.stop()
         self.processor.stop()
         self.calibrator.stop()
         self.camera.stop()

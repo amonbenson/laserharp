@@ -59,6 +59,23 @@ class TestFirmware(unittest.TestCase):
         self.ipc.send_raw(b"\x82\x05\x00\x00")
         self.assertEqual(self.ipc.read_raw(), b"\x82\x05\x00\x00")
 
+    def test_fade_brightness(self):
+        # fade diode 5 from 0% to 100% brightness in 1s
+        self.ipc.send_raw(b"\x80\x05\x00\x00")
+        self.ipc.send_raw(b"\x80\x05\x7f\x0a")
+
+        # check if the brightness is somewhere between 0% and 100% after 0.5s
+        time.sleep(0.5)
+        self.ipc.send_raw(b"\x82\x05\x00\x00")
+        response = self.ipc.read_raw()
+        self.assertEqual(len(response), 4)
+        self.assertIn(response[2], range(1, 127))
+
+        # check if the brightness is 100% after 1s
+        time.sleep(0.5)
+        self.ipc.send_raw(b"\x82\x05\x00\x00")
+        self.assertEqual(self.ipc.read_raw(), b"\x82\x05\x7f\x00")
+
     def test_version_inquiry(self):
         self.ipc.send_raw(b"\xf0\x00\x00\x00")
         res = self.ipc.read_raw()
