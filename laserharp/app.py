@@ -111,13 +111,13 @@ class LaserHarpApp(Component):
         # disable all lasers
         self.laser_array.set_all(0)
 
-        # send a reboot command to the STM board
-        self.ipc.send_raw(b"\xf1\x00\x00\x00")
-
         # stop all threads
         self._capture_thread.join(timeout=1)
         self._ipc_read_thread.join(timeout=1)
         self._din_midi_read_thread.join(timeout=1)
+
+        # send a standby command to the STM board
+        self.ipc.send_raw(b"\xf2\x64\x05\x00")
 
         # stop all components
         self.orchestrator.stop()
