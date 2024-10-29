@@ -1,6 +1,7 @@
 import logging
 import threading
 import time
+import subprocess
 import numpy as np
 from perci import reactive, ReactiveDictNode
 import cv2
@@ -87,7 +88,7 @@ class LaserHarpApp(Component):
         # start all threads
         logging.info("Starting threads...")
         self._capture_thread.start()
-        # self.ipc_read_thread.start()
+        self._ipc_read_thread.start()
         self._din_midi_read_thread.start()
 
         # load the calibration
@@ -115,7 +116,7 @@ class LaserHarpApp(Component):
 
         # stop all threads
         self._capture_thread.join(timeout=1)
-        # self.ipc_read_thread.join(timeout=1)
+        self._ipc_read_thread.join(timeout=1)
         self._din_midi_read_thread.join(timeout=1)
 
         # stop all components
@@ -206,10 +207,27 @@ class LaserHarpApp(Component):
         while self.state["status"] != "stopping":
             # read a message
             data = self.ipc.read_raw(timeout=0.5)
-            if data is None:
+            if data is None or len(data) != 4:
                 continue
 
-            # TODO: handle the ipc message
+            # handle ipc messages
+            match data[0]:
+                case 0x90:  # calibration button pressed
+                    sequence = tuple(data[1:])
+                    print(f"Calibration button pressed: {sequence}")
+                    match sequence:
+                        case (1, 0, 0):  # single press triggers a calibration
+                            self.run_calibration()
+                        case (2, 0, 0):  # long press turns the raspberry pi off
+                            # turn off after 5 seconds
+                            subprocess.check_call(["sleep 5 && sudo poweroff &"], shell=True)
+                            exit(0)
+                        case _:
+                            # TODO: let the orchestrator handle the button press
+                            pass
+                case _:
+                    # TODO: handle other ipc messages
+                    pass
 
     def _din_midi_read_thread_run(self):
         while self.state["status"] != "stopping":
