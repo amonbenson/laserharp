@@ -873,9 +873,12 @@ void StartIpcReceiveTask(void *argument) {
                         osDelay(packet[2] * 100 + 100);
 
                         // enter standby mode
-                        __HAL_PWR_CLEAR_FLAG(PWR_FLAG_WU); // clear the wake-up flag
-                        HAL_PWR_EnterSTANDBYMode(); // enter standby mode
-                        while (1) { } // should never reach here
+                        // __HAL_PWR_CLEAR_FLAG(PWR_FLAG_WU); // clear the wake-up flag
+                        // HAL_PWR_EnterSTANDBYMode(); // enter standby mode
+                        // while (1) { } // should never reach here
+
+                        // clear the ipcRxData queue so that messages received during standby are not processed
+                        osMessageQueueReset(ipcRxDataHandle);
 
                         break;
                     default:
@@ -898,10 +901,6 @@ static bool is_btn_cal_pressed(void) {
     return HAL_GPIO_ReadPin(BTN_CAL_GPIO_Port, BTN_CAL_Pin) == GPIO_PIN_RESET;
 }
 
-#define BTN_NONE 0
-#define BTN_SHORT_PRESS 1
-#define BTN_LONG_PRESS 2
-
 #define BTN_STATES 3
 
 void StartButtonTask(void *argument) {
@@ -913,7 +912,7 @@ void StartButtonTask(void *argument) {
     for (;;) {
         // reset the button pattern
         for (uint32_t i = 0; i < num_states; i++) {
-            btn_pattern[i] = BTN_NONE;
+            btn_pattern[i] = '\0';
         }
 
         for (uint32_t i = 0; i < num_states; i++) {
@@ -934,9 +933,9 @@ void StartButtonTask(void *argument) {
 
             // register the button press
             if (released) {
-                btn_pattern[i] = BTN_SHORT_PRESS;
+                btn_pattern[i] = 'S';
             } else {
-                btn_pattern[i] = BTN_LONG_PRESS;
+                btn_pattern[i] = 'L';
 
                 // // wait until the button is released
                 // while (is_btn_cal_pressed()) {
