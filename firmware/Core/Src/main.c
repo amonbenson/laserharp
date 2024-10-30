@@ -873,9 +873,9 @@ void StartIpcReceiveTask(void *argument) {
                         osDelay(packet[2] * 100 + 100);
 
                         // enter standby mode
-                        // __HAL_PWR_CLEAR_FLAG(PWR_FLAG_WU); // clear the wake-up flag
-                        // HAL_PWR_EnterSTANDBYMode(); // enter standby mode
-                        // while (1) { } // should never reach here
+                        __HAL_PWR_CLEAR_FLAG(PWR_FLAG_WU); // clear the wake-up flag
+                        HAL_PWR_EnterSTANDBYMode(); // enter standby mode
+                        while (1) { } // should never reach here
 
                         break;
                     default:
