@@ -24,9 +24,8 @@ class HWButton(Component, EventEmitter):
 
         # check if the requested sequence is registered
         setting = f"sequence_{sequence}"
-        print(setting, self.settings)
         if setting not in self.settings:
-            logging.warning(f"Received button message for unregistered sequence: {sequence}")
+            logging.warning(f"Unknown sequence: {sequence}")
             return
 
         # get the action and check if it is valid
@@ -39,3 +38,5 @@ class HWButton(Component, EventEmitter):
         if action != "none":
             logging.debug(f"Executing button action: {sequence} -> {action}")
             self.emit(action)
+        else:
+            logging.debug(f"No action assigned to sequence: {sequence}")

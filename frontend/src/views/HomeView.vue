@@ -1,8 +1,10 @@
 <script setup>
 import { computed, ref, inject } from "vue";
 import { useLaserharpStore } from "@/stores/laserharp";
+import BigToggleButton from "@/components/ui/BigToggleButton.vue";
 import NoteLabel from "@/components/NoteLabel.vue";
 import PedalSetting from "@/components/PedalSetting.vue";
+import SequenceSelector from "@/components/hwbutton/SequenceSelector.vue";
 
 const api = inject("api");
 const laserharp = useLaserharpStore();
@@ -29,9 +31,37 @@ const reindex = (i) => {
   // flip the y-axis
   return x + (numSections.value - 1 - y) * numLasers.value;
 };
+
+const hwbuttonActions = computed(() => Object.fromEntries(Object
+  .entries(laserharp?.hwbutton?.settings ?? {})
+  .filter(([key]) => key.startsWith("sequence_"))
+  .map(([key, value]) => ([key.replace("sequence_", ""), value]))));
 </script>
 
 <template>
+  <h2>Quick Actions</h2>
+
+  <div class="flex justify-center items-center">
+    <div class="flex space-x-4">
+      <BigToggleButton
+        label="Flip Harp"
+        active-description="Audience View"
+        inactive-description="Performer View"
+        :model-value="laserharp.orchestrator?.settings?.flipped"
+        @update:model-value="api.updateSetting('orchestrator', 'flipped', $event)"
+      />
+
+      <BigToggleButton
+        label="Calibrate"
+        active-description="Calibrating..."
+        inactive-description="Ready"
+        :disabled="laserharp?.app?.state?.status === 'calibrating'"
+        :model-value="laserharp?.app?.state?.status === 'calibrating'"
+        @update:model-value="api.emit('app:calibrate')"
+      />
+    </div>
+  </div>
+
   <h2>Strings</h2>
 
   <div class="flex justify-start sm:justify-center items-center overflow-x-auto">
@@ -86,6 +116,20 @@ const reindex = (i) => {
         :step="i"
         :position="position"
         @update:position="setPedalPosition(i, $event)"
+      />
+    </div>
+  </div>
+
+  <h2>Button Assignment</h2>
+
+  <div class="flex justify-center items-center">
+    <div class="w-full sm:w-96 flex flex-col space-y-2">
+      <SequenceSelector
+        v-for="value, key in hwbuttonActions"
+        :key="key"
+        :sequence="key"
+        :model-value="value"
+        @update:model-value="api.updateSetting('hwbutton', `sequence_${key}`, $event)"
       />
     </div>
   </div>

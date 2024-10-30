@@ -41,4 +41,8 @@
     input {
         @apply px-2 py-1 bg-darker disabled:opacity-50 border-none rounded-none;
     }
+
+    select {
+        @apply px-2 py-1 bg-darker disabled:opacity-50 border-none rounded-none;
+    }
 }

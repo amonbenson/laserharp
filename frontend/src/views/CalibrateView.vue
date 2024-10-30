@@ -2,7 +2,7 @@
 import { inject, computed } from "vue";
 import { useLaserharpStore } from "@/stores/laserharp";
 import CameraStream from "@/components/CameraStream.vue";
-import AccentButton from "@/components/AccentButton.vue";
+import AccentButton from "@/components/ui/AccentButton.vue";
 
 const api = inject("api");
 const laserharp = useLaserharpStore();

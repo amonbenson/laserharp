@@ -1,6 +1,7 @@
 <script setup>
-import { computed, watch, inject } from "vue";
+import { computed, inject } from "vue";
 import { useLaserharpStore } from "@/stores/laserharp";
+import { snakeCaseToTitleCase } from "@/utils";
 import TextField from "@/components/ui/TextField.vue";
 import NumberField from "@/components/ui/NumberField.vue";
 import ToggleSwitchField from "@/components/ui/ToggleSwitchField.vue";
@@ -10,14 +11,13 @@ const COMPONENTS = [
   "camera",
   "image_calibrator",
   "orchestrator",
+  "hwbutton",
 ];
 
 const DEVELOPMENT = process.env.NODE_ENV === "development";
 
 const api = inject("api");
 const laserharp = useLaserharpStore();
-
-const snakeCaseToTitleCase = (str) => str.split("_").map((word) => word[0].toUpperCase() + word.slice(1)).join(" ");
 
 const componentSettings = computed(() => COMPONENTS
   .map((componentKey) => ({
