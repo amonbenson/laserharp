@@ -912,7 +912,7 @@ void StartButtonTask(void *argument) {
     for (;;) {
         // reset the button pattern
         for (uint32_t i = 0; i < num_states; i++) {
-            btn_pattern[i] = '\0';
+            btn_pattern[i] = '-';
         }
 
         for (uint32_t i = 0; i < num_states; i++) {
