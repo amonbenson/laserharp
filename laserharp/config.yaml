@@ -153,3 +153,41 @@ orchestrator:
       type: int
       range: [0, 127]
       default: 127
+
+hwbutton:
+  settings:
+    sequence_sxx:
+      type: str
+      default: "flip"
+      client_writable: true
+
+    sequence_ssx:
+      type: str
+      default: "calibrate"
+      client_writable: true
+
+    sequence_sss:
+      type: str
+      default: "none"
+      client_writable: true
+
+    sequence_lxx:
+      type: str
+      default: "poweroff"
+      client_writable: true
+
+    sequence_slx:
+      type: str
+      default: "none"
+      client_writable: true
+
+    sequence_ssl:
+      type: str
+      default: "none"
+      client_writable: true
+
+  available_actions:
+    - none
+    - poweroff
+    - calibrate
+    - flip

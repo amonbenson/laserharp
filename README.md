@@ -74,6 +74,11 @@ dtoverlay=midi-uart2-pi5
 ## Power via GPIO header
 http://blog.dddac.com/wp-content/uploads/Flash-RPi5-and-adding-5000mA-Line-tutorial.pdf
 
+## Allow current user to shutdown
+```bash
+sudo chmod u+s /sbin/poweroff /sbin/reboot /sbin/shutdown
+```
+
 ## Diode to Note Mapping
 
 - Root note: C3 (midi note 48, one octave below middle C)

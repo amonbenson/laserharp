@@ -37,6 +37,9 @@ class Orchtestrator(Component):
         for note, _ in enumerate(self.state["velocities"]):
             self.state["velocities"][note] = 0
 
+    def flip(self):
+        self.settings["flipped"] = not self.settings["flipped"]
+
     def process(self, interceptions: ImageProcessor.Result):
         self.update_velocities(interceptions)
         self.update_brightness()

@@ -2,6 +2,8 @@ import logging
 import threading
 import time
 import subprocess
+import os
+import signal
 import numpy as np
 from perci import reactive, ReactiveDictNode
 import cv2
@@ -13,13 +15,14 @@ from .camera import Camera
 from .image_calibrator import ImageCalibrator
 from .image_processor import ImageProcessor
 from .orchestrator import Orchtestrator
+from .hwbutton import HWButton
 from .component import Component
 from .settings import SettingsManager
 
 
 class LaserHarpApp(Component):
     def __init__(self, config: dict):
-        self._component_names = ["app", "ipc", "din_midi", "laser_array", "camera", "image_processor", "image_calibrator", "orchestrator"]
+        self._component_names = ["app", "ipc", "din_midi", "laser_array", "camera", "image_processor", "image_calibrator", "orchestrator", "hwbutton"]
         self._global_state = reactive({name: {"config": config[name]} for name in self._component_names})
 
         super().__init__("app", self._global_state)
@@ -36,6 +39,7 @@ class LaserHarpApp(Component):
         self.calibrator = ImageCalibrator("image_calibrator", self._global_state, self.laser_array, self.camera)
         self.processor = ImageProcessor("image_processor", self._global_state, self.laser_array, self.camera)
         self.orchestrator = Orchtestrator("orchestrator", self._global_state, self.laser_array, self.din_midi)
+        self.hwbutton = HWButton("hwbutton", self._global_state)
 
         # setup all processing threads
         self._capture_thread = threading.Thread(target=self._capture_thread_run, daemon=True)
@@ -49,6 +53,11 @@ class LaserHarpApp(Component):
         self._prev_pitch_bend = 8192
 
         self._debug_stream_output = None
+
+        # setup hwbutton actions
+        self.hwbutton.on("poweroff", self.poweroff)
+        self.hwbutton.on("calibrate", self.run_calibration)
+        self.hwbutton.on("flip", self.flip_view)
 
         self.state["status"] = "stopped"
 
@@ -84,6 +93,7 @@ class LaserHarpApp(Component):
         self.calibrator.start()
         self.processor.start()
         self.orchestrator.start()
+        self.hwbutton.start()
 
         # start all threads
         logging.info("Starting threads...")
@@ -120,6 +130,7 @@ class LaserHarpApp(Component):
         self.ipc.send_raw(b"\xf2\x64\x05\x00")
 
         # stop all components
+        self.hwbutton.stop()
         self.orchestrator.stop()
         self.processor.stop()
         self.calibrator.stop()
@@ -137,10 +148,10 @@ class LaserHarpApp(Component):
                 time.sleep(1)
                 continue
 
-            self._calibration_request = False
-
             prev_status = self.state["status"]
             self._status_change(["starting", "running"], "calibrating")
+
+            self._calibration_request = False
 
             # run the calibrator
             calibration = self.calibrator.calibrate(save_debug_images=self.config["save_debug_images"])
@@ -154,7 +165,7 @@ class LaserHarpApp(Component):
     def _capture_thread_run(self):
         while self.state["status"] != "stopping":
             # wait if we are currently starting up or calibrating
-            if self.state["status"] in ("starting", "calibrating"):
+            if self.state["status"] in ("starting", "calibrating") or self._calibration_request:
                 time.sleep(0.1)
                 continue
 
@@ -210,24 +221,8 @@ class LaserHarpApp(Component):
             if data is None or len(data) != 4:
                 continue
 
-            # handle ipc messages
-            match data[0]:
-                case 0x90:  # calibration button pressed
-                    sequence = tuple(data[1:])
-                    print(f"Calibration button pressed: {sequence}")
-                    match sequence:
-                        case (1, 0, 0):  # single press triggers a calibration
-                            self.run_calibration()
-                        case (2, 0, 0):  # long press turns the raspberry pi off
-                            # turn off after 5 seconds
-                            subprocess.check_call(["sleep 5 && sudo poweroff &"], shell=True)
-                            exit(0)
-                        case _:
-                            # TODO: let the orchestrator handle the button press
-                            pass
-                case _:
-                    # TODO: handle other ipc messages
-                    pass
+            # invoke the hwbutton handler
+            self.hwbutton.handle_ipc(data)
 
     def _din_midi_read_thread_run(self):
         while self.state["status"] != "stopping":
@@ -242,3 +237,17 @@ class LaserHarpApp(Component):
     def run_calibration(self):
         # notify the calibration thread
         self._calibration_request = True
+
+    def poweroff(self):
+        logging.info("Shutting down...")
+        # send standby command to the STM board (this will also happen in the stop() method but sometimes it won't trigger properly)
+        self.ipc.send_raw(b"\xf2\x64\x05\x00")
+
+        # turn off raspberry pi after 3 seconds
+        subprocess.check_call(["(sleep 3 && poweroff) &"], shell=True)
+
+        # send sigint to this process. This will allow for a graceful shutdown compared to sigterm or sigkill
+        os.kill(os.getpid(), signal.SIGINT)
+
+    def flip_view(self):
+        self.orchestrator.flip()
