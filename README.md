@@ -213,7 +213,7 @@ Sent when the calibration button is pressed. The states are given as follows:
 
 For example, if the button is short-pressed, then long-pressed, and then released, the states will be `0x01 0x02 0x00`.
 
-### Get Voltage :x:
+### Get Voltage :heavy_check_mark:
 
 ```
 RPi -> STM: 0x91 <00> <unused> <unused>

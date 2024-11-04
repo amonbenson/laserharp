@@ -29,6 +29,7 @@
 #include "drivers/midi_usb.h"
 #include "log.h"
 #include "midi_types.h"
+#include "stm32f1xx_hal_adc.h"
 #include "usbd_midi.h"
 #include <stdbool.h>
 /* USER CODE END Includes */
@@ -141,6 +142,11 @@ int _write(int file, char *ptr, int len) {
 
     return len;
 }
+
+static bool is_btn_cal_pressed(void) {
+    return HAL_GPIO_ReadPin(BTN_CAL_GPIO_Port, BTN_CAL_Pin) == GPIO_PIN_RESET;
+}
+#define BTN_STATES 3
 
 // void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size) {
 //     ipc_driver_HAL_UARTEx_RxEventCallback(huart, Size);
@@ -353,7 +359,7 @@ static void MX_ADC1_Init(void) {
      */
     sConfig.Channel = ADC_CHANNEL_1;
     sConfig.Rank = ADC_REGULAR_RANK_1;
-    sConfig.SamplingTime = ADC_SAMPLETIME_1CYCLE_5;
+    sConfig.SamplingTime = ADC_SAMPLETIME_71CYCLES_5;
     if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK) {
         Error_Handler();
     }
@@ -843,6 +849,29 @@ void StartIpcReceiveTask(void *argument) {
                         LOG_DEBUG("IPC: Stop animation");
                         animator_stop(&animator);
                         break;
+                    case 0x91: // get voltage
+                        LOG_DEBUG("IPC: Get voltage");
+                        if (packet[1] == 0) {
+                            // poll the ADC for a voltage. This will not run very often, so blocking is fine
+                            HAL_ADCEx_Calibration_Start(&hadc1);
+                            HAL_ADC_Start(&hadc1);
+
+                            HAL_ADC_PollForConversion(&hadc1, HAL_MAX_DELAY);
+                            uint32_t measurement_raw = HAL_ADC_GetValue(&hadc1);
+
+                            HAL_ADC_Stop(&hadc1);
+
+                            float measurement_voltage = measurement_raw * 3.3f / 4095;
+                            float converted_voltage = measurement_voltage * (220 + 330) / 330; // voltage divider
+
+                            response[2] = (uint8_t) converted_voltage;
+                            response[3] = (uint8_t) ((converted_voltage - response[2]) * 100);
+                        } else {
+                            // currently only one voltage can be measured
+                            response[2] = 0;
+                            response[3] = 0;
+                        }
+                        ipc_driver_transmit(&response);
                     case 0xf0: // firmware version inquiry
                         LOG_DEBUG("IPC: Firmware version inquiry");
                         response[1] = FIRMWARE_VERSION_MAJOR;
@@ -897,12 +926,6 @@ void StartIpcReceiveTask(void *argument) {
  * @retval None
  */
 /* USER CODE END Header_StartButtonTask */
-static bool is_btn_cal_pressed(void) {
-    return HAL_GPIO_ReadPin(BTN_CAL_GPIO_Port, BTN_CAL_Pin) == GPIO_PIN_RESET;
-}
-
-#define BTN_STATES 3
-
 void StartButtonTask(void *argument) {
     /* USER CODE BEGIN StartButtonTask */
     uint32_t num_states = 3;

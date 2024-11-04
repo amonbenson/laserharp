@@ -1,9 +1,10 @@
 #MicroXplorer Configuration settings - do not modify
 ADC1.Channel-6\#ChannelRegularConversion=ADC_CHANNEL_1
-ADC1.IPParameters=Rank-6\#ChannelRegularConversion,master,Channel-6\#ChannelRegularConversion,SamplingTime-6\#ChannelRegularConversion,NbrOfConversionFlag
+ADC1.IPParameters=Rank-6\#ChannelRegularConversion,Channel-6\#ChannelRegularConversion,SamplingTime-6\#ChannelRegularConversion,NbrOfConversionFlag,NbrOfConversion,master
+ADC1.NbrOfConversion=1
 ADC1.NbrOfConversionFlag=1
 ADC1.Rank-6\#ChannelRegularConversion=1
-ADC1.SamplingTime-6\#ChannelRegularConversion=ADC_SAMPLETIME_1CYCLE_5
+ADC1.SamplingTime-6\#ChannelRegularConversion=ADC_SAMPLETIME_71CYCLES_5
 ADC1.master=1
 CAD.formats=[]
 CAD.pinconfig=Project naming
