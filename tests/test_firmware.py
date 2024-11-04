@@ -76,6 +76,20 @@ class TestFirmware(unittest.TestCase):
         self.ipc.send_raw(b"\x82\x05\x00\x00")
         self.assertEqual(self.ipc.read_raw(), b"\x82\x05\x7f\x00")
 
+    def test_get_voltage(self):
+        # send get voltage command
+        self.ipc.send_raw(b"\x91\x00\x00\x00")
+
+        # check the response
+        response = self.ipc.read_raw()
+        self.assertEqual(len(response), 4)
+        self.assertEqual(response[0], 0x91)
+        self.assertEqual(response[1], 0x00)
+
+        # voltage should be around 5V
+        voltage = response[2] + response[3] / 100
+        self.assertAlmostEqual(voltage, 5.0, delta=0.2)
+
     def test_version_inquiry(self):
         self.ipc.send_raw(b"\xf0\x00\x00\x00")
         res = self.ipc.read_raw()
