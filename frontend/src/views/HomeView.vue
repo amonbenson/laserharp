@@ -6,6 +6,8 @@ import NoteLabel from "@/components/NoteLabel.vue";
 import PedalSetting from "@/components/PedalSetting.vue";
 import SequenceSelector from "@/components/hwbutton/SequenceSelector.vue";
 
+const PEDAL_ORDER = [1, 0, 6, -1, 2, 3, 4, 5];
+
 const api = inject("api");
 const laserharp = useLaserharpStore();
 
@@ -110,13 +112,21 @@ const hwbuttonActions = computed(() => Object.fromEntries(Object
 
   <div class="flex justify-start sm:justify-center items-center overflow-x-auto">
     <div class="pt-2 flex space-x-8">
-      <PedalSetting
-        v-for="position, i in pedalPositions"
+      <template
+        v-for="step, i in PEDAL_ORDER"
         :key="i"
-        :step="i"
-        :position="position"
-        @update:position="setPedalPosition(i, $event)"
-      />
+      >
+        <PedalSetting
+          v-if="step != -1"
+          :step="step"
+          :position="pedalPositions[step]"
+          @update:position="setPedalPosition(step, $event)"
+        />
+        <div
+          v-else
+          class="w-8 h-1"
+        />
+      </template>
     </div>
   </div>
 

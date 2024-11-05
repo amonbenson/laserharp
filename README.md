@@ -248,3 +248,42 @@ RPi -> STM: 0xf2 <fade_delay> <fade_duration> <unused>
 Starts by playing the boot animation, waits for the fade delay, and then fades the lasers to black over the fade duration. Both delay and duration are given in tenths of a second.
 
 **Important: This is intended to be used when the harp is turned off. It will block any further IPC commands and the STM will not respond until it is power cycled.**
+
+## TODO Software
+
+### Pedal Mutes
+
+- Each Pedal Switch should have a "mute" button. If a string is muted, its corresponding laser will be turned on very dimly and no sound will be produced for that string.
+
+### Direct Laser Control
+
+- The brightness of each laser should be directly controllable via Note On Messages.
+- Velocity 1 will map to 0% brightness, velocity 127 will map to 100% brightness.
+- Velocity 0 / Note Off will return to normal operation and use the internally calculated laser brightness
+- If a laser is currently in "normal operation" mode, the color will be determined by the "unplucked", "plucked", and "muted" brightness settings.
+
+### Section Mode / Section Transpose (formally Section Octave Spacing)
+
+- Sections can be set to different modes.
+    - Off &ndash; There are no different sections. Each laser will produce a single note.
+    - Alterate &ndash; The upper section will play one semitone higher while the lower section will play one semitone lower.
+    - Single Octave &ndash; The upper section will play one octave higher while the lower section will play one octave lower.
+    - Double Octave &ndash; The upper section will play two octaves higher while the lower section will play two octaves lower.
+- Internally, the section mode is stored as a number of semitones.
+- This should also be controllable via a Control Change Message
+
+### Global Transpose
+
+- Instead of setting the root note, a fixed root note (e.g. C3) will be used and a global transpose setting will offset that root note.
+
+### Direct Pedal/Mute Control
+
+- Using Control Change Messages, the pedal position and mutes can be controlled.
+
+### Predefined Scales
+
+- Each predefined scale controls the pedal positions and mutes for each note.
+- Can be selected using Bank Change Messages (CC 0).
+- Additional custom scales can be defined and stored internally.
+
+- The predefined scales are the following:
