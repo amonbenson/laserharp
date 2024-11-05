@@ -127,7 +127,8 @@ class LaserHarpApp(Component):
         self._din_midi_read_thread.join(timeout=1)
 
         # send a standby command to the STM board
-        self.ipc.send_raw(b"\xf2\x64\x05\x00")
+        if self.config["send_standby"]:
+            self.ipc.send_raw(b"\xf2\x64\x05\x00")
 
         # stop all components
         self.hwbutton.stop()

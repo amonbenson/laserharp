@@ -286,4 +286,7 @@ Starts by playing the boot animation, waits for the fade delay, and then fades t
 - Can be selected using Bank Change Messages (CC 0).
 - Additional custom scales can be defined and stored internally.
 
-- The predefined scales are the following:
+- For each scale, choose:
+    - Pitch: `C C# D D# E F F# G G# A A# B`
+    - Modes (see https://en.wikipedia.org/wiki/List_of_musical_scales_and_modes):
+        - Lydian Dominant &ndash; `1 2 3 #4 5 6 b7`

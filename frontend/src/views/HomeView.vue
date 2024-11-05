@@ -18,10 +18,8 @@ const activeArray = computed(() => laserharp.orchestrator?.state?.active?.flat()
 const midiConverterSettings = computed(() => laserharp.orchestrator?.settings);
 const pedalPositions = computed(() => Array(7).fill(null)
   .map((_, step) => midiConverterSettings.value?.[`pedal_position_${step}`] ?? 0));
-
-const setPedalPosition = (step, position) => {
-  api.updateSetting("orchestrator", `pedal_position_${step}`, position);
-};
+const mutes = computed(() => Array(7).fill(null)
+  .map((_, step) => midiConverterSettings.value?.[`pedal_mute_${step}`] ?? false));
 
 const getX = (i) => i % numLasers.value;
 const getY = (i) => Math.floor(i / numLasers.value);
@@ -36,6 +34,7 @@ const reindex = (i) => {
 
 const hwbuttonActions = computed(() => Object.fromEntries(Object
   .entries(laserharp?.hwbutton?.settings ?? {})
+  .slice(0, 4) // only show the first 4 assignment options
   .filter(([key]) => key.startsWith("sequence_"))
   .map(([key, value]) => ([key.replace("sequence_", ""), value]))));
 </script>
@@ -78,6 +77,9 @@ const hwbuttonActions = computed(() => Object.fromEntries(Object
         v-for="_, i in (numSections * numLasers)"
         :key="i"
         class="min-w-8 flex justify-center items-center overflow-hidden"
+        :class="{
+          'opacity-10': mutes[getX(i) % 7],
+        }"
       >
         <div
           class="h-full bg-light rounded-full transition-all duration-100"
@@ -98,6 +100,9 @@ const hwbuttonActions = computed(() => Object.fromEntries(Object
         v-for="_, i in numLasers"
         :key="i"
         class="pt-2 flex justify-center items-center"
+        :class="{
+          'opacity-10': mutes[getX(i) % 7],
+        }"
       >
         <NoteLabel
           :step="getX(i)"
@@ -120,7 +125,9 @@ const hwbuttonActions = computed(() => Object.fromEntries(Object
           v-if="step != -1"
           :step="step"
           :position="pedalPositions[step]"
-          @update:position="setPedalPosition(step, $event)"
+          :mute="mutes[step]"
+          @update:position="api.updateSetting('orchestrator', `pedal_position_${step}`, $event)"
+          @update:mute="api.updateSetting('orchestrator', `pedal_mute_${step}`, $event)"
         />
         <div
           v-else

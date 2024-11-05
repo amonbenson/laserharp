@@ -4,6 +4,8 @@ app:
   save_debug_images: false # save camera visualization images when calibrating
   generate_debug_intersections: true # generate random intersections when the camera is disabled
 
+  send_standby: true # enable STM board standby mode when the application is stopped
+
 laser_array:
   size: 15 # number of lasers
   translation_table: [4, 5, 6, 7, 8, 9, 10, 11, 13, 14, 15, 16, 17, 18, 19] # mapping from note to laser index
@@ -145,6 +147,28 @@ orchestrator:
       range: [-1, 1]
       default: 0
 
+    pedal_mute_0:
+      type: bool
+      default: false
+    pedal_mute_1:
+      type: bool
+      default: false
+    pedal_mute_2:
+      type: bool
+      default: false
+    pedal_mute_3:
+      type: bool
+      default: false
+    pedal_mute_4:
+      type: bool
+      default: false
+    pedal_mute_5:
+      type: bool
+      default: false
+    pedal_mute_6:
+      type: bool
+      default: false
+
     unplucked_beam_brightness:
       type: int
       range: [0, 127]
@@ -153,7 +177,76 @@ orchestrator:
       type: int
       range: [0, 127]
       default: 127
+    muted_beam_brightness:
+      type: int
+      range: [0, 127]
+      default: 10
 
+    selected_scale:
+      type: str
+      default: "Custom"
+      client_writable: true
+
+  scales:
+    - name: "Acoustic Scale (Lydian Dominant)"
+      notes: [0, 2, 4, 6, 7, 9, 10]
+    - name: "Altered Scale (Super Locrian)"
+      notes: [0, 1, 3, 4, 6, 8, 10]
+    - name: "Augmented Scale"
+      notes: [0, 3, 4, 7, 8, 11]
+    # - name: "Bebop Dominant"
+    #   notes: [0, 2, 4, 5, 7, 9, 10, 11]
+    - name: "Blues"
+      notes: [0, 3, 5, 6, 7, 10]
+    - name: "Dorian"
+      notes: [0, 2, 3, 5, 7, 9, 10]
+    - name: "Double Harmonic"
+      notes: [0, 1, 4, 5, 7, 8, 11]
+    - name: "Enigmatic"
+      notes: [0, 1, 4, 6, 8, 10, 11]
+    - name: "Flamenco"
+      notes: [0, 1, 4, 5, 7, 8, 11]
+    - name: "Half Diminished"
+      notes: [0, 2, 3, 5, 6, 8, 10]
+    - name: "Harmonic Major"
+      notes: [0, 2, 4, 5, 7, 8, 11]
+    - name: "Harmonic Minor"
+      notes: [0, 2, 3, 5, 7, 8, 11]
+    - name: "Hirajoshi"
+      notes: [0, 4, 6, 7, 11]
+    - name: "Hungarian Major"
+      notes: [0, 3, 4, 6, 7, 9, 10]
+    - name: "Hungarian Minor"
+      notes: [0, 2, 3, 6, 7, 8, 11]
+    - name: "In"
+      notes: [0, 1, 5, 7, 8]
+    - name: "Insen"
+      notes: [0, 1, 5, 7, 10]
+    - name: "Major (Ionian)"
+      notes: [0, 2, 4, 5, 7, 9, 11]
+    - name: "Istrian"
+      notes: [0, 1, 3, 4, 6, 7]
+    - name: "Iwato"
+      notes: [0, 1, 5, 6, 10]
+    - name: "Locrian"
+      notes: [0, 1, 3, 5, 6, 8, 10]
+    - name: "Locrian natural 6"
+      notes: [0, 1, 3, 5, 6, 9, 10]
+    - name: "Lydian Augmented"
+      notes: [0, 2, 4, 6, 8, 9, 11]
+    - name: "Lydian Diminished"
+      notes: [0, 2, 3, 6, 7, 9, 11]
+    - name: "Lydian"
+      notes: [0, 2, 4, 6, 7, 9, 11]
+    # - name: "Major Bebop"
+    #   notes: [0, 2, 4, 5, 7, 8, 9, 11]
+    - name: "Major Locrian"
+      notes: [0, 2, 4, 5, 6, 8, 10]
+    - name: "Major Pentatonic"
+      notes: [0, 2, 4, 7, 9]
+    - name: "Minor Pentatonic"
+      notes: [0, 3, 5, 7, 10]
+ 
 hwbutton:
   settings:
     sequence_sxx:

@@ -1,4 +1,5 @@
 import time
+import logging
 from typing import Optional
 import numpy as np
 from perci import ReactiveDictNode, watch
@@ -8,6 +9,7 @@ from .midi import MidiEvent
 from .image_processor import ImageProcessor
 from .laser_array import LaserArray
 from .din_midi import DinMidi
+from .scales import calculate_pedal_positions
 
 
 class Orchtestrator(Component):
@@ -19,6 +21,21 @@ class Orchtestrator(Component):
 
         self._laser_array = laser_array
         self._din_midi = din_midi
+
+        # setup the pedal positions for each predefined scale
+        self.state["scale_pedal_positions"] = []
+        for scale in self.config["scales"]:
+            try:
+                self.state["scale_pedal_positions"].append(
+                    {
+                        "name": scale["name"],
+                        "pedal_positions": calculate_pedal_positions(scale["notes"]),
+                    }
+                )
+            except ValueError as e:
+                logging.error(f"Error while calculating pedal positions for scale {scale['name']}: {e}")
+                logging.exception(e)
+                raise e
 
         # setup an array of shape (num_sections, num_lasers) to keep track of which lasers are active
         self.state["active"] = [[False] * len(self._laser_array) for _ in range(self.NUM_SECTIONS)]
@@ -37,6 +54,31 @@ class Orchtestrator(Component):
         for note, _ in enumerate(self.state["velocities"]):
             self.state["velocities"][note] = 0
 
+    def set_scale(self, scale: str | int | list[int]):
+        if isinstance(scale, str):
+            # find pedal positions by name
+            scale_obj = next((s for s in self.state["scale_pedal_positions"] if s["name"] == scale), None)
+            if scale_obj is None:
+                raise ValueError(f"Scale {scale} not found.")
+
+            pedal_positions = scale_obj["pedal_positions"]
+
+        elif isinstance(scale, int):
+            # find scale by index
+            pedal_positions = self.state["scale_pedal_positions"][scale]["pedal_positions"]
+
+        elif isinstance(scale, list):
+            # calculate pedal positions for custom scale
+            pedal_positions = calculate_pedal_positions(scale)
+
+        else:
+            raise ValueError(f"Invalid scale type {type(scale)}.")
+
+        # apply the new pedal positions
+        for i, position in enumerate(pedal_positions):
+            self.settings[f"pedal_position_{i}"] = position if position is not None else 0
+            self.settings[f"pedal_mute_{i}"] = position is None
+
     def flip(self):
         self.settings["flipped"] = not self.settings["flipped"]
 
@@ -54,6 +96,10 @@ class Orchtestrator(Component):
             active = bool(interceptions.active[beam_x])
             length = float(interceptions.length[beam_x])
             _modulation = float(interceptions.modulation[beam_x])
+
+            # deactivate the beam if it is muted
+            if self.settings[f"pedal_mute_{x % len(self.MAJOR_SCALE_NOTES)}"]:
+                active = False
 
             # use the diode index x as the step position and apply the current scale
             note_offset = self._apply_scale(x)
@@ -114,6 +160,11 @@ class Orchtestrator(Component):
     def update_brightness(self):
         for x, _ in enumerate(self._laser_array):
             beam_x = len(self._laser_array) - x - 1 if self.settings["flipped"] else x
+
+            # if the beam is muted, apply the muted brightness
+            if self.settings[f"pedal_mute_{x % len(self.MAJOR_SCALE_NOTES)}"]:
+                self._laser_array[beam_x] = self.settings["muted_beam_brightness"]
+                continue
 
             # check if any of the corresponding sections are active
             active = any(self.state["active"][y][x] for y in range(self.NUM_SECTIONS))
