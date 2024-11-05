@@ -1,9 +1,7 @@
-import time
 import logging
-from typing import Optional
+from typing import Any
 import numpy as np
 from perci import ReactiveDictNode, watch
-from perci.changes import Change, UpdateChange
 from .component import Component
 from .midi import MidiEvent
 from .image_processor import ImageProcessor
@@ -41,8 +39,36 @@ class Orchtestrator(Component):
         self.state["active"] = [[False] * len(self._laser_array) for _ in range(self.NUM_SECTIONS)]
         self.state["velocities"] = [0] * 128
 
+        # setup watchers
         watch(self.state["velocities"], lambda change: self._send_note_message(int(change.path[-1]), change.value))
-        watch(self.settings.get_child("flipped"), lambda change: self._on_flipped(change.value))
+        watch(self.settings.get_child("flipped"), lambda change: self._on_flipped_changed(change.value))
+        watch(self.settings.get_child("selected_scale"), lambda change: self._on_scale_changed(change.value))
+
+        for i in range(len(self.MAJOR_SCALE_NOTES)):
+            watch(self.settings.get_child(f"pedal_position_{i}"), lambda _, i=i: self._on_pedal_or_mute_changed(i))
+            watch(self.settings.get_child(f"pedal_mute_{i}"), lambda _, i=i: self._on_pedal_or_mute_changed(i))
+
+        self._changing_scale = False
+
+    def _send_note_message(self, note: int, velocity: int):
+        if velocity == 0:
+            self._din_midi.send(MidiEvent(0, "note_off", note=note))
+        else:
+            self._din_midi.send(MidiEvent(0, "note_on", note=note, velocity=velocity))
+
+    def _on_flipped_changed(self, _: bool):
+        # play flip animation
+        self._laser_array.play_animation("flip", 0.5, "restore")
+
+    def _on_scale_changed(self, scale: str):
+        # apply the new scale
+        if scale != "Custom":
+            self.set_scale(scale)
+
+    def _on_pedal_or_mute_changed(self, _: Any):
+        # set the selected scale name to "Custom" if the change did not originate from a scale change
+        if not self._changing_scale:
+            self.settings["selected_scale"] = "Custom"
 
     def start(self):
         # fade in the initial color
@@ -53,6 +79,9 @@ class Orchtestrator(Component):
         # set all notes off
         for note, _ in enumerate(self.state["velocities"]):
             self.state["velocities"][note] = 0
+
+    def flip(self):
+        self.settings["flipped"] = not self.settings["flipped"]
 
     def set_scale(self, scale: str | int | list[int]):
         if isinstance(scale, str):
@@ -75,16 +104,38 @@ class Orchtestrator(Component):
             raise ValueError(f"Invalid scale type {type(scale)}.")
 
         # apply the new pedal positions
+        self._changing_scale = True
+
         for i, position in enumerate(pedal_positions):
             self.settings[f"pedal_position_{i}"] = position if position is not None else 0
             self.settings[f"pedal_mute_{i}"] = position is None
 
-    def flip(self):
-        self.settings["flipped"] = not self.settings["flipped"]
+        self._changing_scale = False
 
     def process(self, interceptions: ImageProcessor.Result):
         self.update_velocities(interceptions)
         self.update_brightness()
+
+    def _is_in_section(self, section: int, length: float) -> bool:
+        start = self.settings["section_start_" + str(section)]
+        end = self.settings.get("section_start_" + str(section + 1), np.inf)
+
+        return start <= length < end
+
+    def _apply_pedal_positions(self, step: int) -> int:
+        octave = step // len(self.MAJOR_SCALE_NOTES)
+        step = step % len(self.MAJOR_SCALE_NOTES)
+
+        # apply major scale
+        note = self.MAJOR_SCALE_NOTES[step]
+
+        # apply alterations from the pedal positions
+        note += self.settings[f"pedal_position_{step}"]
+
+        # apply octave
+        note += octave * 12
+
+        return note
 
     def update_velocities(self, interceptions: ImageProcessor.Result):
         velocities = [0] * 128
@@ -102,7 +153,7 @@ class Orchtestrator(Component):
                 active = False
 
             # use the diode index x as the step position and apply the current scale
-            note_offset = self._apply_scale(x)
+            note_offset = self._apply_pedal_positions(x)
 
             for y in range(self.NUM_SECTIONS):
                 note_active = active and self._is_in_section(y, length)
@@ -125,37 +176,6 @@ class Orchtestrator(Component):
         # apply the new velocities
         for note, velocity in enumerate(velocities):
             self.state["velocities"][note] = velocity
-
-    def _is_in_section(self, section: int, length: float) -> bool:
-        start = self.settings["section_start_" + str(section)]
-        end = self.settings.get("section_start_" + str(section + 1), np.inf)
-
-        return start <= length < end
-
-    def _apply_scale(self, step: int) -> int:
-        octave = step // len(self.MAJOR_SCALE_NOTES)
-        step = step % len(self.MAJOR_SCALE_NOTES)
-
-        # apply major scale
-        note = self.MAJOR_SCALE_NOTES[step]
-
-        # apply alterations from the pedal positions
-        note += self.settings[f"pedal_position_{step}"]
-
-        # apply octave
-        note += octave * 12
-
-        return note
-
-    def _send_note_message(self, note: int, velocity: int):
-        if velocity == 0:
-            self._din_midi.send(MidiEvent(0, "note_off", note=note))
-        else:
-            self._din_midi.send(MidiEvent(0, "note_on", note=note, velocity=velocity))
-
-    def _on_flipped(self, _: bool):
-        # play flip animation
-        self._laser_array.play_animation("flip", 0.5, "restore")
 
     def update_brightness(self):
         for x, _ in enumerate(self._laser_array):

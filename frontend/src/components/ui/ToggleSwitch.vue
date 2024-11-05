@@ -32,8 +32,8 @@ const model = defineModel({ type: Boolean, required: true });
       <div
         class="w-6 h-6 -m-1 rounded-full shadow-md transition-all"
         :class="{
-          'bg-light shadow-light/25 -translate-x-2/3': !modelValue,
-          'bg-primary shadow-primary/25 translate-x-2/3': modelValue,
+          'bg-light shadow-light/25 -translate-x-1/3': !modelValue,
+          'bg-primary shadow-primary/25 translate-x-1/3': modelValue,
         }"
       />
     </div>

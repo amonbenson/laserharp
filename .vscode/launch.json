@@ -5,12 +5,15 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "laserharp",
-            "type": "python",
+            "name": "laserharp.server",
+            "type": "debugpy",
             "request": "launch",
-            "module": "laserharp",
-            "justMyCode": true,
-            "cwd": "${workspaceFolder}/.."
+            "module": "laserharp.server",
+            "args": [
+                "--no-send-standby",
+            ],
+            "cwd": "${workspaceFolder}",
+            "justMyCode": false
         }
     ]
 }
