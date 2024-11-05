@@ -1,9 +1,10 @@
 <script setup>
-import { computed, ref, inject } from "vue";
+import { computed, ref, inject, watch } from "vue";
 import { useLaserharpStore } from "@/stores/laserharp";
 import BigToggleButton from "@/components/ui/BigToggleButton.vue";
 import NoteLabel from "@/components/NoteLabel.vue";
 import PedalSetting from "@/components/PedalSetting.vue";
+import SelectField from "@/components/ui/SelectField.vue";
 import SequenceSelector from "@/components/hwbutton/SequenceSelector.vue";
 
 const PEDAL_ORDER = [1, 0, 6, -1, 2, 3, 4, 5];
@@ -37,6 +38,18 @@ const hwbuttonActions = computed(() => Object.fromEntries(Object
   .slice(0, 4) // only show the first 4 assignment options
   .filter(([key]) => key.startsWith("sequence_"))
   .map(([key, value]) => ([key.replace("sequence_", ""), value]))));
+
+const MAJOR_SCALE_NOTES = ["C", "D", "E", "F", "G", "A", "B"];
+const _pedalPositionsLabel = (positions) => positions
+  .map((p, i) => p !== null ? `${MAJOR_SCALE_NOTES[i]}${p > 0 ? "#" : p < 0 ? "b" : ""}` : null)
+  .filter((p) => p !== null)
+  .join(", ");
+
+const scaleOptions = computed(() => ({
+    "Custom": "Custom",
+    ...Object.fromEntries((laserharp?.orchestrator?.state?.scale_pedal_positions ?? [])
+      .map(({ name, pedal_positions }) => [name, `${name} (${_pedalPositionsLabel(pedal_positions)})`])),
+  }));
 </script>
 
 <template>
@@ -135,6 +148,17 @@ const hwbuttonActions = computed(() => Object.fromEntries(Object
         />
       </template>
     </div>
+  </div>
+
+  <h2>Scales</h2>
+
+  <div class="flex justify-center items-center">
+    <SelectField
+      class="w-96"
+      :options="scaleOptions"
+      :model-value="laserharp.orchestrator?.settings?.selected_scale"
+      @update:model-value="api.updateSetting('orchestrator', 'selected_scale', $event)"
+    />
   </div>
 
   <h2>Button Assignment</h2>

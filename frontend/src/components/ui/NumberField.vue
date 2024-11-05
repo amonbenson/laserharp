@@ -14,7 +14,6 @@ const props = defineProps({
     type="number" 
     :min="props.min" 
     :max="props.max" 
-    :step="props.step" 
-    class="border rounded-l px-2 py-1"
+    :step="props.step"
   >
 </template>

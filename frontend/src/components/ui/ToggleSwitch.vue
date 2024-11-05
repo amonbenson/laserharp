@@ -10,7 +10,7 @@ const model = defineModel({ type: Boolean, required: true });
 
 <template>
   <div
-    class="w-12 h-8 rounded-full px-1 py-2"
+    class="w-10 h-8 rounded-full py-2"
     :class="{
       'cursor-pointer': !disabled,
       'opacity-50': disabled,

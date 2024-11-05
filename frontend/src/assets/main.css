@@ -39,10 +39,10 @@
     }
 
     input {
-        @apply px-2 py-1 bg-darker disabled:opacity-50 border-none rounded-none;
+        @apply px-4 py-1 bg-darker disabled:opacity-50 border-none rounded-full;
     }
 
     select {
-        @apply px-2 py-1 bg-darker disabled:opacity-50 border-none rounded-none;
+        @apply px-4 py-1 bg-darker disabled:opacity-50 border-none rounded-full;
     }
 }
