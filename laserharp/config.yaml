@@ -91,19 +91,18 @@ image_processor:
 
 orchestrator:
   settings:
-    root_note:
+    global_transpose:
       type: int
-      range: [0, 127]
-      default: 48
+      range: [-96, 96]
+      default: 0
+    section_transpose:
+      type: int
+      range: [-96, 96]
+      default: 24
 
     flipped:
       type: bool
       default: false
-
-    section_octave_spacing:
-      type: int
-      range: [0, 4]
-      default: 2
 
     section_start_0:
       type: float
@@ -186,6 +185,8 @@ orchestrator:
       type: str
       default: "Custom"
       client_writable: true
+
+  root_note: 60
 
   scales:
     - name: "Acoustic Scale (Lydian Dominant)"

@@ -11,6 +11,7 @@ from .scales import calculate_pedal_positions
 
 
 class Orchtestrator(Component):
+    ROOT_NOTE = 48
     NUM_SECTIONS = 3
     MAJOR_SCALE_NOTES = [0, 2, 4, 5, 7, 9, 11]
 
@@ -72,8 +73,7 @@ class Orchtestrator(Component):
 
     def start(self):
         # fade in the initial color
-        print("ORCHESTRATOR INITIALIZED")
-        self._laser_array.set_all(self.settings["unplucked_beam_brightness"], fade_duration=0.5)
+        self.update_brightness(fade_duration=0.5)
 
     def stop(self):
         # set all notes off
@@ -159,8 +159,9 @@ class Orchtestrator(Component):
                 note_active = active and self._is_in_section(y, length)
 
                 # calculate the midi note
-                note = self.settings["root_note"]
-                note += y * self.settings["section_octave_spacing"] * 12
+                note = self.config["root_note"]
+                note += self.settings["global_transpose"]
+                note += self.settings["section_transpose"] * (y - self.NUM_SECTIONS // 2)
                 note += note_offset
 
                 if note < 0 or note > 127:
@@ -177,18 +178,18 @@ class Orchtestrator(Component):
         for note, velocity in enumerate(velocities):
             self.state["velocities"][note] = velocity
 
-    def update_brightness(self):
+    def update_brightness(self, fade_duration: float = 0.0):
         for x, _ in enumerate(self._laser_array):
             beam_x = len(self._laser_array) - x - 1 if self.settings["flipped"] else x
 
-            # if the beam is muted, apply the muted brightness
             if self.settings[f"pedal_mute_{x % len(self.MAJOR_SCALE_NOTES)}"]:
-                self._laser_array[beam_x] = self.settings["muted_beam_brightness"]
-                continue
+                # if the beam is muted, apply the muted brightness
+                brightness = self.settings["muted_beam_brightness"]
+            elif any(self.state["active"][y][x] for y in range(self.NUM_SECTIONS)):
+                # if any of the corresponding sections are active, apply the plucked brightness
+                brightness = self.settings["plucked_beam_brightness"]
+            else:
+                # otherwise, apply the unpluckled brightness
+                brightness = self.settings["unplucked_beam_brightness"]
 
-            # check if any of the corresponding sections are active
-            active = any(self.state["active"][y][x] for y in range(self.NUM_SECTIONS))
-
-            # set the beam brightness
-            brightness = self.settings["plucked_beam_brightness"] if active else self.settings["unplucked_beam_brightness"]
-            self._laser_array[beam_x] = brightness
+            self._laser_array.set(beam_x, brightness, fade_duration=fade_duration)

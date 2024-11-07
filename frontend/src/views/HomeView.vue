@@ -6,32 +6,19 @@ import NoteLabel from "@/components/NoteLabel.vue";
 import PedalSetting from "@/components/PedalSetting.vue";
 import SelectField from "@/components/ui/SelectField.vue";
 import SequenceSelector from "@/components/hwbutton/SequenceSelector.vue";
+import CenterContainer from "@/components/CenterContainer.vue";
+import StringSection from "@/components/StringSection.vue";
 
 const PEDAL_ORDER = [1, 0, 6, -1, 2, 3, 4, 5];
 
 const api = inject("api");
 const laserharp = useLaserharpStore();
 
-const numSections = ref(3);
-const numLasers = computed(() => laserharp.laser_array?.config?.size ?? 0);
-const activeArray = computed(() => laserharp.orchestrator?.state?.active?.flat() ?? []);
-
 const midiConverterSettings = computed(() => laserharp.orchestrator?.settings);
 const pedalPositions = computed(() => Array(7).fill(null)
   .map((_, step) => midiConverterSettings.value?.[`pedal_position_${step}`] ?? 0));
 const mutes = computed(() => Array(7).fill(null)
   .map((_, step) => midiConverterSettings.value?.[`pedal_mute_${step}`] ?? false));
-
-const getX = (i) => i % numLasers.value;
-const getY = (i) => Math.floor(i / numLasers.value);
-
-const reindex = (i) => {
-  const x = getX(i);
-  const y = getY(i);
-
-  // flip the y-axis
-  return x + (numSections.value - 1 - y) * numLasers.value;
-};
 
 const hwbuttonActions = computed(() => Object.fromEntries(Object
   .entries(laserharp?.hwbutton?.settings ?? {})
@@ -53,10 +40,8 @@ const scaleOptions = computed(() => ({
 </script>
 
 <template>
-  <h2>Quick Actions</h2>
-
-  <div class="flex justify-center items-center">
-    <div class="flex space-x-4">
+  <center-container title="Quick Actions">
+    <div class="flex space-x-4 mb-8">
       <BigToggleButton
         label="Flip Harp"
         active-description="Audience View"
@@ -74,62 +59,16 @@ const scaleOptions = computed(() => ({
         @update:model-value="api.emit('app:calibrate')"
       />
     </div>
-  </div>
+  </center-container>
 
-  <h2>Strings</h2>
+  <center-container title="Strings">
+    <string-section
+      :orchestrator="laserharp.orchestrator"
+    />
+  </center-container>
 
-  <div class="flex justify-start sm:justify-center items-center overflow-x-auto">
-    <div
-      class="min-h-64 w-full lg:w-2/3 aspect-[2/1] grid gap-1"
-      :style="{
-        gridTemplateRows: `repeat(${numSections}, 1fr) auto`,
-        gridTemplateColumns: `repeat(${numLasers}, 1fr)`,
-      }"
-    >
-      <div
-        v-for="_, i in (numSections * numLasers)"
-        :key="i"
-        class="min-w-8 flex justify-center items-center overflow-hidden"
-        :class="{
-          'opacity-10': mutes[getX(i) % 7],
-        }"
-      >
-        <div
-          class="h-full bg-light rounded-full transition-all duration-100"
-          :class="`${activeArray[reindex(i)]
-            ? 'w-2 md:w-4 lg:w-6 opacity-100'
-            : 'w-1 opacity-25'
-          } ${getX(i) % 7 == 0
-            ? 'bg-primary'
-            : getX(i) % 7 == 3
-              ? 'bg-secondary'
-              : 'bg-light'
-          }`"
-        />
-      </div>
-
-      <!-- eslint-disable vue/no-v-html -->
-      <div
-        v-for="_, i in numLasers"
-        :key="i"
-        class="pt-2 flex justify-center items-center"
-        :class="{
-          'opacity-10': mutes[getX(i) % 7],
-        }"
-      >
-        <NoteLabel
-          :step="getX(i)"
-          :alteration="pedalPositions[getX(i) % 7]"
-        />
-      </div>
-      <!-- eslint-enable vue/no-v-html -->
-    </div>
-  </div>
-
-  <h2>Pedals</h2>
-
-  <div class="flex justify-start sm:justify-center items-center overflow-x-auto">
-    <div class="pt-2 flex space-x-8">
+  <center-container title="Pedals">
+    <div class="flex space-x-8">
       <template
         v-for="step, i in PEDAL_ORDER"
         :key="i"
@@ -148,22 +87,18 @@ const scaleOptions = computed(() => ({
         />
       </template>
     </div>
-  </div>
+  </center-container>
 
-  <h2>Scales</h2>
-
-  <div class="flex justify-center items-center">
+  <center-container title="Scales">
     <SelectField
       class="w-96"
       :options="scaleOptions"
       :model-value="laserharp.orchestrator?.settings?.selected_scale"
       @update:model-value="api.updateSetting('orchestrator', 'selected_scale', $event)"
     />
-  </div>
+  </center-container>
 
-  <h2>Button Assignment</h2>
-
-  <div class="flex justify-center items-center">
+  <center-container title="Buttons">
     <div class="w-full sm:w-96 flex flex-col space-y-2">
       <SequenceSelector
         v-for="value, key in hwbuttonActions"
@@ -173,5 +108,5 @@ const scaleOptions = computed(() => ({
         @update:model-value="api.updateSetting('hwbutton', `sequence_${key}`, $event)"
       />
     </div>
-  </div>
+  </center-container>
 </template>
