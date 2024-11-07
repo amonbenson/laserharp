@@ -232,8 +232,8 @@ class LaserHarpApp(Component):
             if event is None:
                 continue
 
-            # TODO: handle the midi event
-            print(event)
+            # forward the event to the orchestrator
+            self.orchestrator.handle_midi_event(event)
 
     def run_calibration(self):
         # notify the calibration thread

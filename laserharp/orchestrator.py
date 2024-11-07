@@ -15,6 +15,8 @@ class Orchtestrator(Component):
     NUM_SECTIONS = 3
     MAJOR_SCALE_NOTES = [0, 2, 4, 5, 7, 9, 11]
 
+    BRIGHTNESS_RESET_TICKS = 50
+
     def __init__(self, name: str, global_state: ReactiveDictNode, laser_array: LaserArray, din_midi: DinMidi):
         super().__init__(name, global_state)
 
@@ -50,6 +52,9 @@ class Orchtestrator(Component):
             watch(self.settings.get_child(f"pedal_mute_{i}"), lambda _, i=i: self._on_pedal_or_mute_changed(i))
 
         self._changing_scale = False
+        self._brightness_reset_counter = 0
+        self._brightness_user = [0] * len(self._laser_array)
+        self._brightness_user_scheduled_off = [False] * len(self._laser_array)
 
     def _send_note_message(self, note: int, velocity: int):
         if velocity == 0:
@@ -111,6 +116,23 @@ class Orchtestrator(Component):
             self.settings[f"pedal_mute_{i}"] = position is None
 
         self._changing_scale = False
+
+    def handle_midi_event(self, event: MidiEvent):
+        match event.message.type:
+            case "control_change":
+                pass
+            case "note_on":
+                # set on color directly
+                if event.message.note < len(self._laser_array):
+                    self._brightness_reset_counter = self.BRIGHTNESS_RESET_TICKS
+                    self._brightness_user[event.message.note] = event.message.velocity
+            case "note_off":
+                # schedule off color for the next update
+                if event.message.note < len(self._laser_array):
+                    self._brightness_reset_counter = self.BRIGHTNESS_RESET_TICKS
+                    self._brightness_user_scheduled_off[event.message.note] = True
+            case _:
+                pass
 
     def process(self, interceptions: ImageProcessor.Result):
         self.update_velocities(interceptions)
@@ -179,6 +201,23 @@ class Orchtestrator(Component):
             self.state["velocities"][note] = velocity
 
     def update_brightness(self, fade_duration: float = 0.0):
+        # skip brightness updates if the user is controlling the brightness
+        if self._brightness_reset_counter > 0:
+            self._brightness_reset_counter -= 1
+
+            # check if any beams are scheduled to be turned off
+            for x, brightness in enumerate(self._brightness_user):
+                self._laser_array.set(x, brightness, fade_duration=fade_duration)
+
+                # apply scheduled off for the next update tick
+                # This will essentially delay note off messages by one update cycle and prevent flickering on fast updates
+                if self._brightness_user_scheduled_off[x]:
+                    self._brightness_user[x] = 0
+                    self._brightness_user_scheduled_off[x] = False
+
+            return
+
+        # iterate over each beam and apply the corresponding brightness
         for x, _ in enumerate(self._laser_array):
             beam_x = len(self._laser_array) - x - 1 if self.settings["flipped"] else x
 
