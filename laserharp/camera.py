@@ -132,7 +132,7 @@ class Camera(Component):
                 "format": "YUV420",
             },  # use for the webserver
             lores={
-                "size": (320, 240),
+                "size": tuple(self.config["stream_resolution"]),
                 "format": "RGB888",
             },
             transform=transform,

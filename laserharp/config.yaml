@@ -51,11 +51,12 @@ camera:
 
   # basic confguration
   resolution: [640, 480] # VGA resolution
+  stream_resolution: [640, 480] # VGA resolution
   framerate: 50 # max: 50
   rotation: 180 # configure any 90 degree rotation
 
   # exposure settings
-  shutter_speed: 200000 # in microseconds
+  shutter_speed: 50000 # in microseconds
   iso: 200
 
   # image settings
@@ -74,15 +75,15 @@ image_calibrator:
 
   preblur: 3 # gaussian blur kernel size
   threshold: 150 # minimum brightness to be considered
-  min_coverage: 0.4 # percentual number of blobs that must be captured for each beam
+  min_coverage: 0.3 # percentual number of blobs that must be captured for each beam
 
 # settings during normal operation
 image_processor:
   preblur: 1 # gaussian blur kernel size
 
-  threshold: 100 # minimum brightness to be considered a beam (0-255)
+  threshold: 50 # minimum brightness to be considered a beam (0-255)
   length_min: 0.05 # minimum beam length in meters
-  length_max: 1.2 # maximum beam length in meters
+  length_max: 2.0 # maximum beam length in meters
 
   filter_cutoff: 6 # cutoff frequency in Hz
   filter_size: 3 # filter kernel size

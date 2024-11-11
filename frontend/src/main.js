@@ -6,7 +6,7 @@ import App from "./App.vue";
 import router from "./router";
 import api from "./plugins/api";
 
-const DEFAULT_API_URL = process.env.NODE_ENV === "production" ? "/api" : "http://:5000/api";
+const DEFAULT_API_URL = process.env.NODE_ENV === "production" ? "/api" : "http://localhost:5000/api";
 const DEFAULT_WS_HOST = process.env.NODE_ENV === "production" ? "http://" : "http://:5000";
 const DEFAULT_WS_PATH = "/ws";
 

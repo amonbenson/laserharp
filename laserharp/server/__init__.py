@@ -94,6 +94,7 @@ def create_backend(laserharp: LaserHarpApp) -> tuple[Flask, callable]:
 
     @app.route("/api/stream.mjpg")
     def stream():
+        print("START STREAMING")
         if not laserharp.camera.enabled:
             return Response("Camera is not enabled", status=503)
 

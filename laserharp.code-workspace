@@ -27,13 +27,13 @@
 						"name": "backend",
 						"commands": [
 							"source .venv/bin/activate",
-							"python -m laserharp.server"
+							"python -m laserharp.server --no-send-standby"
 						]
 					},
 					{
 						"name": "frontend",
 						"commands": [
-							"yarn --cwd frontend dev --port 8080 --host"
+							"yarn --cwd frontend dev --port 8080 --host 0.0.0.0"
 						]
 					}
 				]
