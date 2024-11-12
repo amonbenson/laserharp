@@ -1,5 +1,5 @@
 [Unit]
-Description=Laserharp Application
+Description=Laserharp Access Point
 After=network.target
 
 [Service]
