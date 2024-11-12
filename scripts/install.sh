@@ -23,6 +23,7 @@ sudo rm -rf /etc/nginx/sites-enabled/*
 sudo ln -s /etc/nginx/sites-available/laserharp.local /etc/nginx/sites-enabled/laserharp.local
 
 # build and install laserharp service
+pip3 install gunicorn git+https://github.com/amonbenson/perci.git --break-system-packages
 pip3 install . --break-system-packages
 sudo cp ./scripts/laserharp.service /etc/systemd/system/laserharp.service
 sudo systemctl enable laserharp

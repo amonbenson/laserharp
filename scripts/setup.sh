@@ -5,7 +5,7 @@ DEBIAN_FRONTEND=noninteractive
 
 # Install the required packages
 sudo apt-get update
-sudo apt-get install -y python3 python3-venv python3-setuptools python3-pip python3-wheel
+sudo apt-get install -y python3 python3-venv python3-setuptools python3-pip python3-wheel nginx
 
 # Install libcamera2 and opencv
 sudo apt-get install -y --no-install-recommends python3-picamera2 sudo python3-opencv
@@ -32,3 +32,9 @@ set -eux
 
 # Install frontend requirements
 yarn --cwd frontend install
+
+# allow user to run shutdown without password
+sudo chmod u+s /sbin/poweroff /sbin/reboot /sbin/shutdown
+
+set +eux
+source ~/.bashrc

@@ -9,4 +9,5 @@ appdirs~=1.4.4
 flask~=3.0.3
 flask-cors~=4.0.1
 flask-socketio~=5.3.6
+gunicorn~=23.0.0
 git+https://github.com/amonbenson/perci.git

@@ -3,7 +3,7 @@ Description=Laserharp Access Point
 After=network.target
 
 [Service]
-User=pi
+User=root
 ExecStart=/usr/local/bin/laserharp_ap.sh
 
 [Install]
