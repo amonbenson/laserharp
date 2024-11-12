@@ -1,0 +1,10 @@
+[Unit]
+Description=Laserharp Application
+After=network.target
+
+[Service]
+User=pi
+ExecStart=/usr/local/bin/laserharp_ap.sh
+
+[Install]
+WantedBy=multi-user.target
