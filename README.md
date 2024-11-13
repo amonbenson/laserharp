@@ -145,7 +145,7 @@ Host -> Laserharp: 0x90 <note> <velocity>
 
 Turn on the laser corresponding to the note. A note value of 127 will turn on all lasers at once. The velocity determines the brightness of the laser.
 
-The brightness is restored automatically after 500ms. Note that interceptions will not be detected when the laser is turned off or too dim.
+The brightness is restored automatically after 1s. Note that interceptions will not be detected when the laser is turned off or too dim.
 
 ### Restore Laser Brightness (CC 102) :heavy_check_mark:
 
