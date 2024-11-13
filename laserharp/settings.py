@@ -1,8 +1,11 @@
 import logging
+import threading
+import time
 from abc import ABC, abstractmethod
 from typing import Any, TypeVar, Generic, Optional, Union
+from dataclasses import asdict
 import numpy as np
-from perci import ReactiveNode, ReactiveDictNode, watch
+from perci import ReactiveNode, ReactiveDictNode, create_queue_watcher
 from .store import Store
 
 
@@ -159,6 +162,9 @@ class SettingsManager:
 
         self._store = Store()
 
+        self._running = False
+        self._thread = threading.Thread(target=self._run_store_thread)
+
     def setup(self):
         for component in self._global_state.keys():
             if "settings" not in self._global_state[component]["config"]:
@@ -192,8 +198,43 @@ class SettingsManager:
                 # fetch the initial value from the store
                 self._fetch_store(component, key)
 
-                # when the target value changes, update the store
-                watch(target, lambda _, _component=component, _key=key: self._update_store(_component, _key))
+        # add a watcher to the global state
+        self._watcher = create_queue_watcher(self._global_state)
+
+    def start(self):
+        self._running = True
+        self._thread.start()
+
+    def stop(self):
+        self._global_state.get_namespace().remove_watcher(self._watcher)
+        self._running = False
+
+    def _run_store_thread(self):
+        while self._running:
+            changes = self._watcher.get_changes()
+            changed_settings = {}
+
+            # gather all changed settings
+            for change in changes:
+                if change.change_type != "update":
+                    continue
+
+                # path should match root.<component>.settings.<key>
+                if len(change.path) != 4:
+                    continue
+
+                if change.path[0] != "root" or change.path[2] != "settings":
+                    continue
+
+                component = change.path[1]
+                key = change.path[3]
+                changed_settings[component + "." + key] = change.value
+
+            # store all changed settings
+            for setting_key, value in changed_settings.items():
+                self._store.update_setting(setting_key, str(value))
+
+            time.sleep(1)
 
     def _fetch_store(self, component: str, key: str):
         value = self._store.fetch_setting(component + "." + key)
@@ -205,11 +246,6 @@ class SettingsManager:
             self.get(component, key).set_value(value)
         except ValueError:
             logging.error(f"Failed to set initial value '{value}' for setting '{component}.{key}'")
-
-    def _update_store(self, component: str, key: str):
-        setting = self.get(component, key)
-        logging.debug(f"Updating store for setting '{component}.{key}' to '{setting.get_value()}'")
-        self._store.update_setting(component + "." + key, str(setting.get_value()))
 
     def has(self, component: str, key: str) -> bool:
         return component + "." + key in self._settings

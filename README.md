@@ -94,34 +94,114 @@ sudo chmod u+s /sbin/poweroff /sbin/reboot /sbin/shutdown
 
 - The harp is divided into three horizontal sections resulting in 3 different octave ranges
 
-## MIDI In Messages
+
+
+## Transmitted MIDI Messages
 
 :heavy_check_mark: &ndash; Implemented<br>
 :x: &ndash; Not implemented
 
-### Set Laser Brightness Directly :x:
-```
-Host -> Laserharp: 0x90 <note> <velocity>
-```
-Set the brightness of the laser corresponding to the note to the velocity value. Note that multiple notes may control the same laser diode depending on the section spacing. A note value of 127 will set the brightness of all lasers at once.
+### Note On :heavy_check_mark:
 
-### Set Laser Brightness Directly :x:
+```
+Laserharp -> Host: 0x90 <note> <velocity>
+```
+Sent when a laser is intercepted. The note value is determined by the diode and section that was intercepted. The velocity is fixed at 127.
+
+### Note Off :heavy_check_mark:
+
+```
+Laserharp -> Host: 0x80 <note> <velocity>
+```
+
+Sent immediately after a laser was plucked. The velocity is fixed at 127.
+
+### Pitch Bend :x:
+
+```
+Laserharp -> Host: 0xe0 <pitch_bend_msb> <pitch_bend_lsb>
+```
+
+Sent during interception when the hand is moved along the laser beam.
+
+
+
+## Received MIDI Messages
+
+:heavy_check_mark: &ndash; Implemented<br>
+:x: &ndash; Not implemented
+
+### Set Laser Brightness Directly (Note On / Note Off) :heavy_check_mark: (set all lasers :x:)
+
 ```
 Host -> Laserharp: 0x80 <note> <velocity>
 ```
+
 Turn off the laser corresponding to the note. A note value of 127 will turn off all lasers at once.
 
-### Set Unplucked Laser Brightness :x:
 ```
-Host -> Laserharp: 0xb0 102 <brightness>
+Host -> Laserharp: 0x90 <note> <velocity>
 ```
-Set the brightness for unplucked lasers.
 
-### Set Plucked Laser Brightness :x:
+Turn on the laser corresponding to the note. A note value of 127 will turn on all lasers at once. The velocity determines the brightness of the laser.
+
+The brightness is restored automatically after 500ms. Note that interceptions will not be detected when the laser is turned off or too dim.
+
+### Restore Laser Brightness (CC 102) :heavy_check_mark:
+
+```
+Host -> Laserharp: 0xb0 102 <value>
+```
+
+Restores the laser brightness to the previous value immediately. Value must be &ge; 64.
+
+### Set Unplucked Laser Brightness (CC 103) :heavy_check_mark:
+
 ```
 Host -> Laserharp: 0xb0 103 <brightness>
 ```
+
+Set the brightness for unplucked lasers.
+
+### Set Plucked Laser Brightness (CC 104) :heavy_check_mark:
+
+```
+Host -> Laserharp: 0xb0 104 <brightness>
+```
+
 Set the brightness when a laser is plucked.
+
+### Set Muted Laser Brightness (CC 105) :heavy_check_mark:
+
+```
+Host -> Laserharp: 0xb0 105 <brightness>
+```
+
+Sets the brightness when a laser is muted.
+
+### Set Pedal Position And Mutes (CC 110 - 116) :heavy_check_mark:
+
+```
+Host -> Laserharp: 0xb0 <pedal_cc> <position>
+```
+
+Sets the position and mute of a pedal.
+The pedals are mapped as follows:
+
+- CC 110 &ndash; C pedal
+- CC 111 &ndash; D pedal
+- CC 112 &ndash; E pedal
+- CC 113 &ndash; F pedal
+- CC 114 &ndash; G pedal
+- CC 115 &ndash; A pedal
+- CC 116 &ndash; B pedal
+
+The value is divided into the ranges:
+
+- 0 &ndash; 31 &ndash; muted
+- 32 &ndash; 63 &ndash; lower position (sharp)
+- 64 &ndash; 95 &ndash; middle position (natural)
+- 96 &ndash; 127 &ndash; upper position (flat)
 
 
 
@@ -248,6 +328,8 @@ RPi -> STM: 0xf2 <fade_delay> <fade_duration> <unused>
 Starts by playing the boot animation, waits for the fade delay, and then fades the lasers to black over the fade duration. Both delay and duration are given in tenths of a second.
 
 **Important: This is intended to be used when the harp is turned off. It will block any further IPC commands and the STM will not respond until it is power cycled.**
+
+
 
 ## TODO Software
 

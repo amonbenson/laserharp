@@ -86,6 +86,7 @@ class LaserHarpApp(Component):
 
         # start all components
         logging.info("Starting components...")
+        self.settings.start()
         self.ipc.start()
         self.din_midi.start()
         self.laser_array.start()
@@ -139,6 +140,7 @@ class LaserHarpApp(Component):
         self.laser_array.stop()
         self.din_midi.stop()
         self.ipc.stop()
+        self.settings.stop()
 
         self._status_change(["stopping"], "stopped")
 

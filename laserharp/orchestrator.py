@@ -117,10 +117,47 @@ class Orchtestrator(Component):
 
         self._changing_scale = False
 
+    def _divide_cc_range(self, value: int, sections: int) -> int:
+        return (value * sections) // 128
+
     def handle_midi_event(self, event: MidiEvent):
         match event.message.type:
             case "control_change":
-                pass
+                # restore brightness immediately
+                match event.message.control:
+                    case 102:
+                        # restore brightness
+                        self._brightness_reset_counter = 0
+                    case 103:
+                        # set unpluckled brightness
+                        self.settings["unplucked_beam_brightness"] = event.message.value
+                    case 104:
+                        # set plucked brightness
+                        self.settings["plucked_beam_brightness"] = event.message.value
+                    case 105:
+                        # set muted brightness
+                        self.settings["muted_beam_brightness"] = event.message.value
+                    case control if 110 <= control <= 116:
+                        position = control - 110
+                        match self._divide_cc_range(event.message.value, 4):
+                            case 0:
+                                # mute pedal
+                                self.settings[f"pedal_position_{position}"] = 0
+                                self.settings[f"pedal_mute_{position}"] = True
+                            case 1:
+                                # set pedal to sharp position
+                                self.settings[f"pedal_position_{position}"] = 1
+                                self.settings[f"pedal_mute_{position}"] = False
+                            case 2:
+                                # set pedal to natural position
+                                self.settings[f"pedal_position_{position}"] = 0
+                                self.settings[f"pedal_mute_{position}"] = False
+                            case _:
+                                # set pedal to flat position
+                                self.settings[f"pedal_position_{position}"] = -1
+                                self.settings[f"pedal_mute_{position}"] = False
+                    case _:
+                        pass
             case "note_on":
                 # set on color directly
                 if event.message.note < len(self._laser_array):
