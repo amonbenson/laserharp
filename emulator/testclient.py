@@ -3,6 +3,7 @@ import sys
 import select
 import traceback
 import time
+import argparse
 from multiprocessing.connection import Client, Connection
 from threading import Thread, Lock
 from .hex import hexparse, hexdumps
@@ -20,16 +21,18 @@ def recv_thread(conn: Connection):
             msg = conn.recv()
             print(f"emulator >>> (RX) {hexdumps(msg)}")
         except EOFError:
-            print("\nConnection closed by the server. Exiting...")
+            print("\nConnection closed by the server. Press ENTER to exit.")
             conn.close()
             break
 
 if __name__ == "__main__":
-    port = int(os.getenv("LH_EMULATOR_SERIAL_PORT", 7500))
-    authkey = os.getenv("LH_EMULATOR_SERIAL_AUTHKEY", "lhemu!23").encode("utf-8")
+    parser = argparse.ArgumentParser("laserharp emulator")
+    parser.add_argument("--port", type=int, default=7500)
+    parser.add_argument("--authkey", type=str, default="hwemu!23")
+    args = parser.parse_args()
 
-    conn = Client(("localhost", port), authkey=authkey)
-    print(f"Connected to {port}. Write your message in hex format (e. g. \"12 34 ab ef\"). Use CTRL+D to exit.")
+    conn = Client(("localhost", args.port), authkey=args.authkey.encode("utf-8"))
+    print(f"Connected to {args.port}. Write your message in hex format (e. g. \"12 34 ab ef\"). Use CTRL+D to exit.")
 
     try:
         # setup receiver and sender threads

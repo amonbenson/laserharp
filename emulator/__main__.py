@@ -1,6 +1,7 @@
 import os
 import sys
 import logging
+import argparse
 from multiprocessing.connection import Listener
 from .hex import hexdumps
 
@@ -9,11 +10,14 @@ logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 logger = logging.getLogger("emulator")
 
 if __name__ == "__main__":
-    port = int(os.getenv("LH_EMULATOR_SERIAL_PORT", 7500))
-    authkey = os.getenv("LH_EMULATOR_SERIAL_AUTHKEY", "lhemu!23").encode("utf-8")
-    listener = Listener(("localhost", port), authkey=authkey)
+    parser = argparse.ArgumentParser("laserharp emulator")
+    parser.add_argument("--port", type=int, default=7500)
+    parser.add_argument("--authkey", type=str, default="hwemu!23")
+    args = parser.parse_args()
 
-    logger.info(f"Listening on port {port}. Use CTRL+C to exit.")
+    listener = Listener(("localhost", args.port), authkey=args.authkey.encode("utf-8"))
+
+    logger.info(f"Listening on port {args.port}. Use CTRL+C to exit.")
 
     while True:
         try:
