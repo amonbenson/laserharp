@@ -62,14 +62,16 @@ if __name__ == "__main__":
                 #     continue
 
                 # send the message
-                conn.send(msg)
+                if not conn.closed:
+                    conn.send(msg)
 
                 time.sleep(0.01) # wait a bit in case the server responds immediately
             except KeyboardInterrupt:
                 print()
             except EOFError:
                 print("\nEOF received from console. Exiting...")
-                conn.close()
+                if not conn.closed:
+                    conn.close()
                 break
 
         # close the connection and join the receiver thread
