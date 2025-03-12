@@ -1,0 +1,24 @@
+services:
+  db:
+    image: eqalpha/keydb:latest
+    restart: unless-stopped
+    command: keydb-server /etc/keydb/redis.conf --server-threads 2
+
+    volumes:
+      - ./redis.conf:/etc/keydb/redis.conf
+      - data:/data
+
+    ports:
+      - 6379:6379
+
+  # laserharp:
+
+  # laserharp-webui:
+
+  # emulator:
+
+  # emulator-webui:
+
+volumes:
+  data:
+    driver: local
