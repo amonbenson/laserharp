@@ -2,6 +2,7 @@ import io
 import logging
 import time
 import threading
+import traceback
 from enum import Enum
 import numpy as np
 from perci import ReactiveDictNode
@@ -14,6 +15,9 @@ try:
 
     PICAMERA2_AVAILABLE = True
 except ImportError:
+    # traceback.print_exc()
+    # on error "ImportError: /lib/aarch64-linux-gnu/libepoxy.so.0: undefined symbol: epoxy_\udce7lGetCom\udce2inerSta\udce7eParameterfvNV"
+    # --> pip3 install pyav
     PICAMERA2_AVAILABLE = False
 
 

@@ -7,8 +7,8 @@ app:
   send_standby: true # enable STM board standby mode when the application is stopped
 
 laser_array:
-  size: 15 # number of lasers
-  translation_table: [4, 5, 6, 7, 8, 9, 10, 11, 13, 14, 15, 16, 17, 18, 19] # mapping from note to laser index
+  size: 11 # number of lasers
+  translation_table: [6, 7, 8, 9, 10, 11, 13, 14, 15, 16, 17] # mapping from note to laser index
 
 ipc:
   # How to enable the primary UART:
