@@ -13,7 +13,7 @@ if __name__ == "__main__":
 
         async with trio.open_nursery() as nursery:
             if bool(os.getenv("LH_EMULATOR")):
-                from ..mqtt import get_mqtt
+                from ...common.mqtt import get_mqtt
                 nursery.start_soon(get_mqtt().run, nursery)
 
             nursery.start_soon(camera.run, nursery)

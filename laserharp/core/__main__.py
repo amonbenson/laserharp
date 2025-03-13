@@ -1,5 +1,5 @@
 import trio
-from .mqtt import get_mqtt_client
+from ..common.mqtt import get_mqtt_client
 
 async def main():
     mqtt = get_mqtt_client()

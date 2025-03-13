@@ -2,7 +2,7 @@ import time
 import trio
 import logging
 import numpy as np
-from ..mqtt import get_mqtt
+from ...common.mqtt import get_mqtt
 
 
 logger = logging.getLogger("lh:camera")
