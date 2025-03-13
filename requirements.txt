@@ -1,0 +1,5 @@
+python-dotenv~=1.0.1
+trio~=0.29.0
+paho-mqtt~=2.1.0
+numpy~=2.2.3
+git+https://github.com/bkanuka/trio-paho-mqtt.git

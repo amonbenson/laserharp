@@ -1,0 +1,49 @@
+services:
+  # db:
+  #   image: eqalpha/keydb:latest
+  #   restart: unless-stopped
+  #   command: keydb-server /etc/keydb/redis.conf --server-threads 2
+
+  #   volumes:
+  #     - ./redis.conf:/etc/keydb/redis.conf
+  #     - data:/data
+
+  #   ports:
+  #     - 6379:6379
+
+  mosquitto:
+    image: eclipse-mosquitto:latest
+    restart: unless-stopped
+
+    volumes:
+      - ./mosquitto.conf:/mosquitto/config/mosquitto.conf
+      - data:/mosquitto/data
+
+    ports:
+      - 1883:1883 # mqtt port
+      - 8083:8083 # mqtt via websocket port
+
+  mqttx:
+    image: emqx/mqttx-web
+    restart: unless-stopped
+
+    ports:
+      - 7600:80
+
+  # laserharp:
+  #   build:
+  #     context: .
+  #     dockerfile: ./Dockerfile
+
+  #   environment:
+  #     EMULATOR: true
+
+  # laserharp-webui:
+
+  # emulator:
+
+  # emulator-webui:
+
+volumes:
+  data:
+    driver: local
