@@ -1,8 +1,14 @@
+import logging
 import trio
 from ..common.mqtt import MQTT
 
+
+logger = logging.getLogger("lh:emulator")
+
+
 async def camera_stream():
     try:
+        logger.info("Starting camera stream...")
         while True:
             MQTT.publish("lh/emulator/camera/stream", "test")
             await trio.sleep(0.5) # trio.sleep(1 / 50)

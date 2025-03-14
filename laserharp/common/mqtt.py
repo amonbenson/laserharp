@@ -24,7 +24,7 @@ class Subscription:
 
     async def __aiter__(self):
         async with self.receive_channel:
-            async for payload in self.chanreceive_channelnel:
+            async for payload in self.receive_channel:
                 if not self.raw:
                     payload = json.loads(payload)
 
