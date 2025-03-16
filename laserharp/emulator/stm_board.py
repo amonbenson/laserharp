@@ -9,7 +9,7 @@ logger = logging.getLogger("lh:emulator:serial")
 
 class STMBoard:
     def __init__(self, num_lasers):
-        self.lasers = np.zeros(num_lasers, dtype=float)
+        self.lasers = np.ones(num_lasers, dtype=float)
 
     async def run(self):
         # publish the initial laser state

@@ -42,7 +42,18 @@ services:
 
   # emulator:
 
-  # emulator-webui:
+  emulator-webui:
+    build:
+      context: emulator-webui
+      dockerfile: ./Dockerfile
+    restart: unless-stopped
+
+    environment:
+      VITE_MQTT_HOST: mosquitto
+      VITE_MQTT_PORT: 8083 # use websocket port
+
+    ports:
+      - 7500:8080
 
 volumes:
   data:

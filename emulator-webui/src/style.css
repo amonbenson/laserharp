@@ -1,0 +1,14 @@
+@import "tailwindcss";
+
+@theme {
+  --color-dark: var(--color-zinc-950);
+  --color-panel: var(--color-zinc-900);
+
+  --color-light: var(--color-zinc-50);
+}
+
+@layer base {
+  html, body, #app {
+    @apply bg-dark text-light select-none;
+  }
+}
