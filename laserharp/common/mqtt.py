@@ -1,16 +1,14 @@
-import os
 import trio
 import json
 import logging
-from collections import defaultdict
-from typing import Any, Optional
 from dataclasses import dataclass
 import paho.mqtt.client as mqtt
 from trio_paho_mqtt import AsyncClient
+from .env import getenv
 
 
-MQTT_HOST = os.getenv("LH_MQTT_HOST", "127.0.0.1")
-MQTT_PORT = int(os.getenv("LH_MQTT_PORT", 1883))
+MQTT_HOST = getenv("LH_MQTT_HOST", type=str, required=True)
+MQTT_PORT = getenv("LH_MQTT_PORT", type=int, required=True)
 
 logger = logging.getLogger("lh:mqtt")
 

@@ -1,12 +1,12 @@
-import os
 import logging
 import trio
 from ..common.mqtt import MQTT
+from ..common.env import getenv
 from .camera import Camera
 from .stm_board import STMBoard
 
 
-NUM_LASERS = int(os.getenv("LH_EMULATOR_NUM_LASERS", 11))
+NUM_LASERS = getenv("LH_EMULATOR_NUM_LASERS", type=int, default=11)
 
 logger = logging.getLogger("lh:emulator")
 

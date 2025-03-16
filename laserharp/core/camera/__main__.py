@@ -1,6 +1,6 @@
-import os
 import trio
 from . import get_camera
+from ...common.env import getenv
 
 if __name__ == "__main__":
     async def consumer(frames: trio.MemoryReceiveChannel):
@@ -12,9 +12,9 @@ if __name__ == "__main__":
         camera = get_camera()
 
         async with trio.open_nursery() as nursery:
-            if bool(os.getenv("LH_EMULATOR")):
-                from ...common.mqtt import get_mqtt
-                nursery.start_soon(get_mqtt().run, nursery)
+            if getenv("LH_EMULATOR", type=bool):
+                from ...common.mqtt import MQTT
+                nursery.start_soon(MQTT.run)
 
             nursery.start_soon(camera.run, nursery)
             nursery.start_soon(consumer, camera.frame_receive_channel())

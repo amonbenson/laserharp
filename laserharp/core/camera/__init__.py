@@ -1,9 +1,9 @@
-import os
 from .physical_camera import PhysicalCamera
 from .emulated_camera import EmulatedCamera
+from ...common.env import getenv
 
 
-EMULATOR = bool(os.getenv("LH_EMULATOR"))
+EMULATOR = getenv("LH_EMULATOR", type=bool)
 
 
 if EMULATOR:
