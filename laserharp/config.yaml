@@ -6,9 +6,27 @@ app:
 
   send_standby: true # enable STM board standby mode when the application is stopped
 
+mqtt: {}
+
 laser_array:
   size: 15 # number of lasers
-  translation_table: [4, 5, 6, 7, 8, 9, 10, 11, 13, 14, 15, 16, 17, 18, 19] # mapping from note to laser index
+  translation_table: [
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+  ] # mapping from note to laser index
 
 ipc:
   # How to enable the primary UART:
@@ -34,14 +52,14 @@ din_midi:
   port: /dev/ttyAMA2
   baudrate: 38400 # note: this results in 31250 baud when using "dtoverlay=midi-uart2" in /boot/config.txt
 
-  # for Raspberry Pi 3 Model B+:
-  # # Add to /boot/config.txt:
-  # # dtoverlay=disable-bt
-  # # enable_uart=1
-  # # dtoverlay=uart1,txd1_pin=32,rxd1_pin=33
-  # # dtoverlay=midi-uart0
-  # port: /dev/serial0 # PL011 UART
-  # baudrate: 38400
+# for Raspberry Pi 3 Model B+:
+# # Add to /boot/config.txt:
+# # dtoverlay=disable-bt
+# # enable_uart=1
+# # dtoverlay=uart1,txd1_pin=32,rxd1_pin=33
+# # dtoverlay=midi-uart0
+# port: /dev/serial0 # PL011 UART
+# baudrate: 38400
 
 camera:
   # mechanical parameters
@@ -248,7 +266,7 @@ orchestrator:
       notes: [0, 2, 4, 7, 9]
     - name: "Minor Pentatonic"
       notes: [0, 3, 5, 7, 10]
- 
+
 hwbutton:
   settings:
     sequence_sxx:

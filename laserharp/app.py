@@ -8,6 +8,7 @@ import numpy as np
 from perci import reactive, ReactiveDictNode
 import cv2
 from .midi import MidiEvent
+from .mqtt import MQTT
 from .ipc import IPCController
 from .din_midi import DinMidi
 from .laser_array import LaserArray
@@ -22,7 +23,7 @@ from .settings import SettingsManager
 
 class LaserHarpApp(Component):
     def __init__(self, config: dict):
-        self._component_names = ["app", "ipc", "din_midi", "laser_array", "camera", "image_processor", "image_calibrator", "orchestrator", "hwbutton"]
+        self._component_names = ["app", "mqtt", "ipc", "din_midi", "laser_array", "camera", "image_processor", "image_calibrator", "orchestrator", "hwbutton"]
         self._global_state = reactive({name: {"config": config[name]} for name in self._component_names})
 
         super().__init__("app", self._global_state)
@@ -32,6 +33,7 @@ class LaserHarpApp(Component):
         self.settings.setup()
 
         # setup all components
+        self.mqtt = MQTT("mqtt", self._global_state)
         self.ipc = IPCController("ipc", self._global_state)
         self.din_midi = DinMidi("din_midi", self._global_state)
         self.laser_array = LaserArray("laser_array", self._global_state, self.ipc)
@@ -46,6 +48,7 @@ class LaserHarpApp(Component):
         self._calibrate_thread = threading.Thread(target=self._calibrate_thread_run, daemon=True)
         self._ipc_read_thread = threading.Thread(target=self._ipc_read_thread_run, daemon=True)
         self._din_midi_read_thread = threading.Thread(target=self._din_midi_read_thread_run, daemon=True)
+        self._mqtt_read_thread = threading.Thread(target=self._mqtt_read_thread_run, daemon=True)
 
         self._calibration_request = False
 
@@ -86,6 +89,7 @@ class LaserHarpApp(Component):
 
         # start all components
         logging.info("Starting components...")
+        self.mqtt.start()
         self.settings.start()
         self.ipc.start()
         self.din_midi.start()
@@ -101,6 +105,7 @@ class LaserHarpApp(Component):
         self._capture_thread.start()
         self._ipc_read_thread.start()
         self._din_midi_read_thread.start()
+        self._mqtt_read_thread.start()
 
         # load the calibration
         logging.info("Loading calibration...")
@@ -236,6 +241,15 @@ class LaserHarpApp(Component):
 
             # forward the event to the orchestrator
             self.orchestrator.handle_midi_event(event)
+
+    def _mqtt_read_thread_run(self):
+        while self.state["status"] != "stopping":
+            # read a message
+            message = self.mqtt.read(timeout=0.5)
+            if message is None:
+                continue
+
+            print(f"MQTT: {message}")
 
     def run_calibration(self):
         # notify the calibration thread
