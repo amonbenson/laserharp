@@ -16,13 +16,13 @@ logger = logging.getLogger("lh:mqtt")
 @dataclass
 class Subscription:
     topic: str
-    send_channel: trio.MemorySendChannel
-    receive_channel: trio.MemoryReceiveChannel
+    _send_channel: trio.MemorySendChannel
+    _receive_channel: trio.MemoryReceiveChannel
     raw: bool
 
     async def __aiter__(self):
-        async with self.receive_channel:
-            async for payload in self.receive_channel:
+        async with self._receive_channel:
+            async for payload in self._receive_channel:
                 try:
                     if not self.raw:
                         payload = json.loads(payload)
@@ -45,7 +45,7 @@ class MQTTClient:
             for topic_subs in self._subscriptions.values():
                 for sub in topic_subs:
                     if mqtt.topic_matches_sub(sub.topic, message.topic):
-                        await sub.send_channel.send(message.payload)
+                        await sub._send_channel.send(message.payload)
 
     async def run(self):
         try:
@@ -67,7 +67,12 @@ class MQTTClient:
         await self._ready_event.wait()
 
         send_channel, receive_channel = trio.open_memory_channel(0)
-        sub = Subscription(topic, send_channel, receive_channel, raw)
+        sub = Subscription(
+            topic=topic,
+            _send_channel=send_channel,
+            _receive_channel=receive_channel,
+            raw=raw,
+        )
 
         # subscribe to the mqtt topic if this is the first subscriber
         if topic not in self._subscriptions:
@@ -92,14 +97,18 @@ class MQTTClient:
             self._client.unsubscribe(sub.topic, properties)
             del self._subscriptions[sub.topic]
 
-    async def publish(self, topic, payload, qos=0, retain=False, properties=None):
+    async def publish(self, topic, payload, qos=0, retain=False, properties=None, debug=True):
         await self._ready_event.wait()
 
         # serialize json
         if isinstance(payload, (dict, list)):
             payload = json.dumps(payload)
 
-        logger.debug(f"PUB {topic}: {payload}")
+        if logger.level <= logging.DEBUG and debug:
+            payload_str = str(payload)
+            if len(payload_str) > 100:
+                payload_str = f"{payload_str[:100]}... ({len(payload_str) - 100} more bytes)"
+            logger.debug(f"PUB {topic}: {payload_str}")
         self._client.publish(topic, payload, qos, retain, properties)
 
 

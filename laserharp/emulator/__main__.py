@@ -19,7 +19,7 @@ async def main():
     async with trio.open_nursery() as nursery:
         nursery.start_soon(MQTT.run)
         nursery.start_soon(stm.run)
-        # nursery.start_soon(camera.run)
+        nursery.start_soon(camera.run)
 
 
 if __name__ == "__main__":

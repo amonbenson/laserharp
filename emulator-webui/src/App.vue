@@ -1,9 +1,12 @@
 <script setup>
 import { computed, onBeforeUnmount, onMounted, ref, watch } from "vue";
 import { useTopic } from "./composables/mqtt";
+import { $mqtt } from "vue-paho-mqtt";
 
 const LASER_TRANSLATION_SPAN = 1.5;
 const LASER_ROTATION_SPAN = 30;
+
+const cameraStream = useTopic("lh/emulator/camera/stream", { default: "", raw: true, readonly: true });
 
 const laserBrightnesses = useTopic("lh/emulator/lasers/brightnesses", { default: [] });
 const laserCount = computed(() => laserBrightnesses.value?.length ?? 0);
@@ -81,10 +84,20 @@ function onBeamLeave(index) {
     </div>
   </div>
 
+  <!-- cursor -->
   <div class="fixed left-0 top-0 w-screen h-screen overflow-hidden pointer-events-none">
     <div
       ref="cursor"
       class="absolute size-12 bg-dark border-3 border-panel rounded-full -translate-1/2 pointer-events-none"
     />
+  </div>
+
+  <!-- camera stream -->
+  <div class="fixed left-0 top-0 w-screen h-screen overflow-hidden pointer-events-none">
+    <img
+      class="absolute right-0 bottom-0 w-64 aspect-4/3 bg-panel"
+      :src="`data:image/jpeg;base64,${ cameraStream }`"
+      alt="Camera stream"
+    >
   </div>
 </template>

@@ -4,7 +4,7 @@ import numpy as np
 from ..common.mqtt import MQTT
 
 
-logger = logging.getLogger("lh:emulator:serial")
+logger = logging.getLogger("lh:emulator:stm")
 
 
 class STMBoard:
@@ -17,6 +17,9 @@ class STMBoard:
 
         # start subscribing to the tx line
         sub = await MQTT.subscribe("lh/emulator/serial/tx")
+
+        logger.info("STM emulator running")
+
         async for message in sub:
             try:
                 await self._handle_message(message)

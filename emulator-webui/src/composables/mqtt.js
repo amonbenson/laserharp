@@ -55,18 +55,28 @@ export function useTopic(topic, options = {}) {
   const raw = options.raw ?? false;
   const mode = options.mode ?? "B";
   const defaultValue = options.default ?? null;
+  const readonly = options.readonly ?? false;
+  const writeonly = options.writeonly ?? false;
+
+  if (readonly && writeonly) {
+    throw new Error("Cannot have a topic that is both readonly and writeonly");
+  }
 
   const value = ref(defaultValue);
 
-  // subscribe to all value updates
-  subscribe(topic, (payload) => {
-    value.value = payload;
-  }, { raw });
+  // set the reactive value on subscription updates
+  if (!writeonly) {
+    subscribe(topic, (payload) => {
+      value.value = payload;
+    }, { raw });
+  }
 
-  // publish value updates
-  watch(value, (newValue) => {
-    publish(topic, newValue, { raw, mode });
-  }, { deep: true });
+  // publish updates when the reactive value changes
+  if (!readonly) {
+    watch(value, (newValue) => {
+      publish(topic, newValue, { raw, mode });
+    }, { deep: true });
+  }
 
   return value;
 }
