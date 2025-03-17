@@ -53,11 +53,11 @@ class STMBoard:
                         await self._send([0x82, data[1], brightness, 0])
                     case _:
                         raise ValueError(f"Invalid command: {data[0] :02X}")
-            case 0xf0:
+            case 0xF0:
                 match cmd_lsb:
                     case 0x00:
                         # firmware version inquiry
-                        await self._send([0xf0, 0x00, 0x01, 0x00])
+                        await self._send([0xF0, 0x00, 0x01, 0x00])
                     case _:
                         raise ValueError(f"Invalid command: {data[0] :02X}")
             case _:

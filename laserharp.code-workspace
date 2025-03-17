@@ -4,14 +4,12 @@
 			"path": "."
 		},
 		{
-			"path": "laserharp"
-		},
-		{
 			"path": "emulator-webui"
 		}
 	],
 	"settings": {
 		"editor.formatOnSave": true,
 		"files.insertFinalNewline": true,
+		"editor.rulers": [120]
 	}
 }

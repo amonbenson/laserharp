@@ -21,5 +21,6 @@ async def main():
         nursery.start_soon(stm.run)
         # nursery.start_soon(camera.run)
 
+
 if __name__ == "__main__":
     trio.run(main)

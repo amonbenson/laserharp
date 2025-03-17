@@ -1,3 +1,8 @@
 {
-    "editor.tabSize": 2
+  "editor.tabSize": 2,
+  "editor.formatOnSave": false, // we use code actions, not formatter, because it will use our custom eslint.config.js
+  "eslint.format.enable": false, // avoid double-run via format
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "explicit"
+  }
 }

@@ -13,5 +13,7 @@ else:
 
 
 _global_camera = Camera()
+
+
 def get_camera():
     return _global_camera

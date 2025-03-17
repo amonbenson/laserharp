@@ -32,6 +32,7 @@ class Subscription:
 
                 yield payload
 
+
 class MQTTClient:
     def __init__(self):
         self._subscriptions: dict[str, list[Subscription]] = {}
@@ -62,7 +63,7 @@ class MQTTClient:
     async def wait_ready(self):
         await self._ready_event.wait()
 
-    async def subscribe(self, topic, qos = 0, options = None, properties = None, raw=False):
+    async def subscribe(self, topic, qos=0, options=None, properties=None, raw=False):
         await self._ready_event.wait()
 
         send_channel, receive_channel = trio.open_memory_channel(0)
@@ -78,7 +79,7 @@ class MQTTClient:
         self._subscriptions[topic].append(sub)
         return sub
 
-    async def unsubscribe(self, sub: Subscription, properties = None):
+    async def unsubscribe(self, sub: Subscription, properties=None):
         await self._ready_event.wait()
 
         # find and remove the subscription
@@ -100,5 +101,6 @@ class MQTTClient:
 
         logger.debug(f"PUB {topic}: {payload}")
         self._client.publish(topic, payload, qos, retain, properties)
+
 
 MQTT = MQTTClient()
