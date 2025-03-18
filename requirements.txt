@@ -11,4 +11,7 @@ flask-cors~=4.0.1
 flask-socketio~=5.3.6
 gunicorn~=23.0.0
 paho-mqtt~=2.1.0
+trio~=0.29.0
+dotenv~=0.9.9
+coloredlogs~=15.0.1
 git+https://github.com/amonbenson/perci.git

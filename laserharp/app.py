@@ -8,7 +8,6 @@ import numpy as np
 from perci import reactive, ReactiveDictNode
 import cv2
 from .midi import MidiEvent
-from .mqtt import MQTT
 from .ipc import IPCController
 from .din_midi import DinMidi
 from .laser_array import LaserArray
@@ -33,7 +32,6 @@ class LaserHarpApp(Component):
         self.settings.setup()
 
         # setup all components
-        self.mqtt = MQTT("mqtt", self._global_state)
         self.ipc = IPCController("ipc", self._global_state)
         self.din_midi = DinMidi("din_midi", self._global_state)
         self.laser_array = LaserArray("laser_array", self._global_state, self.ipc)
