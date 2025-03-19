@@ -1,8 +1,6 @@
 from itertools import count
 import trio
-from .component_v2 import RootComponent
-from .mqtt import MQTTClient, PubSub
-from .mqtt_component import MQTTRootComponent, MQTTComponent
+from .mqtt_component import MQTTRootComponent, MQTTComponent, PubSubComponent
 from .settings_v2 import Settings
 
 
@@ -13,16 +11,12 @@ class Camera(MQTTComponent):
         self.add_worker(self._test_pubsub)
         self.add_worker(self._test_change_handler)
 
-        self.test: PubSub[int]
-        self.test2: PubSub[int]
-
-    async def setup(self):
-        self.test = await self.pubsub("test")
-        self.test2 = await self.pubsub("test2")
+        self.test: PubSubComponent[int] = self.add_pubsub("test")
+        self.test2: PubSubComponent[int] = self.add_pubsub("test2")
 
     async def _test_change_handler(self):
         while True:
-            await PubSub.wait_any_change(self.test, self.test2)
+            await PubSubComponent.wait_any_change(self.test, self.test2)
             print("UPDATE!", self.test.value, self.test2.value)
 
     async def _test_pubsub(self):

@@ -128,91 +128,6 @@ class Subscription[T: PayloadType]:
             raise StopAsyncIteration from None
 
 
-class PubSub[T: PayloadType]:
-    DEFAULT_COOLDOWN = 0.001  # 1ms default cooldown period
-
-    def __init__(self, client: "MQTTClient", topic: str, *, qos: int = 0, retain: bool = True, default: Optional[T] = None, required: bool = False, encoding: PayloadEncoding = "json"):
-        self._client = client
-        self._logger = logging.getLogger(f"pubsub:{topic}")
-
-        self._topic = topic
-        self._qos = qos
-        self._retain = retain
-        self._default = default
-        self._required = required
-        self._encoding = encoding
-
-        self._value = None
-        self._client_update_event = trio.Event()
-        self._broker_update_event = trio.Event()
-
-        self._sub: Subscription = None
-
-    async def _handle_receive(self):
-        async for payload in self._sub:
-            self._client.logger.debug(f"Got new value for {self._topic}")
-            self._value = payload
-            self._broker_update_event.set()
-
-    async def _handle_send(self):
-        while True:
-            # wait for client updates, then publish the change
-            await self._client_update_event.wait()
-            self._client_update_event = trio.Event()
-
-            await self._client.publish(self._topic, self._value, encoding=self._encoding, qos=self._qos, retain=self._retain)
-
-    async def setup(self):
-        # read the initial value
-        self._value = await self._client.read(self._topic, encoding=self._encoding, default=self._default, required=self._required)
-
-    async def run(self):
-        self._sub = await self._client.subscribe(self._topic, qos=self._qos, encoding=self._encoding, message_buffer_size=0)
-
-        async with trio.open_nursery() as nursery:
-            nursery.start_soon(self._handle_receive)
-            nursery.start_soon(self._handle_send)
-
-    @property
-    def value(self) -> T:
-        return self._value
-
-    @value.setter
-    def value(self, value: T):
-        # set the new value locally and mark the update
-        self._value = value
-        self._client_update_event.set()
-
-    async def wait_change(self) -> T:
-        await self._broker_update_event.wait()
-        self._broker_update_event = trio.Event()
-        return self._value
-
-    def discard_change(self):
-        # reset the broker event even if the change was not handeled
-        self._broker_update_event = trio.Event()
-
-    @staticmethod
-    async def wait_any_change(*pubsubs: "PubSub", cooldown: float = DEFAULT_COOLDOWN):
-        # wait for the cooldown period and discard any changes that arrive in between
-        if cooldown > 0:
-            await trio.sleep(cooldown)
-            for pubsub in pubsubs:
-                pubsub.discard_change()
-
-        # start a nursery that gets canceled once any of the pubsubs receives a change
-        async def cancel_on_change(pubsub: PubSub, cancel_scope: trio.CancelScope):
-            await pubsub.wait_change()
-            cancel_scope.cancel()
-
-        try:
-            async with trio.open_nursery() as nursery:
-                for pubsub in pubsubs:
-                    nursery.start_soon(cancel_on_change, pubsub, nursery.cancel_scope)
-        except trio.Cancelled:
-            pass
-
-
 class MQTTClient(Component):
     CONNECT_TIMEOUT = 2
 
@@ -231,10 +146,6 @@ class MQTTClient(Component):
         # subscriber hash map
         self._subscriptions: dict[str, list[Subscription]] = {}
 
-        # keep track of pubsub values
-        self._pubsubs: list[PubSub] = []
-        self._pubsub_nursery: trio.Nursery = None
-
         # register mqtt callbacks
         self._client.on_connect = self._on_connect
         self._client.on_disconnect = self._on_disconnect
@@ -248,7 +159,6 @@ class MQTTClient(Component):
         self.add_worker(self._read_loop)
         self.add_worker(self._write_loop)
         self.add_worker(self._misc_loop)
-        self.add_worker(self._pubsub_loop)
 
     @property
     def logger(self):
@@ -286,19 +196,6 @@ class MQTTClient(Component):
     async def _misc_loop(self):
         while self._client.loop_misc() == mqtt.MQTT_ERR_SUCCESS:
             await trio.sleep(1)
-
-    async def _pubsub_loop(self):
-        async with trio.open_nursery() as nursery:
-            self._pubsub_nursery = nursery
-
-            # start already created pubsub values
-            # for value in self._pubsubs:
-            #     nursery.start_soon(value.run)
-            if self._pubsubs:
-                raise ValueError("Creating pubsubs before the root component's setup() was called is not supported anymore")
-
-            # keep nursery alive if no pubsub values had been registered
-            nursery.start_soon(trio.sleep_forever)
 
     def _on_connect(self, client, userdata, connect_flags, reason_code, properties):
         self._logger.info("Connected")
@@ -419,16 +316,3 @@ class MQTTClient(Component):
         if not required:
             return default
         raise ValueError("Topic read timed out")
-
-    async def pubsub[T: PayloadType](self, topic: str, **kwargs) -> PubSub[T]:
-        await self.wait_connected()
-
-        # create a new pubsub
-        value = PubSub[T](self, topic, **kwargs)
-        await value.setup()
-
-        # register it at the pubsub nursery
-        self._pubsubs.append(value)
-        self._pubsub_nursery.start_soon(value.run)
-
-        return value

@@ -161,7 +161,7 @@ class WorkerComponent(Component):
         pass  # do nothing here, we override the run method instead
 
     async def run(self, cancel_scope):
-        self._logger.info(f"Running worker {self.name}...")
+        self._logger.info(f"Starting worker {self.name}...")
         await self._method(*self._args, **self._kwargs)
 
 
