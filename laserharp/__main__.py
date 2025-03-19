@@ -23,7 +23,11 @@ from .app_v2 import App
 
 async def main():
     app = App()
-    await app.run()
+
+    try:
+        await app.run()
+    except* KeyboardInterrupt:
+        pass
 
 
 if __name__ == "__main__":

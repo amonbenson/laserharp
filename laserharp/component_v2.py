@@ -1,11 +1,12 @@
 import logging
 import trio
 from abc import ABC, abstractmethod
-from typing import Callable, Optional
+from typing import Callable, Optional, overload
 
 
 class Component(ABC):
-    STOP_TIMEOUT = 1
+    SETUP_TIMEOUT = 5
+    CANCEL_TIMEOUT = 5
 
     def __init__(self, name: str, parent: Optional["Component"]):
         self._name = name
@@ -16,15 +17,11 @@ class Component(ABC):
         self._logger = logging.getLogger(self._full_name)
 
         self._children: dict[str, Component] = {}
-        self._channels: dict[str, (trio.MemorySendChannel, trio.MemoryReceiveChannel)] = {}
+        # self._channels: dict[str, (trio.MemorySendChannel, trio.MemoryReceiveChannel)] = {}
 
         self._initialized = False
         self._running = False
         self._running_event = trio.Event()
-
-        # run the setup method immediately
-        self.setup()
-        self._initialized = True
 
     @property
     def name(self):
@@ -44,56 +41,67 @@ class Component(ABC):
 
         self._cancel_scope.cancel()
 
-    def add_child(self, name: str, child: type["Component"] | Callable, *args, **kwargs):
+    def add_child[C: "Component"](self, name: str, child_type: type[C], *args, **kwargs) -> C:
         if self._initialized:
             raise ValueError("Component is already initialized.")
 
-        if isinstance(child, type(Component)):
-            # instantiate a new child
-            child_instance = child(name, self, *args, **kwargs)
-        elif isinstance(child, Callable):
-            # wrap callables inside a single method component
-            child_instance = SingleMethodComponent(name, self, child, args, kwargs)
-        else:
-            raise ValueError(f"Cannot instantiate child of unsupported type: {child}")
+        if isinstance(child_type, Component):
+            raise ValueError(f"child_type must be a class type, e.g. {type(child_type)}, not an instance of a Component class")
+        if not isinstance(child_type, type(Component)):
+            raise ValueError(f"Cannot instantiate child of unsupported type: {child_type}")
 
-        self._children[name] = child_instance
+        if name in self._children:
+            raise ValueError(f"Child {name} already exists")
 
-    def child(self, name):
+        child = child_type(name, self, *args, **kwargs)
+        self._children[name] = child
+        return child
+
+    def add_worker(self, name: str, worker_method: Callable, *args, **kwargs) -> "WorkerComponent":
+        return self.add_child(name, WorkerComponent, worker_method, args, kwargs)
+
+    def child[C: "Component"](self, name: str) -> C:
         return self._children[name]
 
-    def add_channel(self, name: str, max_buffer_size: int | float = 0):
-        if self._initialized:
-            raise ValueError("Component is already initialized.")
+    # def add_channel(self, name: str, max_buffer_size: int | float = 0):
+    #     if self._initialized:
+    #         raise ValueError("Component is already initialized.")
 
-        self._channels[name] = trio.open_memory_channel(max_buffer_size)
+    #     self._channels[name] = trio.open_memory_channel(max_buffer_size)
 
-    def channel(self, name):
-        return self._channels[name]
+    # def send_channel(self, name: str) -> trio.MemorySendChannel:
+    #     return self._channels[name][0]
+
+    # def receive_channel(self, name: str) -> trio.MemoryReceiveChannel:
+    #     return self._channels[name][1]
 
     async def wait_running(self):
         while not self._running:
             await self._running_event.wait()
 
-    @abstractmethod
-    def setup(self):
+    async def setup(self):
         pass
 
-    async def start(self):
-        pass
-
-    async def stop(self):
+    async def teardown(self):
         pass
 
     async def run(self, cancel_scope: Optional[trio.CancelScope] = None):
         try:
+            # mark component as initialized
+            self._initialized = True
             self._cancel_scope = cancel_scope
 
             # invoke the start method of this component
-            self._logger.info("Starting...")
-            await self.start()
+            self._logger.info(f"Starting {self.name}...")
+            try:
+                with trio.fail_after(self.SETUP_TIMEOUT):
+                    await self.setup()
+            except trio.TooSlowError:
+                self._logger.error("Component setup timed out")
+                raise
 
             # start all children in parallel
+            self._logger.info(f"Starting {self.name} children/workers...")
             async with trio.open_nursery() as nursery:
                 for child in self._children.values():
                     nursery.start_soon(child.run, nursery.cancel_scope)
@@ -104,14 +112,18 @@ class Component(ABC):
 
         finally:
             # invoke the stop method with a timeout
-            self._logger.info("Stopping...")
-            with trio.fail_after(self.STOP_TIMEOUT, shield=True):
-                await self.stop()
+            self._logger.info(f"Stopping {self.name}...")
+            try:
+                with trio.fail_after(self.CANCEL_TIMEOUT, shield=True):
+                    await self.teardown()
+            except trio.TooSlowError:
+                self._logger.error("Component teardown timed out")
+                raise
 
             self._cancel_scope = None
 
 
-class SingleMethodComponent(Component):
+class WorkerComponent(Component):
     def __init__(self, name: str, parent: Component, method: Callable, args: list, kwargs: dict):
         super().__init__(name, parent)
         self._method = method
@@ -122,7 +134,7 @@ class SingleMethodComponent(Component):
         pass  # do nothing here, we override the run method instead
 
     async def run(self, cancel_scope):
-        self._logger.info("Starting...")
+        self._logger.info(f"Running worker {self.name}...")
         await self._method(*self._args, **self._kwargs)
 
 
