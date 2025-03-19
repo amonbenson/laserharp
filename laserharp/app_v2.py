@@ -17,8 +17,8 @@ class App(RootComponent):
         self.add_worker(self._test_pubsub)
         self.add_worker(self._test_change_handler)
 
-        self.test = MQTT.pubsub("lh/test")
-        self.test2 = MQTT.pubsub("lh/test2")
+        self.test: PubSub[int] = MQTT.pubsub("lh/test")
+        self.test2: PubSub[int] = MQTT.pubsub("lh/test2")
 
     async def _test_change_handler(self):
         while True:
@@ -27,6 +27,6 @@ class App(RootComponent):
 
     async def _test_pubsub(self):
         for i in count():
-            self.test.value = {"count": i}
-            self.test2.value = {"count2": i}
             await trio.sleep(1.0)
+            self.test.value = i
+            self.test2.value = -i

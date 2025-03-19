@@ -1,7 +1,7 @@
 import socket
 import logging
 import traceback
-from typing import Optional, Literal, Self
+from typing import Optional, Literal, Self, overload
 import json
 import trio
 import paho.mqtt.client as mqtt
@@ -13,20 +13,83 @@ MQTT_HOST = getenv("LH_MQTT_HOST", type=str, default="localhost")
 MQTT_PORT = getenv("LH_MQTT_PORT", type=int, default=1883)
 
 
-PayloadType = bytes | dict | list
+PayloadEncoding = Literal["raw"] | Literal["str"] | Literal["json"]
+
+RawPayloadType = bytes | bytearray
+StrPayloadType = str
+JsonPayloadType = str | int | float | bool | None | list | dict
+PayloadType = RawPayloadType | StrPayloadType | JsonPayloadType
 
 
-class Subscription:
-    VALID_ENCODINGS = ("raw", "str", "json")
+@overload
+def decode_payload(raw_payload: bytes, encoding: Literal["raw"]) -> RawPayloadType: ...
 
-    def __init__(self, client: "MQTTClient", topic: str, *, encoding: str = "json", message_buffer_size: int = 16):
+
+@overload
+def decode_payload(raw_payload: bytes, encoding: Literal["str"]) -> StrPayloadType: ...
+
+
+@overload
+def decode_payload(raw_payload: bytes, encoding: Literal["json"]) -> JsonPayloadType: ...
+
+
+def decode_payload(raw_payload: bytes, encoding: PayloadEncoding = "json") -> PayloadType:
+    if not isinstance(raw_payload, bytes):
+        raise ValueError(f"Expected raw_payload of type bytes, got {type(raw_payload)}")
+
+    match encoding:
+        case "raw":
+            return raw_payload
+        case "str":
+            return raw_payload.decode("utf-8")
+        case "json":
+            if raw_payload == b"null":
+                return None
+
+            try:
+                return json.loads(raw_payload)
+            except json.JSONDecodeError as e:
+                raise ValueError("Failed to decode JSON") from e
+        case _:
+            raise ValueError(f"Invalid encoding: {encoding}")
+
+
+@overload
+def encode_payload(payload: bytes | bytearray, encoding: Literal["raw"]) -> bytes: ...
+
+
+@overload
+def encode_payload(payload: str, encoding: Literal["str"]) -> bytes: ...
+
+
+@overload
+def encode_payload(payload: str | int | float | bool | None | dict | list, encoding: Literal["json"]) -> bytes: ...
+
+
+def encode_payload(payload: PayloadType, encoding: PayloadEncoding = "json") -> bytes:
+    match encoding:
+        case "raw":
+            if not isinstance(payload, (bytes, bytearray)):
+                raise ValueError(f"Expected payload of type bytes or bytearray, got {type(payload)}")
+            return bytes(payload)
+        case "str":
+            if not isinstance(payload, str):
+                raise ValueError(f"Expected payload of type str, got {type(payload)}")
+            return payload.encode("utf-8")
+        case "json":
+            if not isinstance(payload, (str, int, float, bool, None, dict, list)):
+                raise ValueError(f"Expected payload of json serializable type, got {type(payload)}")
+            return json.dumps(payload).encode("utf-8")
+        case _:
+            raise ValueError(f"Invalid encoding: {encoding}")
+
+
+class Subscription[T: PayloadType]:
+    def __init__(self, client: "MQTTClient", topic: str, *, encoding: PayloadEncoding = "json", message_buffer_size: int = 16):
         self._client = client
         self._topic = topic
         self._encoding = encoding
         self._send_channel, self._receive_channel = trio.open_memory_channel(message_buffer_size)
-
-        if self._encoding not in self.VALID_ENCODINGS:
-            raise ValueError(f"encoding must be one of {self.VALID_ENCODINGS} but was {self._encoding}")
 
     @property
     def topic(self):
@@ -36,48 +99,39 @@ class Subscription:
     def encoding(self):
         return self._encoding
 
-    def put(self, payload: bytes):
+    def put(self, raw_payload: bytes):
         try:
-            self._send_channel.send_nowait(payload)
+            self._send_channel.send_nowait(raw_payload)
         except trio.WouldBlock:
             logging.warning("Message buffer full. Consider increasing message_buffer_size")
 
             # discard an old message to fit the new message
             self._receive_channel.receive_nowait()
-            self._send_channel.send_nowait(payload)
+            self._send_channel.send_nowait(raw_payload)
 
     def matches(self, topic: str):
         return mqtt.topic_matches_sub(self._topic, topic)
 
-    async def receive(self) -> PayloadType:
-        payload: bytes = await self._receive_channel.receive()
+    async def receive(self) -> T:
+        raw_payload: bytes = await self._receive_channel.receive()
         self._client.set_read_event()
 
-        match self._encoding:
-            case "raw":
-                return bytes(payload)
-            case "str":
-                return str(payload)
-            case "json":
-                try:
-                    return json.loads(payload)
-                except json.JSONDecodeError as e:
-                    self._client.logger.error(f"Failed to decode JSON payload {e}")
+        return decode_payload(raw_payload, self._encoding)
 
     def __aiter__(self) -> Self:
         return self
 
-    async def __anext__(self) -> PayloadType:
+    async def __anext__(self) -> T:
         try:
             return await self.receive()
         except trio.EndOfChannel:
             raise StopAsyncIteration from None
 
 
-class PubSub:
+class PubSub[T: PayloadType]:
     DEFAULT_COOLDOWN = 0.001  # 1ms default cooldown period
 
-    def __init__(self, client: "MQTTClient", topic: str, *, qos: int = 0, retain: bool = True, encoding: str = "json"):
+    def __init__(self, client: "MQTTClient", topic: str, *, qos: int = 0, retain: bool = True, encoding: PayloadEncoding = "json"):
         self._client = client
         self._logger = logging.getLogger(f"pubsub:{topic}")
 
@@ -104,7 +158,7 @@ class PubSub:
             await self._client_update_event.wait()
             self._client_update_event = trio.Event()
 
-            await self._client.publish(self._topic, self._value, qos=self._qos, retain=self._retain)
+            await self._client.publish(self._topic, self._value, encoding=self._encoding, qos=self._qos, retain=self._retain)
 
     async def run(self):
         self._sub = await self._client.subscribe(self._topic, qos=self._qos, encoding=self._encoding, message_buffer_size=0)
@@ -114,16 +168,16 @@ class PubSub:
             nursery.start_soon(self._handle_send)
 
     @property
-    def value(self):
+    def value(self) -> T:
         return self._value
 
     @value.setter
-    def value(self, value):
+    def value(self, value: T):
         # set the new value locally and mark the update
         self._value = value
         self._client_update_event.set()
 
-    async def wait_change(self):
+    async def wait_change(self) -> T:
         await self._broker_update_event.wait()
         self._broker_update_event = trio.Event()
         return self._value
@@ -311,11 +365,11 @@ class MQTTClient(Component):
             del self._subscriptions[sub.topic]
         return was_last
 
-    async def subscribe(self, topic: str, *, qos: int = 0, **kwargs) -> Subscription:
+    async def subscribe[T: PayloadType](self, topic: str, *, qos: int = 0, encoding: PayloadEncoding = "json", message_buffer_size: int = 16) -> Subscription[T]:
         await self.wait_connected()
 
         self._logger.debug(f"Subscribing to {topic}")
-        sub = Subscription(self, topic, **kwargs)
+        sub = Subscription(self, topic, encoding=encoding, message_buffer_size=message_buffer_size)
         is_first = self._register_subscription(sub)
 
         if is_first:
@@ -332,24 +386,16 @@ class MQTTClient(Component):
         if is_last:
             self._client.unsubscribe(sub.topic)
 
-    async def publish(self, topic: str, payload: PayloadType, *, qos: int = 0, retain: bool = False):
+    async def publish(self, topic: str, payload: PayloadType, *, encoding: PayloadEncoding = "json", qos: int = 0, retain: bool = False):
         await self.wait_connected()
 
-        if isinstance(payload, (list, dict)):
-            # encode json
-            payload = json.dumps(payload).encode("utf-8")
-        elif isinstance(payload, (bytes, bytearray)):
-            pass  # keep bytes as-is
-        else:
-            # stringify all other values
-            payload = str(payload).encode("utf-8")
+        raw_payload = encode_payload(payload, encoding=encoding)
 
-        self._logger.debug(f"Publishing to {topic}: {payload.decode("utf-8")[:100]}")
+        self._logger.debug(f"Publishing to {topic}: {raw_payload.decode("utf-8")[:100]}")
+        self._client.publish(topic, raw_payload, qos, retain)
 
-        self._client.publish(topic, payload, qos, retain)
-
-    def pubsub(self, topic: str, **kwargs) -> PubSub:
-        value = PubSub(self, topic, **kwargs)
+    def pubsub[T: PayloadType](self, topic: str, **kwargs) -> PubSub[T]:
+        value = PubSub[T](self, topic, **kwargs)
         self._pubsubs.append(value)
 
         # run the pubsub value immediately if it was created while the component was already running
