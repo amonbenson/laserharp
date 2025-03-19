@@ -1,46 +1,11 @@
 from typing import Optional
 import trio
-from .component_v2 import RootComponent, Component
-from .mqtt import MQTTClient, Subscription, PayloadType, PayloadEncoding
+from ..component_v2 import Component
+from ..mqtt import Subscription, PayloadType, PayloadEncoding
+from .base import MQTTBaseComponent
 
 
-class MQTTRootComponent(RootComponent):
-    def __init__(self, name):
-        super().__init__(name)
-
-        self._mqtt = self.add_global_child("mqtt", MQTTClient)
-
-
-class MQTTComponent(Component):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        self._mqtt: MQTTClient = self.get_global_child("mqtt")
-        self._topic = self._full_name.replace(":", "/")
-
-    def full_topic(self, endpoint: Optional[str] = None):
-        if endpoint is None:
-            return self._topic
-
-        return f"{self._topic}/{endpoint}"
-
-    async def subscribe[T: PayloadType](self, endpoint: Optional[str], **kwargs) -> Subscription[T]:
-        return await self._mqtt.subscribe(self.full_topic(endpoint), **kwargs)
-
-    async def unsubscribe(self, sub: Subscription):
-        await self._mqtt.unsubscribe(sub)
-
-    async def publish[T: PayloadType](self, endpoint: Optional[str], payload: T, **kwargs):
-        await self._mqtt.publish(self.full_topic(endpoint), payload, **kwargs)
-
-    async def read[T: PayloadType](self, endpoint: Optional[str], **kwargs) -> T:
-        return await self._mqtt.read(self.full_topic(endpoint), **kwargs)
-
-    def add_pubsub[T: PayloadType](self, name: str, **kwargs) -> "PubSubComponent[T]":
-        return super().add_child(name, PubSubComponent, **kwargs)
-
-
-class PubSubComponent[T: PayloadType](MQTTComponent):
+class PubSubComponent[T: PayloadType](MQTTBaseComponent):
     DEFAULT_COOLDOWN = 0.001  # 1ms default cooldown period
 
     def __init__(self, name: str, parent: Component, *, qos: int = 0, retain: bool = True, default: Optional[T] = None, required: bool = False, encoding: PayloadEncoding = "json"):

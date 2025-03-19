@@ -1,10 +1,11 @@
 from itertools import count
 import trio
-from .mqtt_component import MQTTRootComponent, MQTTComponent, PubSubComponent
+from .mqtt_component.base import MQTTRootComponent, MQTTBaseComponent
+from .mqtt_component.pubsub import PubSubComponent
 from .settings_v2 import Settings
 
 
-class Camera(MQTTComponent):
+class Camera(MQTTBaseComponent):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
