@@ -5,6 +5,16 @@ from ..mqtt import Subscription, PayloadType, PayloadEncoding
 from .base import MQTTBaseComponent
 
 
+class Access:
+    BROKER_READ = 0b0001
+    BROKER_WRITE = 0b0010
+    CLIENT_READ = 0b0100
+    CLIENT_WRITE = 0b1000
+
+    def access(self, broker_read: bool = True, broker_write: bool = True, client_read: bool = True, client_write: bool = True):
+        self.access = 
+
+
 class PubSubComponent[T: PayloadType](MQTTBaseComponent):
     DEFAULT_COOLDOWN = 0.001  # 1ms default cooldown period
 
