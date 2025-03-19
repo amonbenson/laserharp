@@ -1,8 +1,6 @@
 from itertools import count
 import trio
-from .mqtt_component.base import MQTTRootComponent, MQTTBaseComponent
-from .mqtt_component.pubsub import PubSubComponent
-from .settings_v2 import Settings
+from .mqtt_component import MQTTRootComponent, MQTTBaseComponent, PubSubComponent, SettingComponent
 
 
 class Camera(MQTTBaseComponent):
@@ -12,19 +10,21 @@ class Camera(MQTTBaseComponent):
         self.add_worker(self._test_pubsub)
         self.add_worker(self._test_change_handler)
 
-        self.test: PubSubComponent[int] = self.add_pubsub("test")
-        self.test2: PubSubComponent[int] = self.add_pubsub("test2")
+        self.stream: PubSubComponent[int] = self.add_pubsub("stream", encoding="raw", writeonly=True)
+        self.fov_x: SettingComponent[int] = self.add_setting("fov_x")
+        self.fov_y: SettingComponent[int] = self.add_setting("fov_y")
 
     async def _test_change_handler(self):
         while True:
-            await PubSubComponent.wait_any_change(self.test, self.test2)
-            print("UPDATE!", self.test.value, self.test2.value)
+            await SettingComponent.wait_any_change(self.fov_x, self.fov_y)
+            print("UPDATE!", self.fov_x.value, self.fov_y.value)
 
     async def _test_pubsub(self):
         for i in count():
             await trio.sleep(1.0)
-            self.test.value = i
-            self.test2.value = -i
+            self.fov_x.value = i
+            self.fov_y.value = -i
+            self.stream.value = b"test123"
 
 
 class App(MQTTRootComponent):

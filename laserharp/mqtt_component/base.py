@@ -2,8 +2,10 @@ from typing import Optional, TYPE_CHECKING, overload
 from ..component_v2 import RootComponent, Component
 from ..mqtt import MQTTClient, Subscription, PayloadType
 
+# avoiding circular imports
 if TYPE_CHECKING:
     from .pubsub import PubSubComponent
+    from .setting import SettingComponent
 
 
 class MQTTRootComponent(RootComponent):
@@ -40,3 +42,6 @@ class MQTTBaseComponent(Component):
 
     @overload
     def add_pubsub[T: PayloadType](self, name: str, **kwargs) -> "PubSubComponent[T]": ...
+
+    @overload
+    def add_setting[T: PayloadType](self, name: str, **kwargs) -> "SettingComponent[T]": ...

@@ -105,9 +105,9 @@ class Subscription[T: PayloadType]:
         except trio.WouldBlock:
             logging.warning("Message buffer full. Consider increasing message_buffer_size")
 
-            # discard an old message to fit the new message
-            self._receive_channel.receive_nowait()
-            self._send_channel.send_nowait(raw_payload)
+            # # discard an old message to fit the new message
+            # self._receive_channel.receive_nowait()
+            # self._send_channel.send_nowait(raw_payload)
 
     def matches(self, topic: str):
         return mqtt.topic_matches_sub(self._topic, topic)
