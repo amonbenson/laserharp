@@ -353,7 +353,7 @@ class MQTTClient(Component):
     def _unregister_subscription(self, sub: Subscription) -> bool:
         # check if the subscription object exists
         topic_subscriptions = self._subscriptions.get(sub.topic, [])
-        if sub.topic not in topic_subscriptions:
+        if sub not in topic_subscriptions:
             raise ValueError(f"Subscription {sub.topic} does not exist or was already unsubscribed")
 
         # remove the subscription object
@@ -393,6 +393,24 @@ class MQTTClient(Component):
 
         self._logger.debug(f"Publishing to {topic}: {raw_payload.decode("utf-8")[:100]}")
         self._client.publish(topic, raw_payload, qos, retain)
+
+    async def read(self, topic: str, encoding: PayloadEncoding = "json", default: PayloadType = None, required: bool = False, timeout: float = 0.1):
+        # subscribe to the specified topic
+        sub = await self.subscribe(topic, qos=1, encoding=encoding, message_buffer_size=0)
+
+        # read a single message (probably the retained message)
+        with trio.move_on_after(timeout) as cancel_scope:
+            payload = await sub.receive()
+
+        # sunsub from the topic again
+        await self.unsubscribe(sub)
+
+        # either return the received payload, a default value, or raise a timeout error
+        if not cancel_scope.cancel_called:
+            return payload
+        if not required:
+            return default
+        raise ValueError("Topic read timed out")
 
     def pubsub[T: PayloadType](self, topic: str, **kwargs) -> PubSub[T]:
         value = PubSub[T](self, topic, **kwargs)

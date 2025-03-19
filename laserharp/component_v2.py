@@ -8,6 +8,8 @@ class Component(ABC):
     SETUP_TIMEOUT = 5
     CANCEL_TIMEOUT = 5
 
+    _global_children = {}
+
     def __init__(self, name: str, parent: Optional["Component"]):
         self._name = name
         self._parent = parent
@@ -53,15 +55,40 @@ class Component(ABC):
         if name in self._children:
             raise ValueError(f"Child {name} already exists")
 
+        # instantiate the child
         child = child_type(name, self, *args, **kwargs)
+
+        # check if the child's __init__ method was called successfully
+        if not child.name:
+            raise ValueError(f"Child has no name. Did you call super().__init__(...) from {child_type}.__init__(...)?")
+
         self._children[name] = child
         return child
 
+    def add_global_child[C: "Component"](self, name: str, child_type: type[C], *args, **kwargs) -> C:
+        if name in Component._global_children:
+            raise ValueError(f"Child {name} already exists globally.")
+
+        child = self.add_child(name, child_type, *args, **kwargs)
+        Component._global_children[name] = child
+
+        return child
+
     def add_worker(self, worker_method: Callable, *args, **kwargs) -> "WorkerComponent":
+        # note: WorkerComponent takes in args and kwargs as direct parameters, so we don't use the spread syntax here
         return self.add_child(f"worker:{worker_method.__name__}", WorkerComponent, worker_method, args, kwargs)
 
-    def child[C: "Component"](self, name: str) -> C:
+    def get_child[C: "Component"](self, name: str) -> C:
+        if name not in self._global_children:
+            raise ValueError(f"Child {name} does not exist")
+
         return self._children[name]
+
+    def get_global_child[C: "Component"](self, name: str) -> C:
+        if name not in self._global_children:
+            raise ValueError(f"Global child {name} does not exist")
+
+        return Component._global_children[name]
 
     # def add_channel(self, name: str, max_buffer_size: int | float = 0):
     #     if self._initialized:

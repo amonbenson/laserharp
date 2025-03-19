@@ -2,9 +2,7 @@ from itertools import count
 import trio
 from .component_v2 import RootComponent
 from .mqtt import MQTTClient, PubSub
-
-
-MQTT: MQTTClient = None
+from .settings_v2 import Settings
 
 
 class App(RootComponent):
@@ -13,12 +11,14 @@ class App(RootComponent):
 
         super().__init__("laserharp")
 
-        MQTT = self.add_child("mqtt", MQTTClient)
+        self._mqtt = self.add_global_child("mqtt", MQTTClient)
+        self._settings = self.add_global_child("settings", Settings)
+
         self.add_worker(self._test_pubsub)
         self.add_worker(self._test_change_handler)
 
-        self.test: PubSub[int] = MQTT.pubsub("lh/test")
-        self.test2: PubSub[int] = MQTT.pubsub("lh/test2")
+        self.test: PubSub[int] = self._mqtt.pubsub("lh/test")
+        self.test2: PubSub[int] = self._mqtt.pubsub("lh/test2")
 
     async def _test_change_handler(self):
         while True:
