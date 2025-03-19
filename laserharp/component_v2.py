@@ -57,8 +57,8 @@ class Component(ABC):
         self._children[name] = child
         return child
 
-    def add_worker(self, name: str, worker_method: Callable, *args, **kwargs) -> "WorkerComponent":
-        return self.add_child(name, WorkerComponent, worker_method, args, kwargs)
+    def add_worker(self, worker_method: Callable, *args, **kwargs) -> "WorkerComponent":
+        return self.add_child(f"worker:{worker_method.__name__}", WorkerComponent, worker_method, args, kwargs)
 
     def child[C: "Component"](self, name: str) -> C:
         return self._children[name]

@@ -1,7 +1,7 @@
 import socket
 import logging
 import traceback
-from typing import Optional, Any, Self
+from typing import Optional, Literal, Self
 import json
 import trio
 import paho.mqtt.client as mqtt
@@ -75,6 +75,8 @@ class Subscription:
 
 
 class PubSub:
+    DEFAULT_COOLDOWN = 0.001  # 1ms default cooldown period
+
     def __init__(self, client: "MQTTClient", topic: str, *, qos: int = 0, retain: bool = True, encoding: str = "json"):
         self._client = client
         self._logger = logging.getLogger(f"pubsub:{topic}")
@@ -121,6 +123,35 @@ class PubSub:
         self._value = value
         self._client_update_event.set()
 
+    async def wait_change(self):
+        await self._broker_update_event.wait()
+        self._broker_update_event = trio.Event()
+        return self._value
+
+    def discard_change(self):
+        # reset the broker event even if the change was not handeled
+        self._broker_update_event = trio.Event()
+
+    @staticmethod
+    async def wait_any_change(*pubsubs: "PubSub", cooldown: float = DEFAULT_COOLDOWN):
+        # wait for the cooldown period and discard any changes that arrive in between
+        if cooldown > 0:
+            await trio.sleep(cooldown)
+            for pubsub in pubsubs:
+                pubsub.discard_change()
+
+        # start a nursery that gets canceled once any of the pubsubs receives a change
+        async def cancel_on_change(pubsub: PubSub, cancel_scope: trio.CancelScope):
+            await pubsub.wait_change()
+            cancel_scope.cancel()
+
+        try:
+            async with trio.open_nursery() as nursery:
+                for pubsub in pubsubs:
+                    nursery.start_soon(cancel_on_change, pubsub, nursery.cancel_scope)
+        except trio.Cancelled:
+            pass
+
 
 class MQTTClient(Component):
     CONNECT_TIMEOUT = 2
@@ -154,10 +185,10 @@ class MQTTClient(Component):
         self._client.on_socket_unregister_write = self._on_socket_unregister_write
 
         # register mqtt loop tasks
-        self.add_worker("read_loop", self._read_loop)
-        self.add_worker("write_loop", self._write_loop)
-        self.add_worker("misc_loop", self._misc_loop)
-        self.add_worker("pubsub_loop", self._pubsub_loop)
+        self.add_worker(self._read_loop)
+        self.add_worker(self._write_loop)
+        self.add_worker(self._misc_loop)
+        self.add_worker(self._pubsub_loop)
 
     @property
     def logger(self):
