@@ -59,8 +59,8 @@ class Component(ABC):
         child = child_type(name, self, *args, **kwargs)
 
         # check if the child's __init__ method was called successfully
-        if not child.name:
-            raise ValueError(f"Child has no name. Did you call super().__init__(...) from {child_type}.__init__(...)?")
+        if not hasattr(child, "_children"):
+            raise ValueError(f"Invalid child. Did you call super().__init__(...) from {child_type.__name__}.__init__(...)?")
 
         self._children[name] = child
         return child
@@ -76,7 +76,7 @@ class Component(ABC):
 
     def add_worker(self, worker_method: Callable, *args, **kwargs) -> "WorkerComponent":
         # note: WorkerComponent takes in args and kwargs as direct parameters, so we don't use the spread syntax here
-        return self.add_child(f"worker:{worker_method.__name__}", WorkerComponent, worker_method, args, kwargs)
+        return self.add_child(f"{worker_method.__name__}_worker", WorkerComponent, worker_method, args, kwargs)
 
     def get_child[C: "Component"](self, name: str) -> C:
         if name not in self._global_children:

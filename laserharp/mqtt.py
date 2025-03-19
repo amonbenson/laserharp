@@ -131,13 +131,15 @@ class Subscription[T: PayloadType]:
 class PubSub[T: PayloadType]:
     DEFAULT_COOLDOWN = 0.001  # 1ms default cooldown period
 
-    def __init__(self, client: "MQTTClient", topic: str, *, qos: int = 0, retain: bool = True, encoding: PayloadEncoding = "json"):
+    def __init__(self, client: "MQTTClient", topic: str, *, qos: int = 0, retain: bool = True, default: Optional[T] = None, required: bool = False, encoding: PayloadEncoding = "json"):
         self._client = client
         self._logger = logging.getLogger(f"pubsub:{topic}")
 
         self._topic = topic
         self._qos = qos
         self._retain = retain
+        self._default = default
+        self._required = required
         self._encoding = encoding
 
         self._value = None
@@ -159,6 +161,10 @@ class PubSub[T: PayloadType]:
             self._client_update_event = trio.Event()
 
             await self._client.publish(self._topic, self._value, encoding=self._encoding, qos=self._qos, retain=self._retain)
+
+    async def setup(self):
+        # read the initial value
+        self._value = await self._client.read(self._topic, encoding=self._encoding, default=self._default, required=self._required)
 
     async def run(self):
         self._sub = await self._client.subscribe(self._topic, qos=self._qos, encoding=self._encoding, message_buffer_size=0)
@@ -286,8 +292,10 @@ class MQTTClient(Component):
             self._pubsub_nursery = nursery
 
             # start already created pubsub values
-            for value in self._pubsubs:
-                nursery.start_soon(value.run)
+            # for value in self._pubsubs:
+            #     nursery.start_soon(value.run)
+            if self._pubsubs:
+                raise ValueError("Creating pubsubs before the root component's setup() was called is not supported anymore")
 
             # keep nursery alive if no pubsub values had been registered
             nursery.start_soon(trio.sleep_forever)
@@ -386,7 +394,7 @@ class MQTTClient(Component):
         if is_last:
             self._client.unsubscribe(sub.topic)
 
-    async def publish(self, topic: str, payload: PayloadType, *, encoding: PayloadEncoding = "json", qos: int = 0, retain: bool = False):
+    async def publish[T: PayloadType](self, topic: str, payload: T, *, encoding: PayloadEncoding = "json", qos: int = 0, retain: bool = False):
         await self.wait_connected()
 
         raw_payload = encode_payload(payload, encoding=encoding)
@@ -394,7 +402,7 @@ class MQTTClient(Component):
         self._logger.debug(f"Publishing to {topic}: {raw_payload.decode("utf-8")[:100]}")
         self._client.publish(topic, raw_payload, qos, retain)
 
-    async def read(self, topic: str, encoding: PayloadEncoding = "json", default: PayloadType = None, required: bool = False, timeout: float = 0.1):
+    async def read[T: PayloadType](self, topic: str, *, encoding: PayloadEncoding = "json", default: Optional[T] = None, required: bool = False, timeout: float = 0.1) -> T:
         # subscribe to the specified topic
         sub = await self.subscribe(topic, qos=1, encoding=encoding, message_buffer_size=0)
 
@@ -412,12 +420,15 @@ class MQTTClient(Component):
             return default
         raise ValueError("Topic read timed out")
 
-    def pubsub[T: PayloadType](self, topic: str, **kwargs) -> PubSub[T]:
-        value = PubSub[T](self, topic, **kwargs)
-        self._pubsubs.append(value)
+    async def pubsub[T: PayloadType](self, topic: str, **kwargs) -> PubSub[T]:
+        await self.wait_connected()
 
-        # run the pubsub value immediately if it was created while the component was already running
-        if self.is_connected():
-            self._pubsub_nursery.start_soon(value.run)
+        # create a new pubsub
+        value = PubSub[T](self, topic, **kwargs)
+        await value.setup()
+
+        # register it at the pubsub nursery
+        self._pubsubs.append(value)
+        self._pubsub_nursery.start_soon(value.run)
 
         return value
