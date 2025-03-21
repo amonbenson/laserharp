@@ -1,6 +1,6 @@
 from ..mqtt import PayloadType, JsonPayloadType
 from .base import MQTTRootComponent, MQTTBaseComponent
-from .pubsub import PubSubComponent
+from .pubsub import PubSubComponent, Access
 from .setting import SettingComponent
 
 

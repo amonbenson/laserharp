@@ -6,19 +6,38 @@ from .base import MQTTBaseComponent
 
 
 class Access:
-    BROKER_READ = 0b0001
-    BROKER_WRITE = 0b0010
-    CLIENT_READ = 0b0100
-    CLIENT_WRITE = 0b1000
+    def __init__(self, client: str = "rw", broker: str = "rw"):
+        assert client in ("ro", "wo", "rw"), "invalid client access descriptor"
+        assert broker in ("ro", "wo", "rw"), "invalid broker access descriptor"
 
-    def access(self, broker_read: bool = True, broker_write: bool = True, client_read: bool = True, client_write: bool = True):
-        self.access = 
+        self.client_read = "r" in client
+        self.client_write = "w" in client
+        self.broker_read = "r" in broker
+        self.broker_write = "w" in broker
+
+        if not self.broker_write:
+            raise NotImplementedError("Broker write access cannot be restricted")
+
+    def has(self, *levels: str):
+        for level in levels:
+            if not hasattr(self, level):
+                raise ValueError(f"Unknown access level: {level}")
+
+        return all(getattr(self, level) for level in levels)
+
+    def require(self, *levels: str):
+        if not self.has(*levels):
+            raise ValueError(f"Access denied ({'& '.join(levels)})")
+
+    @staticmethod
+    def full():
+        return Access("rw", "rw")
 
 
 class PubSubComponent[T: PayloadType](MQTTBaseComponent):
     DEFAULT_COOLDOWN = 0.001  # 1ms default cooldown period
 
-    def __init__(self, name: str, parent: Component, *, qos: int = 0, retain: bool = True, default: Optional[T] = None, required: bool = False, readonly: bool = False, writeonly: bool = False, encoding: PayloadEncoding = "json"):
+    def __init__(self, name: str, parent: Component, *, qos: int = 0, retain: bool = True, default: Optional[T] = None, required: bool = False, access: Access = Access.full(), encoding: PayloadEncoding = "json"):
         super().__init__(name, parent)
 
         # store the subscription properties
@@ -26,12 +45,8 @@ class PubSubComponent[T: PayloadType](MQTTBaseComponent):
         self._retain = retain
         self._default = default
         self._required = required
-        self._readonly = readonly
-        self._writeonly = writeonly
+        self._access = access
         self._encoding = encoding
-
-        if self._readonly and self._writeonly:
-            raise ValueError("Cannot be both readonly and writeonly")
 
         # internal client value
         self._client_value: T = default
@@ -40,13 +55,14 @@ class PubSubComponent[T: PayloadType](MQTTBaseComponent):
 
         self._sub: Subscription[T] = None
 
-        if not self._writeonly:
+        # start tasks to handle receive (client -> app) and send (app -> client) communication
+        if self._access.has("client_read", "broker_write"):
             self.add_worker(self._handle_receive)
-        if not self._readonly:
+        if self._access.has("client_write", "broker_read"):
             self.add_worker(self._handle_send)
 
     async def setup(self):
-        if not self._writeonly:
+        if self._access.has("client_read"):
             # read the initial client value
             self._client_value = await self.read(None, encoding=self._encoding, default=self._default, required=self._required)
 
@@ -58,6 +74,8 @@ class PubSubComponent[T: PayloadType](MQTTBaseComponent):
             await self.unsubscribe(self._sub)
 
     async def _handle_receive(self):
+        self._access.require("client_read", "broker_write")
+
         async for payload in self._sub:
             # wait for broker updates, then update the internal value
             self._logger.debug(f"Got new value for {self._topic}")
@@ -65,6 +83,8 @@ class PubSubComponent[T: PayloadType](MQTTBaseComponent):
             self._broker_update_event.set()
 
     async def _handle_send(self):
+        self._access.require("client_write", "broker_read")
+
         while True:
             # wait for client updates, then publish the change
             await self._client_update_event.wait()
@@ -74,27 +94,18 @@ class PubSubComponent[T: PayloadType](MQTTBaseComponent):
 
     @property
     def value(self) -> T:
-        if self._writeonly:
-            self._logger.error("Cannot read from a writeonly pubsub")
-            raise ValueError("Cannot read from a writeonly pubsub")
-
+        self._access.require("client_read")
         return self._client_value
 
     @value.setter
     def value(self, value: T):
-        if self._readonly:
-            self._logger.error("Cannot write to a readonly pubsub")
-            raise ValueError("Cannot write to a readonly pubsub")
-
+        self._access.require("client_write")
         # set the new value locally and mark the update
         self._client_value = value
         self._client_update_event.set()
 
     async def wait_change(self) -> T:
-        if self._writeonly:
-            self._logger.error("Cannot wait for changes on a writeonly pubsub")
-            raise ValueError("Cannot wait for changes on a writeonly pubsub")
-
+        self._access.require("client_read")
         await self._broker_update_event.wait()
         self._broker_update_event = trio.Event()
         return self._client_value

@@ -1,6 +1,6 @@
 from itertools import count
 import trio
-from .mqtt_component import MQTTRootComponent, MQTTBaseComponent, PubSubComponent, SettingComponent
+from .mqtt_component import MQTTRootComponent, MQTTBaseComponent, PubSubComponent, SettingComponent, Access
 
 
 class Camera(MQTTBaseComponent):
@@ -10,7 +10,7 @@ class Camera(MQTTBaseComponent):
         self.add_worker(self._test_pubsub)
         self.add_worker(self._test_change_handler)
 
-        self.stream: PubSubComponent[int] = self.add_pubsub("stream", encoding="raw", writeonly=True)
+        self.stream: PubSubComponent[int] = self.add_pubsub("stream", encoding="raw")
         self.fov_x: SettingComponent[int] = self.add_setting("fov_x")
         self.fov_y: SettingComponent[int] = self.add_setting("fov_y")
 
