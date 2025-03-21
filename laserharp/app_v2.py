@@ -1,6 +1,6 @@
 from itertools import count
 import trio
-from .mqtt_component import MQTTRootComponent, MQTTBaseComponent, PubSubComponent, SettingComponent, Access
+from .mqtt_component import MQTTRootComponent, MQTTBaseComponent, PUBLISH_ONLY_ACCESS
 
 
 class Camera(MQTTBaseComponent):
@@ -10,20 +10,22 @@ class Camera(MQTTBaseComponent):
         self.add_worker(self._test_pubsub)
         self.add_worker(self._test_change_handler)
 
-        self.stream: PubSubComponent[int] = self.add_pubsub("stream", encoding="raw")
-        self.fov_x: SettingComponent[int] = self.add_setting("fov_x")
-        self.fov_y: SettingComponent[int] = self.add_setting("fov_y")
+        self.stream = self.add_pubsub("stream", type="raw", access=PUBLISH_ONLY_ACCESS)
 
     async def _test_change_handler(self):
         while True:
-            await SettingComponent.wait_any_change(self.fov_x, self.fov_y)
-            print("UPDATE!", self.fov_x.value, self.fov_y.value)
+            # await PubSubComponent.wait_any_change(self.fov_x, self.fov_y)
+            # print("UPDATE!", self.fov_x.value, self.fov_y.value)
+
+            # await PubSubComponent.wait_any_change(self.stream)
+            # print("STREAM UPDATE", self.stream.value)
+            await trio.sleep(1)
 
     async def _test_pubsub(self):
         for i in count():
             await trio.sleep(1.0)
-            self.fov_x.value = i
-            self.fov_y.value = -i
+            # self.fov_x.value = i
+            # self.fov_y.value = -i
             self.stream.value = b"test123"
 
 

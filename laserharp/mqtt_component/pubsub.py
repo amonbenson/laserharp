@@ -1,43 +1,40 @@
-from typing import Optional
+from typing import Optional, Callable
 import trio
 from ..component_v2 import Component
 from ..mqtt import Subscription, PayloadType, PayloadEncoding
 from .base import MQTTBaseComponent
 
 
-class Access:
-    def __init__(self, client: str = "rw", broker: str = "rw"):
-        assert client in ("ro", "wo", "rw"), "invalid client access descriptor"
-        assert broker in ("ro", "wo", "rw"), "invalid broker access descriptor"
-
-        self.client_read = "r" in client
-        self.client_write = "w" in client
-        self.broker_read = "r" in broker
-        self.broker_write = "w" in broker
-
-        if not self.broker_write:
-            raise NotImplementedError("Broker write access cannot be restricted")
-
-    def has(self, *levels: str):
-        for level in levels:
-            if not hasattr(self, level):
-                raise ValueError(f"Unknown access level: {level}")
-
-        return all(getattr(self, level) for level in levels)
-
-    def require(self, *levels: str):
-        if not self.has(*levels):
-            raise ValueError(f"Access denied ({'& '.join(levels)})")
-
-    @staticmethod
-    def full():
-        return Access("rw", "rw")
-
-
 class PubSubComponent[T: PayloadType](MQTTBaseComponent):
+    class Access:
+        def __init__(self, client: str = "rw", broker: str = "rw"):
+            assert client in ("r", "w", "rw"), "invalid client access descriptor"
+            assert broker in ("r", "w", "rw"), "invalid broker access descriptor"
+
+            self.client_read = "r" in client
+            self.client_write = "w" in client
+            self.broker_read = "r" in broker
+            self.broker_write = "w" in broker
+
+        def has(self, *levels: str):
+            for level in levels:
+                if not hasattr(self, level):
+                    raise ValueError(f"Unknown access level: {level}")
+
+            return all(getattr(self, level) for level in levels)
+
+        def require(self, *levels: str):
+            if not self.has(*levels):
+                raise ValueError(f"Access denied ({'& '.join(levels)})")
+
+        @classmethod
+        def full(cls):
+            return cls(client="rw", broker="rw")
+
+
     DEFAULT_COOLDOWN = 0.001  # 1ms default cooldown period
 
-    def __init__(self, name: str, parent: Component, *, qos: int = 0, retain: bool = True, default: Optional[T] = None, required: bool = False, access: Access = Access.full(), encoding: PayloadEncoding = "json"):
+    def __init__(self, name: str, parent: Component, *, qos: int = 0, retain: bool = True, default: Optional[T] = None, required: bool = False, access: Access | str = Access.full(), encoding: PayloadEncoding = "json", validator: Callable[[T], bool] = None):
         super().__init__(name, parent)
 
         # store the subscription properties
@@ -45,8 +42,9 @@ class PubSubComponent[T: PayloadType](MQTTBaseComponent):
         self._retain = retain
         self._default = default
         self._required = required
-        self._access = access
+        self._access = access if isinstance(access, self.Access) else self.Access(**access)
         self._encoding = encoding
+        self._validator = validator
 
         # internal client value
         self._client_value: T = default
@@ -56,13 +54,23 @@ class PubSubComponent[T: PayloadType](MQTTBaseComponent):
         self._sub: Subscription[T] = None
 
         # start tasks to handle receive (client -> app) and send (app -> client) communication
-        if self._access.has("client_read", "broker_write"):
+        if self._access.has("broker_write"):
             self.add_worker(self._handle_receive)
-        if self._access.has("client_write", "broker_read"):
+        if self._access.has("broker_read"):
             self.add_worker(self._handle_send)
 
+    def validate(self, value: T) -> bool:
+        if not self._validator:
+            return True
+
+        try:
+            return self._validator(value)
+        except Exception as e:
+            self._logger.warning(f"Exception in validator: {e}")
+            return False
+
     async def setup(self):
-        if self._access.has("client_read"):
+        if self._access.has("broker_write"):
             # read the initial client value
             self._client_value = await self.read(None, encoding=self._encoding, default=self._default, required=self._required)
 
@@ -74,16 +82,22 @@ class PubSubComponent[T: PayloadType](MQTTBaseComponent):
             await self.unsubscribe(self._sub)
 
     async def _handle_receive(self):
-        self._access.require("client_read", "broker_write")
+        self._access.require("broker_write")
 
         async for payload in self._sub:
             # wait for broker updates, then update the internal value
             self._logger.debug(f"Got new value for {self._topic}")
+
+            if not self.validate(payload):
+                self._logger.warning("Validation failed for broker-set value. Forcing publish of the current client value.")
+                self._client_update_event.set()
+                continue
+
             self._client_value = payload
             self._broker_update_event.set()
 
     async def _handle_send(self):
-        self._access.require("client_write", "broker_read")
+        self._access.require("broker_read")
 
         while True:
             # wait for client updates, then publish the change
@@ -95,11 +109,17 @@ class PubSubComponent[T: PayloadType](MQTTBaseComponent):
     @property
     def value(self) -> T:
         self._access.require("client_read")
+
         return self._client_value
 
     @value.setter
     def value(self, value: T):
         self._access.require("client_write")
+
+        if not self.validate(value):
+            self._logger.warning("Validation failed for client-set value. Ignoring.")
+            return
+
         # set the new value locally and mark the update
         self._client_value = value
         self._client_update_event.set()
@@ -133,3 +153,12 @@ class PubSubComponent[T: PayloadType](MQTTBaseComponent):
                     nursery.start_soon(cancel_on_change, pubsub, nursery.cancel_scope)
         except trio.Cancelled:
             pass
+
+
+class RawPubSubComponent(PubSubComponent[bytes]):
+    def __init__(self, name: str, parent: Component, **kwargs):
+        super().__init__(name, parent, encoding="raw", validator=self.validator, **kwargs)
+
+    def validator(self, value: bytes):
+        assert isinstance(value, bytes), f"Invalid type: {type(value)}"
+        return True
