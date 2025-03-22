@@ -1,40 +1,32 @@
 from itertools import count
 import trio
-from .mqtt_component import MQTTRootComponent, MQTTBaseComponent, PUBLISH_ONLY_ACCESS
+from .mqtt_component import MQTTRootComponent, ConfigurableComponent, PUBLISH_ONLY_ACCESS
 
 
-class Camera(MQTTBaseComponent):
+class Camera(ConfigurableComponent):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.add_worker(self._test_pubsub)
-        self.add_worker(self._test_change_handler)
-
-        self.config = self.add_pubsub(
-            "config",
-            schema={
+        self.add_config(
+            {
+                "width": 480,
+                "height": 320,
+            },
+            {
                 "type": "object",
                 "properties": {
-                    "width": {"type": "number", "minimum": 240, "maximum": 1440},
+                    "width": {"type": "number", "minimum": 240, "maximum": 1440, "default": "480"},
                     "height": {"type": "number", "minimum": 160, "maximum": 1080},
                 },
                 "required": ["width", "height"],
             },
-            default={
-                "width": 480,
-                "height": 320,
-            },
         )
+
         self.stream = self.add_pubsub("stream", encoding="raw", access=PUBLISH_ONLY_ACCESS)
+        self.add_worker(self._test_pubsub)
 
-    async def _test_change_handler(self):
-        while True:
-            # await PubSubComponent.wait_any_change(self.fov_x, self.fov_y)
-            # print("UPDATE!", self.fov_x.value, self.fov_y.value)
-
-            # await PubSubComponent.wait_any_change(self.stream)
-            # print("STREAM UPDATE", self.stream.value)
-            await trio.sleep(1)
+    async def handle_config_change(self, config: dict):
+        print("CONFIG!", config)
 
     async def _test_pubsub(self):
         for i in count():

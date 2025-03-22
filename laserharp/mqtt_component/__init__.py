@@ -2,6 +2,7 @@ from typing import Optional
 from ..mqtt import PayloadType, JsonPayloadType
 from .base import MQTTRootComponent, MQTTBaseComponent
 from .pubsub import PubSubComponent
+from .configurable import ConfigurableComponent
 
 
 MQTTBaseComponent.add_pubsub = lambda self, name, **kwargs: self.add_child(name, PubSubComponent, **kwargs)
