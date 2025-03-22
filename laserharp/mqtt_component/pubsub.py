@@ -1,7 +1,10 @@
 from typing import Optional, Callable
+import jsonschema.exceptions
+import jsonschema.validators
 import trio
+import jsonschema
 from ..component_v2 import Component
-from ..mqtt import Subscription, PayloadType, PayloadEncoding
+from ..mqtt import Subscription, PayloadType, JsonPayloadType, PayloadEncoding
 from .base import MQTTBaseComponent
 
 
@@ -31,20 +34,48 @@ class PubSubComponent[T: PayloadType](MQTTBaseComponent):
         def full(cls):
             return cls(client="rw", broker="rw")
 
-
     DEFAULT_COOLDOWN = 0.001  # 1ms default cooldown period
 
-    def __init__(self, name: str, parent: Component, *, qos: int = 0, retain: bool = True, default: Optional[T] = None, required: bool = False, access: Access | str = Access.full(), encoding: PayloadEncoding = "json", validator: Callable[[T], bool] = None):
+    def __init__(
+        self,
+        name: str,
+        parent: Component,
+        *,
+        default: T = None,
+        schema: Optional[dict] = None,
+        qos: int = 0,
+        retain: bool = True,
+        access: Access | str = Access.full(),
+        encoding: PayloadEncoding = "json",
+    ):
         super().__init__(name, parent)
 
         # store the subscription properties
         self._qos = qos
         self._retain = retain
         self._default = default
-        self._required = required
         self._access = access if isinstance(access, self.Access) else self.Access(**access)
         self._encoding = encoding
-        self._validator = validator
+
+        # create JSON schema validator
+        self._schema_validator = None
+        if schema is not None:
+            if encoding != "json":
+                raise ValueError("schema is only supported for encoding='json'")
+
+            jsonschema.Validator.check_schema(schema)
+            self._schema_validator = jsonschema.Validator(schema)
+
+        # validate the default value
+        if default is None:
+            match encoding:
+                case "raw":
+                    default = b""
+                case "str":
+                    default = ""
+                case "json":
+                    default = {}
+        self._try_validate(default, message="Validation failed for the default value: {e}", raise_exception=True)
 
         # internal client value
         self._client_value: T = default
@@ -60,22 +91,55 @@ class PubSubComponent[T: PayloadType](MQTTBaseComponent):
             self.add_worker(self._handle_send)
 
     def validate(self, value: T) -> bool:
-        if not self._validator:
-            return True
+        # check value type based on encoding
+        match self._encoding:
+            case "raw":
+                valid_types = (bytes, bytearray)
+            case "str":
+                valid_types = (str,)
+            case "json":
+                # valid_types = (str, int, float, bool, type(None), dict, list)
+                valid_types = (dict, list)
 
+        assert isinstance(value, valid_types), f"Invalid type: {type(value).__name__}"
+
+        # check json values via schema
+        if self._encoding == "json" and self._schema_validator is not None:
+            error = jsonschema.exceptions.best_match(self._schema_validator.iter_errors(value))
+            if error is not None:
+                raise error
+
+        # accept value
+        return True
+
+    def _try_validate(self, value: T, *, message="Validation failed: {e}", log_exception: bool = True, raise_exception: bool = False) -> bool:
         try:
-            return self._validator(value)
-        except Exception as e:
-            self._logger.warning(f"Exception in validator: {e}")
+            return self.validate(value)
+        except Exception as e:  # pylint: disable=broad-exception-caught
+            if log_exception:
+                self._logger.warning(message.format(e=e))
+            if raise_exception:
+                raise ValueError(message.format(e=e)) from e
             return False
 
     async def setup(self):
+        retained_payload = None
+
         if self._access.has("broker_write"):
-            # read the initial client value
-            self._client_value = await self.read(None, encoding=self._encoding, default=self._default, required=self._required)
+            # read the initial client value (a retained message from the broker)
+            retained_payload = await self.read(self.OWN_TOPIC, encoding=self._encoding, default=None, required=False)
+            if retained_payload is not None and self._try_validate(retained_payload, message="Validation failed for initial broker-set value: {e}. Publishing the client-default value."):
+                self._client_value = retained_payload
+
+            # if the initial value is different from the broker (either because no retained message existed or the value was invalid), publish the client value immediately
+            print(self.full_name, self._access.has("broker_read"), self._client_value, retained_payload)
 
             # create a subscription to wait for continous updates
-            self._sub = await self.subscribe(None, qos=self._qos, encoding=self._encoding, message_buffer_size=0)
+            self._sub = await self.subscribe(self.OWN_TOPIC, qos=self._qos, encoding=self._encoding, message_buffer_size=0)
+
+        # publish the initial client value if it's different from the current retained message
+        if self._access.has("broker_read") and self._client_value != retained_payload:
+            await self.publish(self.OWN_TOPIC, self._client_value, encoding=self._encoding, qos=self._qos, retain=self._retain)
 
     async def teardown(self):
         if self._sub is not None:
@@ -88,8 +152,7 @@ class PubSubComponent[T: PayloadType](MQTTBaseComponent):
             # wait for broker updates, then update the internal value
             self._logger.debug(f"Got new value for {self._topic}")
 
-            if not self.validate(payload):
-                self._logger.warning("Validation failed for broker-set value. Forcing publish of the current client value.")
+            if not self._try_validate(payload, message="Validation failed for broker-set value: {e}. Keeping current client value and forcing a publish."):
                 self._client_update_event.set()
                 continue
 
@@ -104,7 +167,7 @@ class PubSubComponent[T: PayloadType](MQTTBaseComponent):
             await self._client_update_event.wait()
             self._client_update_event = trio.Event()
 
-            await self.publish(None, self._client_value, encoding=self._encoding, qos=self._qos, retain=self._retain)
+            await self.publish(self.OWN_TOPIC, self._client_value, encoding=self._encoding, qos=self._qos, retain=self._retain)
 
     @property
     def value(self) -> T:
@@ -116,8 +179,7 @@ class PubSubComponent[T: PayloadType](MQTTBaseComponent):
     def value(self, value: T):
         self._access.require("client_write")
 
-        if not self.validate(value):
-            self._logger.warning("Validation failed for client-set value. Ignoring.")
+        if not self._try_validate(value, message="Validation failed for client-set value: {e}. Ignoring."):
             return
 
         # set the new value locally and mark the update
@@ -155,10 +217,33 @@ class PubSubComponent[T: PayloadType](MQTTBaseComponent):
             pass
 
 
-class RawPubSubComponent(PubSubComponent[bytes]):
-    def __init__(self, name: str, parent: Component, **kwargs):
-        super().__init__(name, parent, encoding="raw", validator=self.validator, **kwargs)
+# class RawPubSubComponent(PubSubComponent[bytes]):
+#     def __init__(self, name: str, parent: Component, **kwargs):
+#         super().__init__(name, parent, encoding="raw", **kwargs)
 
-    def validator(self, value: bytes):
-        assert isinstance(value, bytes), f"Invalid type: {type(value)}"
-        return True
+#     def validate(self, value: bytes):
+#         assert isinstance(value, bytes), f"Invalid type: {type(value).__name__}"
+#         return True
+
+
+# class JsonPubSubComponent(PubSubComponent[JsonPayloadType]):
+#     def __init__(self, name: str, parent: Component, *, schema: dict = None, **kwargs):
+#         super().__init__(name, parent, encoding="raw", **kwargs)
+
+#         if schema is not None:
+#             jsonschema.Validator.check_schema(schema)
+#             self._schema_validator = jsonschema.Validator(schema)
+
+#     def validate(self, value: JsonPayloadType):
+#         assert isinstance(value, (str, int, float, bool, type(None), dict, list)), f"Invalid type: {type(value).__name__}"
+
+#         # no schema provided, accept any value
+#         if self._schema_validator is None:
+#             return True
+
+#         # use JSON schema validation
+#         error = jsonschema.exceptions.best_match(self._schema_validator.iter_errors(value))
+#         if error is not None:
+#             raise error
+
+#         return True

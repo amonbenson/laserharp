@@ -15,6 +15,8 @@ class MQTTRootComponent(RootComponent):
 
 
 class MQTTBaseComponent(Component):
+    OWN_TOPIC = None  # alias for the topic referring to this class
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -38,9 +40,6 @@ class MQTTBaseComponent(Component):
 
     async def read[T: PayloadType](self, endpoint: Optional[str], **kwargs) -> T:
         return await self._mqtt.read(self.full_topic(endpoint), **kwargs)
-
-    @overload
-    def add_pubsub(self, name: str, type: Literal["raw"], **kwargs) -> "RawPubSubComponent": ...
 
     @overload
     def add_pubsub[T: PayloadType](self, name: str, **kwargs) -> "PubSubComponent[T]": ...

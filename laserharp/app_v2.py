@@ -10,7 +10,8 @@ class Camera(MQTTBaseComponent):
         self.add_worker(self._test_pubsub)
         self.add_worker(self._test_change_handler)
 
-        self.stream = self.add_pubsub("stream", type="raw", access=PUBLISH_ONLY_ACCESS)
+        self.config = self.add_pubsub("config")
+        self.stream = self.add_pubsub("stream", encoding="raw", access=PUBLISH_ONLY_ACCESS)
 
     async def _test_change_handler(self):
         while True:

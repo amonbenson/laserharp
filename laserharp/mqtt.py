@@ -77,7 +77,7 @@ def encode_payload(payload: PayloadType, encoding: PayloadEncoding = "json") -> 
                 raise ValueError(f"Expected payload of type str, got {type(payload)}")
             return payload.encode("utf-8")
         case "json":
-            if not isinstance(payload, (str, int, float, bool, None, dict, list)):
+            if not isinstance(payload, (str, int, float, bool, type(None), dict, list)):
                 raise ValueError(f"Expected payload of json serializable type, got {type(payload)}")
             return json.dumps(payload).encode("utf-8")
         case _:
