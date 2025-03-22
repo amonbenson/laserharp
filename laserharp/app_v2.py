@@ -22,18 +22,16 @@ class Camera(ConfigurableComponent):
             },
         )
 
-        self.stream = self.add_pubsub("stream", encoding="raw", access=PUBLISH_ONLY_ACCESS)
-        self.add_worker(self._test_pubsub)
+        self.stream = self.add_endpoint("stream", encoding="raw", retain=False, access=PUBLISH_ONLY_ACCESS)
+        self.add_worker(self._test_endpoint)
 
     async def handle_config_change(self, config: dict):
         print("CONFIG!", config)
 
-    async def _test_pubsub(self):
+    async def _test_endpoint(self):
         for i in count():
             await trio.sleep(1.0)
-            # self.fov_x.value = i
-            # self.fov_y.value = -i
-            self.stream.value = b"test123"
+            self.stream.value = f"test{i}".encode("utf-8")
 
 
 class App(MQTTRootComponent):

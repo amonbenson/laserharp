@@ -9,7 +9,7 @@ from ..mqtt import Subscription, PayloadType, JsonPayloadType, PayloadEncoding
 from .base import MQTTBaseComponent
 
 
-class PubSubComponent[T: PayloadType](MQTTBaseComponent):
+class EndpointComponent[T: PayloadType](MQTTBaseComponent):
     class Access:
         def __init__(self, client: str = "rw", broker: str = "rw"):
             assert client in ("r", "w", "rw"), "invalid client access descriptor"
@@ -194,27 +194,27 @@ class PubSubComponent[T: PayloadType](MQTTBaseComponent):
         self._broker_update_event = trio.Event()
 
     @staticmethod
-    async def wait_any_change(*pubsubs: "PubSubComponent", cooldown: float = DEFAULT_COOLDOWN):
+    async def wait_any_change(*endpoints: "EndpointComponent", cooldown: float = DEFAULT_COOLDOWN):
         # wait for the cooldown period and discard any changes that arrive in between
         if cooldown > 0:
             await trio.sleep(cooldown)
-            for pubsub in pubsubs:
-                pubsub.discard_change()
+            for endpoint in endpoints:
+                endpoint.discard_change()
 
-        # start a nursery that gets canceled once any of the pubsubs receives a change
-        async def cancel_on_change(pubsub: PubSubComponent, cancel_scope: trio.CancelScope):
-            await pubsub.wait_change()
+        # start a nursery that gets canceled once any of the endpoints receives a change
+        async def cancel_on_change(endpoint: EndpointComponent, cancel_scope: trio.CancelScope):
+            await endpoint.wait_change()
             cancel_scope.cancel()
 
         try:
             async with trio.open_nursery() as nursery:
-                for pubsub in pubsubs:
-                    nursery.start_soon(cancel_on_change, pubsub, nursery.cancel_scope)
+                for endpoint in endpoints:
+                    nursery.start_soon(cancel_on_change, endpoint, nursery.cancel_scope)
         except trio.Cancelled:
             pass
 
 
-# class RawPubSubComponent(PubSubComponent[bytes]):
+# class RawEndpointComponent(EndpointComponent[bytes]):
 #     def __init__(self, name: str, parent: Component, **kwargs):
 #         super().__init__(name, parent, encoding="raw", **kwargs)
 
@@ -223,7 +223,7 @@ class PubSubComponent[T: PayloadType](MQTTBaseComponent):
 #         return True
 
 
-# class JsonPubSubComponent(PubSubComponent[JsonPayloadType]):
+# class JsonEndpointComponent(EndpointComponent[JsonPayloadType]):
 #     def __init__(self, name: str, parent: Component, *, schema: dict = None, **kwargs):
 #         super().__init__(name, parent, encoding="raw", **kwargs)
 

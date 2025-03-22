@@ -14,7 +14,7 @@ class ConfigurableComponent(MQTTBaseComponent, ABC):
         if schema is None:
             schema = self.DEFAULT_CONFIG_SCHEMA
 
-        self.config = self.add_pubsub("config", default=default, schema=schema)
+        self.config = self.add_endpoint("config", default=default, schema=schema)
 
     async def _handle_config_change_task(self):
         while True:

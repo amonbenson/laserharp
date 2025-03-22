@@ -4,7 +4,7 @@ from ..mqtt import MQTTClient, Subscription, PayloadType
 
 # avoiding circular imports
 if TYPE_CHECKING:
-    from .pubsub import PubSubComponent, RawPubSubComponent
+    from .endpoint import EndpointComponent, RawEndpointComponent
 
 
 class MQTTRootComponent(RootComponent):
@@ -23,8 +23,8 @@ class MQTTBaseComponent(Component):
         self._mqtt: MQTTClient = self.get_global_child("mqtt")
         self._topic = self._full_name.replace(":", "/")
 
-    def full_topic(self, endpoint: Optional[str] = None):
-        if endpoint is None:
+    def full_topic(self, endpoint: Optional[str] = OWN_TOPIC):
+        if endpoint is self.OWN_TOPIC:
             return self._topic
 
         return f"{self._topic}/{endpoint}"
@@ -42,4 +42,4 @@ class MQTTBaseComponent(Component):
         return await self._mqtt.read(self.full_topic(endpoint), **kwargs)
 
     @overload
-    def add_pubsub[T: PayloadType](self, name: str, **kwargs) -> "PubSubComponent[T]": ...
+    def add_endpoint[T: PayloadType](self, name: str, **kwargs) -> "EndpointComponent[T]": ...
