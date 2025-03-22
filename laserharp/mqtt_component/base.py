@@ -1,27 +1,17 @@
-from typing import Optional, TYPE_CHECKING, overload, Literal
-from ..component_v2 import RootComponent, Component
+from typing import Optional, TYPE_CHECKING, overload
+from ..component_v2 import Component
 from ..mqtt import MQTTClient, Subscription, PayloadType
 
 # avoiding circular imports
 if TYPE_CHECKING:
-    from .endpoint import EndpointComponent, RawEndpointComponent
-
-
-class MQTTRootComponent(RootComponent):
-    def __init__(self, name):
-        super().__init__(name)
-
-        self._mqtt = self.add_global_child("mqtt", MQTTClient)
-
-    @overload
-    def add_endpoint[T: PayloadType](self, name: str, **kwargs) -> "EndpointComponent[T]": ...
+    from .endpoint import EndpointComponent
 
 
 class TopicComponent(Component):
-    def __init__(self, name: str, parent: Component, *, topic: Optional[str] = None):
+    def __init__(self, name: str, parent: Component = None, *, topic: Optional[str] = None):
         super().__init__(name, parent)
 
-        self._mqtt: MQTTClient = self.get_global_child("mqtt")
+        self._mqtt: MQTTClient = self.get_global_singleton("mqtt", MQTTClient)
         self._topic = topic if topic is not None else self._full_name.replace(":", "/")
 
     async def subscribe[T: PayloadType](self, **kwargs) -> Subscription[T]:

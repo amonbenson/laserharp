@@ -1,11 +1,10 @@
 from typing import Optional
 from ..mqtt import PayloadType, JsonPayloadType
-from .base import MQTTRootComponent, TopicComponent
+from .base import TopicComponent
 from .endpoint import EndpointComponent
 from .configurable import ConfigurableComponent
 
 
-MQTTRootComponent.add_endpoint = lambda self, name, **kwargs: self.add_child(name, EndpointComponent, **kwargs)
 TopicComponent.add_endpoint = lambda self, name, **kwargs: self.add_child(name, EndpointComponent, **kwargs)
 
 

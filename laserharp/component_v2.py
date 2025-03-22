@@ -10,7 +10,7 @@ class Component(ABC):
 
     _global_children = {}
 
-    def __init__(self, name: str, parent: Optional["Component"]):
+    def __init__(self, name: str, parent: Optional["Component"] = None):
         self._name = name
         self._parent = parent
         self._cancel_scope: Optional[trio.CancelScope] = None
@@ -36,6 +36,9 @@ class Component(ABC):
     @property
     def running(self):
         return self._running
+
+    def is_root(self):
+        return self._parent is None
 
     def cancel(self):
         if not self._running:
@@ -90,6 +93,12 @@ class Component(ABC):
 
         return Component._global_children[name]
 
+    def get_global_singleton[C: "Component"](self, name: str, child_type: type[C], *args, **kwargs) -> C:
+        if name not in self._global_children:
+            return self.add_global_child(name, child_type, *args, **kwargs)
+
+        return self.get_global_child(name)
+
     # def add_channel(self, name: str, max_buffer_size: int | float = 0):
     #     if self._initialized:
     #         raise ValueError("Component is already initialized.")
@@ -112,7 +121,7 @@ class Component(ABC):
     async def teardown(self):
         pass
 
-    async def run(self, cancel_scope: Optional[trio.CancelScope] = None):
+    async def _run(self, cancel_scope: Optional[trio.CancelScope] = None):
         try:
             # mark component as initialized
             self._initialized = True
@@ -149,6 +158,15 @@ class Component(ABC):
 
             self._cancel_scope = None
 
+    async def run(self, cancel_scope: Optional[trio.CancelScope] = None):
+        if self.is_root():
+            # use a global cancel scope
+            root_cancel_scope = trio.CancelScope()
+            with root_cancel_scope:
+                await self._run(root_cancel_scope)
+        else:
+            await self._run(cancel_scope)
+
 
 class WorkerComponent(Component):
     def __init__(self, name: str, parent: Component, method: Callable, args: list, kwargs: dict):
@@ -163,14 +181,3 @@ class WorkerComponent(Component):
     async def run(self, cancel_scope):
         self._logger.info(f"Starting worker {self.name}...")
         await self._method(*self._args, **self._kwargs)
-
-
-class RootComponent(Component):
-    def __init__(self, name: str):
-        super().__init__(name, None)
-
-    async def run(self):
-        # use a global cancel scope
-        cancel_scope = trio.CancelScope()
-        with cancel_scope:
-            await super().run(cancel_scope)
