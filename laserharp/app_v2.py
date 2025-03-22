@@ -10,7 +10,21 @@ class Camera(MQTTBaseComponent):
         self.add_worker(self._test_pubsub)
         self.add_worker(self._test_change_handler)
 
-        self.config = self.add_pubsub("config")
+        self.config = self.add_pubsub(
+            "config",
+            schema={
+                "type": "object",
+                "properties": {
+                    "width": {"type": "number", "minimum": 240, "maximum": 1440},
+                    "height": {"type": "number", "minimum": 160, "maximum": 1080},
+                },
+                "required": ["width", "height"],
+            },
+            default={
+                "width": 480,
+                "height": 320,
+            },
+        )
         self.stream = self.add_pubsub("stream", encoding="raw", access=PUBLISH_ONLY_ACCESS)
 
     async def _test_change_handler(self):

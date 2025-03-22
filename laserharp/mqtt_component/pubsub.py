@@ -3,6 +3,7 @@ import jsonschema.exceptions
 import jsonschema.validators
 import trio
 import jsonschema
+from referencing.jsonschema import EMPTY_REGISTRY
 from ..component_v2 import Component
 from ..mqtt import Subscription, PayloadType, JsonPayloadType, PayloadEncoding
 from .base import MQTTBaseComponent
@@ -58,13 +59,14 @@ class PubSubComponent[T: PayloadType](MQTTBaseComponent):
         self._encoding = encoding
 
         # create JSON schema validator
-        self._schema_validator = None
+        self._schema_validator: jsonschema.Validator = None
         if schema is not None:
             if encoding != "json":
                 raise ValueError("schema is only supported for encoding='json'")
 
-            jsonschema.Validator.check_schema(schema)
-            self._schema_validator = jsonschema.Validator(schema)
+            validator_cls: jsonschema.Validator = jsonschema.validators.validator_for(schema, default=jsonschema.validators.Draft7Validator)
+            validator_cls.check_schema(schema)
+            self._schema_validator = validator_cls(schema)
 
         # validate the default value
         if default is None:
@@ -105,9 +107,7 @@ class PubSubComponent[T: PayloadType](MQTTBaseComponent):
 
         # check json values via schema
         if self._encoding == "json" and self._schema_validator is not None:
-            error = jsonschema.exceptions.best_match(self._schema_validator.iter_errors(value))
-            if error is not None:
-                raise error
+            self._schema_validator.validate(value)
 
         # accept value
         return True
@@ -128,11 +128,8 @@ class PubSubComponent[T: PayloadType](MQTTBaseComponent):
         if self._access.has("broker_write"):
             # read the initial client value (a retained message from the broker)
             retained_payload = await self.read(self.OWN_TOPIC, encoding=self._encoding, default=None, required=False)
-            if retained_payload is not None and self._try_validate(retained_payload, message="Validation failed for initial broker-set value: {e}. Publishing the client-default value."):
+            if retained_payload is not None and self._try_validate(retained_payload, message="Validation failed for initial broker-retained value: {e}. Publishing the client-default value."):
                 self._client_value = retained_payload
-
-            # if the initial value is different from the broker (either because no retained message existed or the value was invalid), publish the client value immediately
-            print(self.full_name, self._access.has("broker_read"), self._client_value, retained_payload)
 
             # create a subscription to wait for continous updates
             self._sub = await self.subscribe(self.OWN_TOPIC, qos=self._qos, encoding=self._encoding, message_buffer_size=0)
