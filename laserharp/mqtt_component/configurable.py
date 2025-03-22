@@ -1,9 +1,9 @@
 from abc import ABC, abstractmethod
 from typing import Optional
-from .base import MQTTBaseComponent
+from .base import TopicComponent
 
 
-class ConfigurableComponent(MQTTBaseComponent, ABC):
+class ConfigurableComponent(TopicComponent, ABC):
     DEFAULT_CONFIG_SCHEMA = {
         "type": "object",
     }

@@ -278,6 +278,7 @@ class MQTTClient(Component):
         is_first = self._register_subscription(sub)
 
         if is_first:
+            print(topic, qos)
             self._client.subscribe(topic, qos)
 
         return sub

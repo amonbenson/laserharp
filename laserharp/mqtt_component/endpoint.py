@@ -6,10 +6,10 @@ import jsonschema
 from referencing.jsonschema import EMPTY_REGISTRY
 from ..component_v2 import Component
 from ..mqtt import Subscription, PayloadType, JsonPayloadType, PayloadEncoding
-from .base import MQTTBaseComponent
+from .base import TopicComponent
 
 
-class EndpointComponent[T: PayloadType](MQTTBaseComponent):
+class EndpointComponent[T: PayloadType](TopicComponent):
     class Access:
         def __init__(self, client: str = "rw", broker: str = "rw"):
             assert client in ("r", "w", "rw"), "invalid client access descriptor"
@@ -45,7 +45,7 @@ class EndpointComponent[T: PayloadType](MQTTBaseComponent):
         topic: Optional[str] = None,
         default: T = None,
         schema: Optional[dict] = None,
-        qos: int = 0,
+        qos: int = 1,
         retain: bool = True,
         access: Access | str = Access.full(),
         encoding: PayloadEncoding = "json",
@@ -128,16 +128,16 @@ class EndpointComponent[T: PayloadType](MQTTBaseComponent):
 
         if self._access.has("broker_write"):
             # read the initial client value (a retained message from the broker)
-            retained_payload = await self.read(self.OWN_TOPIC, encoding=self._encoding, default=None, required=False)
+            retained_payload = await self.read(encoding=self._encoding, default=None, required=False)
             if retained_payload is not None and self._try_validate(retained_payload, message="Validation failed for initial broker-retained value: {e}. Publishing the client-default value."):
                 self._client_value = retained_payload
 
             # create a subscription to wait for continous updates
-            self._sub = await self.subscribe(self.OWN_TOPIC, qos=self._qos, encoding=self._encoding, message_buffer_size=0)
+            self._sub = await self.subscribe(qos=self._qos, encoding=self._encoding, message_buffer_size=0)
 
         # publish the initial client value if it's different from the current retained message
         if self._access.has("broker_read") and self._client_value != retained_payload:
-            await self.publish(self.OWN_TOPIC, self._client_value, encoding=self._encoding, qos=self._qos, retain=self._retain)
+            await self.publish(self._client_value, encoding=self._encoding, qos=self._qos, retain=self._retain)
 
     async def teardown(self):
         if self._sub is not None:
@@ -165,7 +165,7 @@ class EndpointComponent[T: PayloadType](MQTTBaseComponent):
             await self._client_update_event.wait()
             self._client_update_event = trio.Event()
 
-            await self.publish(self.OWN_TOPIC, self._client_value, encoding=self._encoding, qos=self._qos, retain=self._retain)
+            await self.publish(self._client_value, encoding=self._encoding, qos=self._qos, retain=self._retain)
 
     @property
     def value(self) -> T:
@@ -213,35 +213,3 @@ class EndpointComponent[T: PayloadType](MQTTBaseComponent):
                     nursery.start_soon(cancel_on_change, endpoint, nursery.cancel_scope)
         except trio.Cancelled:
             pass
-
-
-# class RawEndpointComponent(EndpointComponent[bytes]):
-#     def __init__(self, name: str, parent: Component, **kwargs):
-#         super().__init__(name, parent, encoding="raw", **kwargs)
-
-#     def validate(self, value: bytes):
-#         assert isinstance(value, bytes), f"Invalid type: {type(value).__name__}"
-#         return True
-
-
-# class JsonEndpointComponent(EndpointComponent[JsonPayloadType]):
-#     def __init__(self, name: str, parent: Component, *, schema: dict = None, **kwargs):
-#         super().__init__(name, parent, encoding="raw", **kwargs)
-
-#         if schema is not None:
-#             jsonschema.Validator.check_schema(schema)
-#             self._schema_validator = jsonschema.Validator(schema)
-
-#     def validate(self, value: JsonPayloadType):
-#         assert isinstance(value, (str, int, float, bool, type(None), dict, list)), f"Invalid type: {type(value).__name__}"
-
-#         # no schema provided, accept any value
-#         if self._schema_validator is None:
-#             return True
-
-#         # use JSON schema validation
-#         error = jsonschema.exceptions.best_match(self._schema_validator.iter_errors(value))
-#         if error is not None:
-#             raise error
-
-#         return True

@@ -13,6 +13,7 @@ class EmulatedCamera(BaseCamera):
             topic="/lh/emulator/camera/stream",
             encoding="raw",
             retain=False,
+            qos=0,
             access=SUBSCRIBE_ONLY_ACCESS,
         )
         self.add_worker(self._handle_emulator_stream)
