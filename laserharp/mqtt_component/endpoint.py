@@ -42,6 +42,7 @@ class EndpointComponent[T: PayloadType](MQTTBaseComponent):
         name: str,
         parent: Component,
         *,
+        topic: Optional[str] = None,
         default: T = None,
         schema: Optional[dict] = None,
         qos: int = 0,
@@ -49,7 +50,7 @@ class EndpointComponent[T: PayloadType](MQTTBaseComponent):
         access: Access | str = Access.full(),
         encoding: PayloadEncoding = "json",
     ):
-        super().__init__(name, parent)
+        super().__init__(name, parent, topic=topic)
 
         # store the subscription properties
         self._qos = qos

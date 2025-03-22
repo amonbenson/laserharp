@@ -17,11 +17,11 @@ class MQTTRootComponent(RootComponent):
 class MQTTBaseComponent(Component):
     OWN_TOPIC = None  # alias for the topic referring to this class
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def __init__(self, name: str, parent: Component, *, topic: Optional[str] = None):
+        super().__init__(name, parent)
 
         self._mqtt: MQTTClient = self.get_global_child("mqtt")
-        self._topic = self._full_name.replace(":", "/")
+        self._topic = topic if topic is not None else self._full_name.replace(":", "/")
 
     def full_topic(self, endpoint: Optional[str] = OWN_TOPIC):
         if endpoint is self.OWN_TOPIC:
