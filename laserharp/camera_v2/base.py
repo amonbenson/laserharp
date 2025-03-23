@@ -25,9 +25,9 @@ class BaseCamera(ConfigurableComponent, ABC):
         self.stream = self.add_endpoint("stream", encoding="raw", retain=False, access=PUBLISH_ONLY_ACCESS)
         self._frame_send_channel, self._frame_receive_channel = trio.open_memory_channel(0)
 
-    def receive_frame_channel(self):
-        return self._frame_receive_channel
-
     async def _broadcast_stream(self):
-        async for frame in self.receive_frame_channel().clone():
+        async for frame in self._frame_receive_channel.clone():
             self.stream.value = frame
+
+    async def capture(self):
+        return await self._frame_receive_channel.receive()

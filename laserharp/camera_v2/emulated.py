@@ -10,7 +10,7 @@ class EmulatedCamera(BaseCamera):
 
         self.emulator_stream = self.add_endpoint(
             "emulator_stream",
-            topic="/lh/emulator/camera/stream",
+            topic="lh/emulator/camera/stream",
             encoding="raw",
             retain=False,
             qos=0,
