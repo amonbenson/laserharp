@@ -78,8 +78,12 @@ class Component(ABC):
         return child
 
     def add_worker(self, worker_method: Callable, *args, **kwargs) -> "WorkerComponent":
+        name = worker_method.__name__
+        if not (name.startswith("_run_") or name.startswith("_handle_")):
+            self._logger.warning(f"Worker methods should start with '_run' or '_handle' (got '{name}')")
+
         # note: WorkerComponent takes in args and kwargs as direct parameters, so we don't use the spread syntax here
-        return self.add_child(f"{worker_method.__name__}_worker", WorkerComponent, worker_method, args, kwargs)
+        return self.add_child(name, WorkerComponent, worker_method, args, kwargs)
 
     def get_child[C: "Component"](self, name: str) -> C:
         if name not in self._global_children:
@@ -93,11 +97,11 @@ class Component(ABC):
 
         return Component._global_children[name]
 
-    def get_global_singleton[C: "Component"](self, name: str, child_type: type[C], *args, **kwargs) -> C:
-        if name not in self._global_children:
-            return self.add_global_child(name, child_type, *args, **kwargs)
+    # def get_global_singleton[C: "Component"](self, name: str, child_type: type[C], *args, **kwargs) -> C:
+    #     if name not in self._global_children:
+    #         return self.add_global_child(name, child_type, *args, **kwargs)
 
-        return self.get_global_child(name)
+    #     return self.get_global_child(name)
 
     # def add_channel(self, name: str, max_buffer_size: int | float = 0):
     #     if self._initialized:
@@ -137,7 +141,7 @@ class Component(ABC):
                 raise
 
             # start all children in parallel
-            self._logger.info(f"Starting {self.name} children/workers...")
+            self._logger.info(f"Starting {self.name} children and workers...")
             async with trio.open_nursery() as nursery:
                 for child in self._children.values():
                     nursery.start_soon(child.run, nursery.cancel_scope)
@@ -145,6 +149,9 @@ class Component(ABC):
                 # mark as running
                 self._running = True
                 self._running_event.set()
+
+            # run finished
+            self._logger.info("All children and workers exited.")
 
         finally:
             # invoke the stop method with a timeout

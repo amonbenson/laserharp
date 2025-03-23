@@ -12,15 +12,11 @@ class EmulatedCamera(BaseCamera):
             "emulator_stream",
             topic="lh/emulator/camera/stream",
             encoding="raw",
-            retain=False,
             qos=0,
+            retain=False,
             access=SUBSCRIBE_ONLY_ACCESS,
         )
         self.add_worker(self._handle_emulator_stream)
-
-    async def handle_config_change(self, config: dict):
-        # TODO: handle
-        self._logger.info(f"Got new config: {config}")
 
     async def _handle_emulator_stream(self):
         while True:

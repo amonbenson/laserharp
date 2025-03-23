@@ -15,12 +15,3 @@ class ConfigurableComponent(TopicComponent, ABC):
             schema = self.DEFAULT_CONFIG_SCHEMA
 
         self.config = self.add_endpoint("config", default=default, schema=schema)
-
-    async def _handle_config_change_task(self):
-        while True:
-            config = await self.config.wait_change()
-            await self.handle_config_change(config)
-
-    @abstractmethod
-    async def handle_config_change(self, config: dict):
-        pass

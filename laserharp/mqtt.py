@@ -133,6 +133,7 @@ class MQTTClient(Component):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self._logger.setLevel(logging.INFO)
 
         self._client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2)
         self._sock = self._client.socket()

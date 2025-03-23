@@ -11,7 +11,10 @@ class TopicComponent(Component):
     def __init__(self, name: str, parent: Component = None, *, topic: Optional[str] = None):
         super().__init__(name, parent)
 
-        self._mqtt: MQTTClient = self.get_global_singleton("mqtt", MQTTClient)
+        if "mqtt" not in self._global_children:
+            raise ValueError("No global mqtt instance found. Please use 'self.add_global_child(\"mqtt\", MQTTClient)' to add a global mqtt client to the root component.")
+
+        self._mqtt: MQTTClient = self.get_global_child("mqtt")
         self._topic = topic if topic is not None else self._full_name.replace(":", "/")
 
     async def subscribe[T: PayloadType](self, **kwargs) -> Subscription[T]:
