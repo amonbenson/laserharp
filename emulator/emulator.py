@@ -11,7 +11,7 @@ class _EmulatorImpl(Component):
         self.add_global_child("mqtt", MQTTClient)
 
         self.camera = self.add_child("camera", Camera)
-        # self.stm = self.add_child("stm", STMBoard)
+        self.stm = self.add_child("stm", STMBoard)
 
 
 class Emulator(Component):

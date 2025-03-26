@@ -4,14 +4,10 @@ from .base import TopicComponent
 
 
 class ConfigurableComponent(TopicComponent, ABC):
-    DEFAULT_CONFIG_SCHEMA = {
-        "type": "object",
-    }
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
-    def add_config(self, default: Optional[dict] = None, schema: Optional[dict] = None):
-        if default is None:
-            default = {}
-        if schema is None:
-            schema = self.DEFAULT_CONFIG_SCHEMA
+        self.config = {}
 
-        self.config = self.add_endpoint("config", default=default, schema=schema)
+    def add_config(self, schema: dict):
+        self.config = self.add_endpoint("config", schema=schema)

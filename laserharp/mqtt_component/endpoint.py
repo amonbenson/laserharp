@@ -1,8 +1,10 @@
 from typing import Optional, Callable
-import jsonschema.exceptions
-import jsonschema.validators
 import trio
 import jsonschema
+import jsonschema.exceptions
+import jsonschema.validators
+import jsonschema_default
+import yaml
 from referencing.jsonschema import EMPTY_REGISTRY
 from ..component_v2 import Component
 from ..mqtt import Subscription, PayloadType, JsonPayloadType, PayloadEncoding
@@ -65,6 +67,12 @@ class EndpointComponent[T: PayloadType](TopicComponent):
             if encoding != "json":
                 raise ValueError("schema is only supported for encoding='json'")
 
+            # parse yaml
+            if isinstance(schema, str):
+                schema = yaml.safe_load(schema)
+            if not isinstance(schema, dict):
+                raise ValueError("schema must be either a dict or a yaml string")
+
             validator_cls: jsonschema.Validator = jsonschema.validators.validator_for(schema, default=jsonschema.validators.Draft7Validator)
             validator_cls.check_schema(schema)
             self._schema_validator = validator_cls(schema)
@@ -77,7 +85,11 @@ class EndpointComponent[T: PayloadType](TopicComponent):
                 case "str":
                     default = ""
                 case "json":
-                    default = {}
+                    if schema is not None:
+                        # use json schema to set the default value
+                        default = jsonschema_default.create_from(schema)
+                    else:
+                        default = {}
         self._try_validate(default, message="Validation failed for the default value: {e}", raise_exception=True)
 
         # internal client value

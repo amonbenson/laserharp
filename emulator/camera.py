@@ -15,26 +15,96 @@ class Camera(ConfigurableComponent):
         super().__init__(*args, **kwargs)
 
         self.add_config(
-            default={
-                # mechanical parameters
-                "fov_x": 53.50,  # field of view in degrees
-                "fov_y": 41.41,
-                "mount_angle": 15.0,  # angle between camera center and vertical axis in degrees
-                "mount_distance": 0.14338,  # distance from camera to laser plane in meters
-                # basic confguration
-                "width": 640,  # VGA resolution
-                "height": 480,
-                "framerate": 1,  # 50,  # max: 50
-                # "rotation": 180, # configure any 90 degree rotation
-                # exposure settings
-                # "shutter_speed": 50000,  # in microseconds
-                # "iso": 200,
-                # image settings
-                # "brightness": 50,
-                # "contrast": 0,
-                # "saturation": 0,
-                # "sharpness": 0,
-            },
+            """
+            type: object
+            properties:
+                fov_x:
+                    title: "FOV X"
+                    description: "Field of view in the x-direction (in degrees)"
+                    type: number
+                    minimum: 1
+                    maximum: 179
+                    default: 53.50
+
+                fov_y:
+                    title: "FOV Y"
+                    description: "Field of view in the y-direction (in degrees)"
+                    type: number
+                    minimum: 1
+                    maximum: 179
+                    default: 41.41
+
+                mount_angle:
+                    title: "Mount Angle"
+                    description: "Angle between the camera view center line and vertical axis (in degrees)"
+                    type: number
+                    minimum: 0
+                    maximum: 90
+                    default: 15.0
+
+                mount_distance:
+                    title: "Mount Distance"
+                    description: "Distance from camera to laser plane (in meters)"
+                    type: number
+                    minimum: 0
+                    maximum: 1
+                    default: 0.14338
+
+                width:
+                    title: "Width"
+                    type: integer
+                    minimum: 240
+                    maximum: 1440
+                    default: 640
+
+                height:
+                    title: "Height"
+                    type: integer
+                    minimum: 160
+                    maximum: 1080
+                    default: 480
+
+                framerate:
+                    title: "Framerate"
+                    type: integer
+                    minimum: 1
+                    maximum: 50
+                    default: 1
+
+                rotation:
+                    title: "Rotation"
+                    description: "Set any 90-degree rotation (in degrees)"
+                    type: integer
+                    enum: [0, 90, 180, 270]
+                    default: 0
+
+                shutter_speed:
+                    title: "Shutter speed"
+                    title: "Shutter speed (in microseconds)"
+                    type: integer
+                    minimum: 1
+                    maximum: 10000000
+                    default: 50000
+
+                iso:
+                    title: "ISO"
+                    title: "Camera sensor ISO sensitivity"
+                    type: integer
+                    minimum: 10
+                    maximum: 800
+                    default: 200
+            required:
+                - fov_x
+                - fov_y
+                - mount_angle
+                - mount_distance
+                - width
+                - height
+                - framerate
+                - rotation
+                - shutter_speed
+                - iso
+            """
         )
 
         self._frame = np.zeros((self.config.value["height"], self.config.value["width"], 1), np.uint8)

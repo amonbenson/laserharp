@@ -18,4 +18,4 @@ class App(Component):
         while True:
             # get camera frame
             frame = await self.camera.capture()
-            print("capture", len(frame))
+            print("capture", frame.shape)
