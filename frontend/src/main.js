@@ -6,8 +6,7 @@ import App from "./App.vue";
 import router from "./router";
 import api from "./plugins/api";
 
-const DEFAULT_API_URL = process.env.NODE_ENV === "production" ? "/api" : "http://localhost:5000/api";
-const DEFAULT_WS_HOST = process.env.NODE_ENV === "production" ? "http://" : "http://:5000";
+const DEFAULT_API_PATH = "/api";
 const DEFAULT_WS_PATH = "/ws";
 
 const app = createApp(App);
@@ -16,9 +15,9 @@ const pinia = createPinia();
 app.use(pinia);
 app.use(router);
 app.use(api, {
-    baseUrl: import.meta.env.VITE_API_URL ?? DEFAULT_API_URL,
+    baseUrl: import.meta.env.VITE_API_PATH ?? DEFAULT_API_PATH,
     ws: {
-        host: import.meta.env.VITE_WS_HOST ?? DEFAULT_WS_HOST,
+        // host: import.meta.env.VITE_WS_HOST ?? DEFAULT_WS_HOST,
         path: import.meta.env.VITE_WS_PATH ?? DEFAULT_WS_PATH,
     },
 });

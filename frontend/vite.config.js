@@ -14,4 +14,23 @@ export default defineConfig({
     },
   },
   clearScreen: false,
+  server: {
+    port: 8080,
+    host: true,
+    strictPort: true,
+    proxy: {
+      "/api": {
+        target: "http://localhost:5000",
+        changeOrigin: true,
+        secure: false,
+        ws: true,
+      },
+      "/ws": {
+        target: "ws://localhost:5000",
+        changeOrigin: true,
+        secure: false,
+        ws: true,
+      },
+    },
+  },
 });
