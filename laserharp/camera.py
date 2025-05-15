@@ -186,7 +186,7 @@ class Camera(Component):
 
         if self.enabled:
             if not PICAMERA2_AVAILABLE:
-                raise RuntimeError("libcamera2 is not available. Please install it using 'apt-get install python3-picamera2'.")
+                raise RuntimeError("libcamera2 is not available or failed to import. Please install it using 'apt-get install python3-picamera2' (see errors above).")
 
             self.state["status"] = "starting"
 
@@ -206,7 +206,7 @@ class Camera(Component):
 
         if self.enabled:
             if not PICAMERA2_AVAILABLE:
-                raise RuntimeError("libcamera2 is not available. Please install it using 'apt-get install python3-picamera2'.")
+                raise RuntimeError("libcamera2 is not available or failed to import. Please install it using 'apt-get install python3-picamera2' (see errors above).")
 
             self.state["status"] = "stopping"
 
@@ -254,7 +254,7 @@ class Camera(Component):
             return self.StreamingOutput()
 
         if not PICAMERA2_AVAILABLE:
-            raise RuntimeError("libcamera2 is not available. Please install it using 'apt-get install python3-picamera2'.")
+            raise RuntimeError("libcamera2 is not available or failed to import. Please install it using 'apt-get install python3-picamera2' (see errors above).")
         if self.state["status"] != "running":
             raise RuntimeError("Camera is not running.")
 

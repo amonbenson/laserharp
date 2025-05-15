@@ -15,7 +15,8 @@ python3 -m venv --prompt laserharp --system-site-packages .venv
 source .venv/bin/activate
 
 # Install python requirements
-pip3 install -r requirements.txt
+python -m pip install --upgrade pip
+python -m pip install -r requirements.txt
 
 # Install node, npm, and yarn via nvm (node version manager)
 set +eux
