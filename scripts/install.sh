@@ -23,27 +23,27 @@ sudo rm -rf /etc/nginx/sites-enabled/*
 sudo ln -s /etc/nginx/sites-available/laserharp.local /etc/nginx/sites-enabled/laserharp.local
 
 # build and install laserharp service
-pip3 install gunicorn git+https://github.com/amonbenson/perci.git --break-system-packages
-pip3 install . --break-system-packages
+sudo mkdir -p /etc/laserharp
+sudo rm -rf /etc/laserharp/venv
+sudo python3 -m venv /etc/laserharp/venv --system-site-packages # setup virtualenv
+sudo /etc/laserharp/venv/bin/python3 -m pip install --upgrade pip
+sudo /etc/laserharp/venv/bin/python3 -m pip install -r requirements.txt
+sudo /etc/laserharp/venv/bin/python3 -m pip install gunicorn
+sudo /etc/laserharp/venv/bin/python3 -m pip install -e .
+
 sudo cp ./scripts/laserharp.service /etc/systemd/system/laserharp.service
 sudo systemctl enable laserharp
 sudo systemctl daemon-reload
 
-# install access point service
-sudo cp ./scripts/laserharp_ap.service /etc/systemd/system/laserharp_ap.service
-sudo systemctl enable laserharp_ap
-sudo systemctl daemon-reload
+# TODO: setup access point
 
 # start services
 sudo systemctl start nginx
-sudo systemctl start laserharp_ap
 sudo systemctl start laserharp
 
 sudo systemctl enable nginx
-sudo systemctl enable laserharp_ap
 sudo systemctl enable laserharp
 
 # print service status
 sudo systemctl status --no-pager nginx
-sudo systemctl status --no-pager laserharp_ap
 sudo systemctl status --no-pager laserharp

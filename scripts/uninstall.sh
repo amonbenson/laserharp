@@ -3,11 +3,9 @@ set -eux
 
 # stop related services
 sudo systemctl stop nginx
-sudo systemctl stop laserharp_ap
 sudo systemctl stop laserharp
 
 sudo systemctl disable nginx
-sudo systemctl disable laserharp_ap
 sudo systemctl disable laserharp
 
 # invoke kill script
