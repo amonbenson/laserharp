@@ -14,7 +14,7 @@ from .laser_array import LaserArray
 from .camera import Camera
 from .image_calibrator import ImageCalibrator
 from .image_processor import ImageProcessor
-from .orchestrator import Orchtestrator
+from .orchestrator import Orchestrator
 from .hwbutton import HWButton
 from .component import Component
 from .settings import SettingsManager
@@ -38,7 +38,7 @@ class LaserHarpApp(Component):
         self.camera = Camera("camera", self._global_state)
         self.calibrator = ImageCalibrator("image_calibrator", self._global_state, self.laser_array, self.camera)
         self.processor = ImageProcessor("image_processor", self._global_state, self.laser_array, self.camera)
-        self.orchestrator = Orchtestrator("orchestrator", self._global_state, self.laser_array, self.din_midi)
+        self.orchestrator = Orchestrator("orchestrator", self._global_state, self.laser_array, self.din_midi)
         self.hwbutton = HWButton("hwbutton", self._global_state)
 
         # setup all processing threads

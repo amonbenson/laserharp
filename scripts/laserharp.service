@@ -4,7 +4,7 @@ After=network.target
 
 [Service]
 User=pi
-ExecStart=python3 -m gunicorn --bind 127.0.0.1:8000 --threads 100 -w 1 laserharp.server.app:app
+ExecStart=python3 -m gunicorn --bind 127.0.0.1:8000 --threads 5 -w 1 laserharp.server.app:app
 
 [Install]
 WantedBy=multi-user.target
