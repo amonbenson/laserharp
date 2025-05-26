@@ -56,14 +56,25 @@ camera:
   rotation: 180 # configure any 90 degree rotation
 
   # exposure settings
-  shutter_speed: 200000 # in microseconds
-  iso: 1000
+  # shutter_speed: 200000 # in microseconds
+  # iso: 1000
 
   # image settings
-  brightness: 50
-  contrast: 0
-  saturation: 0
-  sharpness: 0
+  # brightness: 50
+  # contrast: 0
+  # saturation: 0
+  # sharpness: 0
+
+  settings:
+    # exposure settings
+    shutter_speed:
+      type: int
+      range: [1000, 1000000] # in microseconds
+      default: 200000 # in microseconds
+    iso:
+      type: int
+      range: [100, 1600] # ISO range
+      default: 500 # ISO value
 
 # settings during the calibration process
 image_calibrator:

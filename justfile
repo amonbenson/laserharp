@@ -115,3 +115,9 @@ uninstall: stop_services uninstall_laserharp uninstall_frontend uninstall_nginx
 log:
     @echo "Following laserharp service logs..."
     journalctl --follow -u laserharp.service
+
+laserharp_dev:
+    /home/pi/laserharp/.venv/bin/python3 -m laserharp.server --no-send-standby
+
+frontend_dev:
+    cd frontend && deno run dev --host

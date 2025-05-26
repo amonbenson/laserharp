@@ -5,7 +5,7 @@ import threading
 import traceback
 from enum import Enum
 import numpy as np
-from perci import ReactiveDictNode
+from perci import ReactiveDictNode, watch
 from .component import Component
 from .events import EventEmitter
 
@@ -102,9 +102,29 @@ class Camera(Component):
 
             picamera2.Picamera2.set_logging(logging.INFO)
 
+        # update camera controls when settings change
+        watch(self.settings.get_child("shutter_speed"), lambda _: self._update_camera_controls())
+        watch(self.settings.get_child("iso"), lambda _: self._update_camera_controls())
+
     def _on_frame_counter_update(self, rate):
         # store the new frame rate in the state
         self.state["framerate"] = rate
+
+    def _update_camera_controls(self):
+        logging.debug("Updating camera settings...")
+
+        if PICAMERA2_AVAILABLE and self.enabled:
+            # update the camera controls
+            controls = {
+                "FrameRate": self.config["framerate"],
+                "ExposureTime": self.settings["shutter_speed"],
+                "AnalogueGain": self.settings["iso"] / 100,
+                # "AeEnable": False,
+                "AeFlickerMode": libcamera.controls.AeFlickerModeEnum.Off,
+                # 'AfMode': 'Off',
+                "AwbEnable": False,
+            }
+            self._picam.set_controls(controls)
 
     def _init_camera(self):
         # convert the rotation to a libcamera transform
@@ -119,9 +139,9 @@ class Camera(Component):
         # set camera controls
         controls = {
             "FrameRate": self.config["framerate"],
-            "ExposureTime": self.config["shutter_speed"],
-            "AnalogueGain": self.config["iso"] / 100,
-            "AeEnable": False,
+            "ExposureTime": self.settings["shutter_speed"],
+            "AnalogueGain": self.settings["iso"] / 100,
+            # "AeEnable": False,
             "AeFlickerMode": libcamera.controls.AeFlickerModeEnum.Off,
             # 'AfMode': 'Off',
             "AwbEnable": False,
