@@ -10,9 +10,9 @@ const router = createRouter({
       component: HomeView,
     },
     {
-      path: "/calibrate",
-      name: "calibrate",
-      component: () => import("@/views/CalibrateView.vue"),
+      path: "/camera",
+      name: "camera",
+      component: () => import("@/views/CameraView.vue"),
     },
     {
       path: "/settings",

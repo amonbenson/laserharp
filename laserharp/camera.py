@@ -5,6 +5,7 @@ import threading
 import traceback
 from enum import Enum
 import numpy as np
+import cv2
 from perci import ReactiveDictNode, watch
 from .component import Component
 from .events import EventEmitter
@@ -96,6 +97,7 @@ class Camera(Component):
         self._frame_counter.on("update", self._on_frame_counter_update)
 
         self._frame = None
+        self._preprocess_enabled = False
 
         if PICAMERA2_AVAILABLE and self.enabled and not skip_hardware_init:
             self._init_camera()
@@ -153,7 +155,7 @@ class Camera(Component):
         config = self._picam.create_preview_configuration(
             main={  # use for internal processing
                 "size": tuple(self.config["resolution"]),
-                "format": "YUV420",
+                "format": "RGB888" if self._preprocess_enabled else "YUV420",
             },  # use for the webserver
             lores={
                 "size": tuple(self.config["stream_resolution"]),
@@ -239,6 +241,41 @@ class Camera(Component):
 
         self.state["status"] = "stopped"
 
+    @staticmethod
+    def _preprocess_frame(frame: np.ndarray) -> np.ndarray:
+        # Convert to HSV for easier color segmentation
+        hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
+
+        # 1. Threshold for white pixels
+        lower_white = np.array([0, 0, 200])
+        upper_white = np.array([180, 40, 255])
+        white_mask = cv2.inRange(hsv, lower_white, upper_white)
+
+        # 2. Threshold for red pixels (including both hue ends)
+        lower_red1 = np.array([0, 100, 100])
+        upper_red1 = np.array([10, 255, 255])
+        lower_red2 = np.array([160, 100, 100])
+        upper_red2 = np.array([180, 255, 255])
+
+        red_mask1 = cv2.inRange(hsv, lower_red1, upper_red1)
+        red_mask2 = cv2.inRange(hsv, lower_red2, upper_red2)
+        red_mask = cv2.bitwise_or(red_mask1, red_mask2)
+
+        # 3. Dilate red to simulate red "glow" zone
+        red_glow_zone = cv2.dilate(red_mask, np.ones((5, 5), np.uint8), iterations=3)
+
+        # 4. Keep white pixels surrounded by red glow
+        white_in_red_glow = cv2.bitwise_and(white_mask, red_glow_zone)
+
+        # 5. Combine white-with-red-glow + pure red blobs
+        final_blob_mask = cv2.bitwise_or(white_in_red_glow, red_mask)
+
+        # Optional: clean up noise
+        final_blob_mask = cv2.morphologyEx(final_blob_mask, cv2.MORPH_OPEN, np.ones((3, 3), np.uint8))
+        final_blob_mask = cv2.GaussianBlur(final_blob_mask, (15, 15), 0)
+
+        return final_blob_mask
+
     def capture(self) -> np.ndarray:
         if self.enabled:
             if not PICAMERA2_AVAILABLE:
@@ -248,15 +285,24 @@ class Camera(Component):
 
             w, h = self.config["resolution"]
 
-            # capture a single frame
-            yuv: np.ndarray = self._picam.capture_array("main")
-            assert yuv.dtype == np.uint8
-            assert yuv.shape[0] == h * 3 // 2
-            assert yuv.shape[1] == w
+            if self._preprocess_enabled:
+                # capture a single frame in RGB format
+                rgb: np.ndarray = self._picam.capture_array("main")
+                assert rgb.dtype == np.uint8
+                assert rgb.shape[0] == h
+                assert rgb.shape[1] == w
+                assert rgb.shape[2] == 3
+                self._frame = self._preprocess_frame(rgb)
+            else:
+                # capture a single frame
+                yuv: np.ndarray = self._picam.capture_array("main")
+                assert yuv.dtype == np.uint8
+                assert yuv.shape[0] == h * 3 // 2
+                assert yuv.shape[1] == w
 
-            # extract the luminance component
-            yuv = yuv.reshape((h * 3 // 2, w))
-            self._frame = yuv[:h, :w]
+                # extract the luminance component
+                yuv = yuv.reshape((h * 3 // 2, w))
+                self._frame = yuv[:h, :w]
 
         else:
             # generate a "fake" empty frame

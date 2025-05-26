@@ -89,10 +89,6 @@ class ImageProcessor(Component):
         if not self.is_calibrated:
             raise RuntimeError("No calibration data available")
 
-        # blur the frame
-        ksize = self.config["preblur"]
-        frame = cv2.GaussianBlur(frame, (ksize, ksize), 0)
-
         # get the brightness for each beam
         brightness = frame[self.beam_yv, self.beam_xv]
 
