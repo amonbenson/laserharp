@@ -4,7 +4,9 @@ After=network.target
 
 [Service]
 User=pi
-ExecStart=/etc/laserharp/venv/bin/python3 -m gunicorn --bind 127.0.0.1:5000 --threads 5 -w 1 laserharp.server.app:app
+WorkingDirectory=/home/pi/laserharp
+ExecStart=/home/pi/laserharp/.venv/bin/python3 -m gunicorn --bind 127.0.0.1:5000 --threads 5 -w 1 laserharp.server.app:app
+TimeoutStopSec=2
 
 [Install]
 WantedBy=multi-user.target
