@@ -120,4 +120,4 @@ laserharp_dev:
     /home/pi/laserharp/.venv/bin/python3 -m laserharp.server --no-send-standby
 
 frontend_dev:
-    cd frontend && deno run dev --host
+    cd frontend && (trap "exit" SIGINT; while true; do (deno run dev --host) || echo "Restarting..."; done)

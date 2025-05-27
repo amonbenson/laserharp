@@ -97,7 +97,23 @@ class Camera(Component):
         self._frame_counter.on("update", self._on_frame_counter_update)
 
         self._frame = None
-        self._preprocess_enabled = False
+        self._frame_available = threading.Condition()
+        self._rgb_mode = False
+
+        # create a blob detector
+        params = cv2.SimpleBlobDetector_Params()
+        params.filterByArea = True
+        params.minArea = 10
+        params.maxArea = 100
+
+        params.filterByCircularity = True
+        params.minCircularity = 0.85
+
+        params.filterByConvexity = False
+        params.filterByInertia = False
+        params.filterByColor = False  # Not based on pixel value
+
+        self._blob_detector = cv2.SimpleBlobDetector_create(params)
 
         if PICAMERA2_AVAILABLE and self.enabled and not skip_hardware_init:
             self._init_camera()
@@ -153,13 +169,9 @@ class Camera(Component):
         self._picam = picamera2.Picamera2()
 
         config = self._picam.create_preview_configuration(
-            main={  # use for internal processing
+            main={
                 "size": tuple(self.config["resolution"]),
-                "format": "RGB888" if self._preprocess_enabled else "YUV420",
-            },  # use for the webserver
-            lores={
-                "size": tuple(self.config["stream_resolution"]),
-                "format": "RGB888",
+                "format": "RGB888" if self._rgb_mode else "YUV420",
             },
             transform=transform,
             controls=controls,
@@ -182,7 +194,6 @@ class Camera(Component):
         self._picam.set_controls(controls)
 
         logging.debug(f"Main configuration: {self._picam.stream_configuration('main')}")
-        logging.debug(f"Lores/Stream configuration: {self._picam.stream_configuration('lores')}")
 
         self.state["status"] = "stopped"
 
@@ -262,7 +273,7 @@ class Camera(Component):
         red_mask = cv2.bitwise_or(red_mask1, red_mask2)
 
         # 3. Dilate red to simulate red "glow" zone
-        red_glow_zone = cv2.dilate(red_mask, np.ones((5, 5), np.uint8), iterations=3)
+        red_glow_zone = cv2.GaussianBlur(red_mask, (21, 21), 0)
 
         # 4. Keep white pixels surrounded by red glow
         white_in_red_glow = cv2.bitwise_and(white_mask, red_glow_zone)
@@ -284,17 +295,20 @@ class Camera(Component):
                 raise RuntimeError("Camera is not running.")
 
             w, h = self.config["resolution"]
+            frame_raw: np.ndarray = None
 
-            if self._preprocess_enabled:
+            if self._rgb_mode:
                 # capture a single frame in RGB format
                 rgb: np.ndarray = self._picam.capture_array("main")
                 assert rgb.dtype == np.uint8
                 assert rgb.shape[0] == h
                 assert rgb.shape[1] == w
                 assert rgb.shape[2] == 3
-                self._frame = self._preprocess_frame(rgb)
+
+                # convert RGB to grayscale
+                frame_raw = cv2.cvtColor(rgb, cv2.COLOR_RGB2GRAY)
             else:
-                # capture a single frame
+                # capture a single frame in YUV format
                 yuv: np.ndarray = self._picam.capture_array("main")
                 assert yuv.dtype == np.uint8
                 assert yuv.shape[0] == h * 3 // 2
@@ -302,7 +316,19 @@ class Camera(Component):
 
                 # extract the luminance component
                 yuv = yuv.reshape((h * 3 // 2, w))
-                self._frame = yuv[:h, :w]
+                frame_raw = yuv[:h, :w]
+
+            # find point-like blobs
+            points = cv2.filter2D(frame_raw, -1, np.array([
+                [0, -1, 0],
+                [-1, 4, -1],
+                [0, -1, 0]
+            ], dtype=np.float32))
+            points = cv2.GaussianBlur(points, (5, 5), 0)
+            points = cv2.morphologyEx(points, cv2.MORPH_OPEN, np.ones((3, 3), np.uint8))
+            points = cv2.multiply(points, 10)
+
+            self._frame = points
 
         else:
             # generate a "fake" empty frame
@@ -312,24 +338,34 @@ class Camera(Component):
         # count the frame to calculate the frame rate
         self._frame_counter.count_frame()
 
+        # notify all waiting threads that a new frame is available
+        with self._frame_available:
+            self._frame_available.notify_all()
+
         return self._frame
 
-    def start_debug_stream(self) -> "Camera.StreamingOutput":
+    def wait_for_frame(self, timeout: float = 1.0) -> np.ndarray:
         if not self.enabled:
-            # return an empty output
-            return self.StreamingOutput()
+            raise RuntimeError("Camera is not enabled.")
 
         if not PICAMERA2_AVAILABLE:
             raise RuntimeError("libcamera2 is not available or failed to import. Please install it using 'apt-get install python3-picamera2' (see errors above).")
         if self.state["status"] != "running":
             raise RuntimeError("Camera is not running.")
 
-        output = self.StreamingOutput()
-        self._picam.start_recording(
-            picamera2.encoders.JpegEncoder(),
-            picamera2.outputs.FileOutput(output),
-            name="lores",
-            quality=picamera2.encoders.Quality.VERY_HIGH,
-        )
+        # wait for a new frame to be available
+        with self._frame_available:
+            if not self._frame_available.wait(timeout):
+                raise TimeoutError("No new frame available within the timeout period.")
 
-        return output
+        return self._frame
+
+    def wait_for_frame_or_black(self, timeout: float = 1.0) -> np.ndarray:
+        try:
+            return self.wait_for_frame(timeout)
+        except Exception as e:
+            logging.warning(f"Error while waiting for a new frame: {e}")
+            time.sleep(1)
+
+            # return an empty frame
+            return np.zeros((self.config["resolution"][1], self.config["resolution"][0]), dtype=np.uint8)

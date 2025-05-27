@@ -4,6 +4,7 @@ from dataclasses import asdict
 from flask import Flask, Response, stream_with_context, request
 from flask_cors import CORS
 from flask_socketio import SocketIO
+import cv2
 from perci import QueueWatcher, create_queue_watcher
 from perci.changes import Change
 from laserharp.app import LaserHarpApp
@@ -98,19 +99,29 @@ def create_backend(laserharp: LaserHarpApp) -> tuple[Flask, callable]:
         if not laserharp.camera.enabled:
             return Response("Camera is not enabled", status=503)
 
-        output = laserharp.get_debug_stream_output()
+        # output = laserharp.get_debug_stream_output()
 
         @stream_with_context
         def generate():
             while True:
-                with output.condition:
-                    output.condition.wait()
+                # with output.condition:
+                #     output.condition.wait()
 
-                    frame = output.frame
-                    if frame is None:
-                        continue
+                #     frame = output.frame
+                #     if frame is None:
+                #         continue
 
-                    yield (b"--frame\r\n" b"Content-Type: image/jpeg\r\n\r\n" + frame + b"\r\n\r\n")
+                #     yield (b"--frame\r\n" b"Content-Type: image/jpeg\r\n\r\n" + frame + b"\r\n\r\n")
+
+                # wait for the next frame and convert it to JPEG
+                frame = laserharp.camera.wait_for_frame_or_black()
+                ret, jpeg = cv2.imencode('.jpg', frame)
+                if not ret:
+                    continue
+
+                # yield the result as a multipart response
+                byte_frame = jpeg.tobytes()
+                yield (b"--frame\r\n" b"Content-Type: image/jpeg\r\n\r\n" + byte_frame + b"\r\n\r\n")
 
         return Response(generate(), mimetype="multipart/x-mixed-replace; boundary=frame")
 
