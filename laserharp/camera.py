@@ -324,7 +324,7 @@ class Camera(Component):
                 [-1, 4, -1],
                 [0, -1, 0]
             ], dtype=np.float32))
-            points = cv2.GaussianBlur(points, (5, 5), 0)
+            points = cv2.GaussianBlur(points, (25, 25), 0)
             points = cv2.morphologyEx(points, cv2.MORPH_OPEN, np.ones((3, 3), np.uint8))
             points = cv2.multiply(points, 10)
 

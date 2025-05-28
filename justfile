@@ -106,10 +106,32 @@ uninstall_frontend:
     @echo "Uninstalling frontend..."
     sudo rm -rf /var/www/html
 
-install: stop_services install_laserharp install_frontend install_nginx start_services
+[private]
+install_ap:
+    @echo "Setting up access point..."
+    sudo nmcli con down LH-AP || true
+    sudo nmcli con delete LH-AP || true
+
+    sudo nmcli con add type wifi ifname wlan0 mode ap con-name LH-AP ssid Laserharp autoconnect false
+    sudo nmcli con modify LH-AP 802-11-wireless.band bg
+    sudo nmcli con modify LH-AP 802-11-wireless.channel 3
+    sudo nmcli con modify LH-AP 802-11-wireless.cloned-mac-address 2c:cf:67:13:b7:9a
+    sudo nmcli con modify LH-AP ipv4.method shared ipv4.address 192.168.4.1/24
+    sudo nmcli con modify LH-AP ipv6.method disabled
+    sudo nmcli con modify LH-AP wifi-sec.key-mgmt wpa-psk
+    sudo nmcli con modify LH-AP wifi-sec.psk "MajorLazer"
+
+    sudo nmcli con up LH-AP
+
+[private]
+uninstall_ap:
+    sudo nmcli con down LH-AP
+    sudo nmcli con delete LH-AP
+
+install: stop_services install_laserharp install_frontend install_nginx install_ap start_services
     @echo "Installation complete."
 
-uninstall: stop_services uninstall_laserharp uninstall_frontend uninstall_nginx
+uninstall: stop_services uninstall_laserharp uninstall_frontend uninstall_nginx uninstall_ap
     @echo "Uninstallation complete."
 
 log:

@@ -26,6 +26,7 @@ class ImageProcessor(Component):
         self.filter_coeff = self._calculate_coeff()
         self.filter_taps = np.zeros((len(self.filter_coeff), len(self.laser_array)), dtype=np.float32)
 
+        self._previous_position = -1 * np.ones(len(self.laser_array), dtype=int)
         self.beam_active = np.zeros(len(self.laser_array), dtype=bool)
         self.beam_active_duration = np.zeros(len(self.laser_array), dtype=np.float32)
 

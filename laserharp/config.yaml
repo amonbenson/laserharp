@@ -111,7 +111,7 @@ orchestrator:
     unplucked_beam_brightness:
       type: int
       range: [0, 127]
-      default: 32
+      default: 48
     plucked_beam_brightness:
       type: int
       range: [0, 127]
