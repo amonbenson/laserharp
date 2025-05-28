@@ -46,6 +46,7 @@ class LaserHarpApp(Component):
         self._calibrate_thread = threading.Thread(target=self._calibrate_thread_run, daemon=True)
         self._ipc_read_thread = threading.Thread(target=self._ipc_read_thread_run, daemon=True)
         self._din_midi_read_thread = threading.Thread(target=self._din_midi_read_thread_run, daemon=True)
+        # self._fast_process_thread = threading.Thread(target=self._fast_process_thread_run, daemon=True)
 
         self._calibration_request = False
 
@@ -101,6 +102,7 @@ class LaserHarpApp(Component):
         self._capture_thread.start()
         self._ipc_read_thread.start()
         self._din_midi_read_thread.start()
+        # self._fast_process_thread.start()
 
         # load the calibration
         logging.info("Loading calibration...")
@@ -126,6 +128,7 @@ class LaserHarpApp(Component):
         self._capture_thread.join(timeout=1)
         self._ipc_read_thread.join(timeout=1)
         self._din_midi_read_thread.join(timeout=1)
+        # self._fast_process_thread.join(timeout=1)
 
         # send a standby command to the STM board
         if self.config["send_standby"]:
