@@ -99,6 +99,7 @@ image_processor:
   filter_cutoff: 6 # cutoff frequency in Hz
   filter_size: 3 # filter kernel size
 
+  modulation_delay: 0.2 # delay in seconds before the modulation starts (e. g. "vibrato")
   modulation_gain: 15 # vibrato factor before soft-clipping (e. g. "drive")
 
 orchestrator:

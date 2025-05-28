@@ -166,7 +166,13 @@ class LaserHarpApp(Component):
             self._status_change(["calibrating"], prev_status)
 
     def _capture_thread_run(self):
+        t0 = time.time()
+
         while self.state["status"] != "stopping":
+            t1 = time.time()
+            dt = t1 - t0
+            t0 = t1
+
             # wait if we are currently starting up or calibrating
             if self.state["status"] in ("starting", "calibrating") or self._calibration_request:
                 time.sleep(0.1)
@@ -190,32 +196,7 @@ class LaserHarpApp(Component):
             result = self.processor.process(frame)
 
             # invoke the orchestrator
-            self.orchestrator.process(result)
-
-            # # set the laser brightness
-            # for i, active in enumerate(result.active):
-            #     note = self._laser_to_note(i)
-            #     note_on = active and not (self._prev_result and self._prev_result.active[i])
-            #     note_off = not active and (self._prev_result and self._prev_result.active[i])
-
-            #     if note_on:
-            #         self.din_midi.send(MidiEvent(0, "note_on", note=note, velocity=127))
-            #     elif note_off:
-            #         self.din_midi.send(MidiEvent(0, "note_off", note=note))
-
-            # # use the average modulation to send pitch bend
-            # num_active = sum(result.active)
-            # mod_sum = sum(result.modulation)
-            # mod_avg = mod_sum / num_active if num_active > 0 else 0
-            # pitch_bend = max(-8192, min(8191, int(mod_avg * 8192)))
-
-            # if pitch_bend != self._prev_pitch_bend:
-            #     self.din_midi.send(MidiEvent(0, "pitchwheel", pitch=pitch_bend))
-            # self._prev_pitch_bend = pitch_bend
-
-            # # self._midi_serial.flush()
-
-            # self._prev_result = result
+            self.orchestrator.process(result, dt)
 
     def _ipc_read_thread_run(self):
         while self.state["status"] != "stopping":

@@ -27,6 +27,7 @@ class ImageProcessor(Component):
         self.filter_taps = np.zeros((len(self.filter_coeff), len(self.laser_array)), dtype=np.float32)
 
         self.beam_active = np.zeros(len(self.laser_array), dtype=bool)
+        self.beam_active_duration = np.zeros(len(self.laser_array), dtype=np.float32)
 
         # values initialized by set_calibration()
         self.y_metric = None
@@ -112,6 +113,9 @@ class ImageProcessor(Component):
         rising = active & ~self.beam_active
         self.beam_active = active
 
+        # update active duration (increment if active, reset otherwise)
+        self.beam_active_duration = np.where(active, self.beam_active_duration + 1 / self.camera.framerate, 0)
+
         # apply a low pass filter to the beam length
         self.filter_taps[1:] = self.filter_taps[:-1]
         self.filter_taps[0] = raw_length
@@ -130,6 +134,10 @@ class ImageProcessor(Component):
         modulation = raw_length - length
         modulation = np.tanh(modulation * self.config["modulation_gain"])
         modulation[~active] = 0  # inactive beams have no modulation
+
+        # apply a factor to the modulation based on the intersection duration
+        durationFactor = np.tanh((self.beam_active_duration - self.config["modulation_delay"]) * 10) * 0.5 + 0.5
+        modulation *= durationFactor
 
         return self.Result(active, length, modulation)
 
