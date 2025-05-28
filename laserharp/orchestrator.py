@@ -56,9 +56,16 @@ class Orchestrator(Component):
             if not 0 < note <= 128:
                 continue
 
+            # use either normal or flipped laser index
+            laser_index = len(self._laser_array) - i - 1 if self.settings["flipped"] else i
+
             # store both forward and reverse lookup
-            self._note_lookup_table[i] = note
-            self._note_lookup_table_reverse[note] = i
+            self._note_lookup_table[laser_index] = note
+            self._note_lookup_table_reverse[note] = laser_index
+
+        # reset caches
+        self._brightness_lookup_cache = -1 * np.ones(128, dtype=np.int8)
+        self._emulated_lookup_cache = -1 * np.ones(128, dtype=np.int8)
 
     def _lookup_laser_index(self, note: int, on: bool, cache: Optional[np.ndarray] = None):
         if on:
@@ -79,6 +86,9 @@ class Orchestrator(Component):
     def _on_flipped_changed(self, _: bool):
         # play flip animation
         self._laser_array.play_animation("flip", 0.5, "restore")
+
+        # regenerate lookup tables
+        self._update_lookup_tables()
 
     def start(self):
         # initialize the lookup tables
