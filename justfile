@@ -125,8 +125,8 @@ install_ap:
 
 [private]
 uninstall_ap:
-    sudo nmcli con down LH-AP
-    sudo nmcli con delete LH-AP
+    sudo nmcli con down LH-AP || true
+    sudo nmcli con delete LH-AP || true
 
 install: stop_services install_laserharp install_frontend install_nginx install_ap start_services
     @echo "Installation complete."

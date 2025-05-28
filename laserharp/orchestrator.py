@@ -24,6 +24,7 @@ class Orchestrator(Component):
         self.state["active"] = [[False] * len(self._laser_array)]
 
         self._intersections = np.inf * np.ones(len(self._laser_array), dtype=float)
+        self._emulated_intersections = np.inf * np.ones(len(self._laser_array), dtype=float)
         self._previous_velocities = np.zeros(128, dtype=np.uint8)
         self._previous_pitch_bend = 0
 
@@ -151,13 +152,17 @@ class Orchestrator(Component):
                         if index == -1:
                             return
 
-                        self._intersections[index] = np.minimum(0.5, velocity * 0.01) if velocity > 0 else np.inf
+                        self._emulated_intersections[index] = np.minimum(0.5, velocity * 0.01) if velocity > 0 else np.inf
             case _:
                 return
 
     def process(self, intersections: ImageProcessor.Result, dt: float):
         # store intersection lengths. Use np.inf for inactive beams
         self._intersections = np.where(intersections.active, intersections.length, np.inf)
+
+        # overwrite the intersections at all points where an emulated intersection is active
+        emulated_intersections_active = np.isfinite(self._emulated_intersections)
+        self._intersections[emulated_intersections_active] = self._emulated_intersections[emulated_intersections_active]
 
         # calculate new velocities and average modulation
         velocities = np.zeros(128, dtype=np.uint8)
