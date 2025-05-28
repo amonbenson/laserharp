@@ -8,6 +8,61 @@ from .camera import Camera
 from .component import Component
 
 
+class KalmanFilter1D:
+    def __init__(self, num_elements, process_variance=1e-5, measurement_variance=0.01):
+        self.N = num_elements
+
+        # State estimate (initial guess)
+        self.x = np.zeros(self.N)
+
+        # Error covariance
+        self.P = np.ones(self.N)
+
+        # Process noise
+        self.Q = np.full(self.N, process_variance)
+
+        # Measurement noise
+        self.R = np.full(self.N, measurement_variance)
+
+        # Track which filters have been activated before
+        self.initialized = np.zeros(self.N, dtype=bool)
+
+    def update(self, z, active):
+        """
+        z: observed measurements (shape: N,)
+        active: boolean array (shape: N,), indicating if the filter is active
+        """
+        # Reset filters that are not active
+        reset_indices = ~active
+        self.x[reset_indices] = 0
+        self.P[reset_indices] = 1
+        self.initialized[reset_indices] = False
+
+        # Only update active filters
+        update_indices = active
+
+        # For first-time activation, initialize the state estimate to the measurement
+        first_active = update_indices & ~self.initialized
+        self.x[first_active] = z[first_active]
+        self.initialized[first_active] = True
+
+        # Standard Kalman update for active indices
+        if np.any(update_indices):
+            # Predict
+            self.P[update_indices] += self.Q[update_indices]
+
+            # Compute Kalman gain
+            K = self.P[update_indices] / (self.P[update_indices] + self.R[update_indices])
+
+            # Update state
+            self.x[update_indices] += K * (z[update_indices] - self.x[update_indices])
+
+            # Update covariance
+            self.P[update_indices] *= (1 - K)
+
+        return self.x.copy()
+
+
 class ImageProcessor(Component):
     @dataclass
     class Result:
@@ -26,9 +81,10 @@ class ImageProcessor(Component):
         self.filter_coeff = self._calculate_coeff()
         self.filter_taps = np.zeros((len(self.filter_coeff), len(self.laser_array)), dtype=np.float32)
 
-        self._previous_position = -1 * np.ones(len(self.laser_array), dtype=int)
         self.beam_active = np.zeros(len(self.laser_array), dtype=bool)
         self.beam_active_duration = np.zeros(len(self.laser_array), dtype=np.float32)
+
+        self.beam_kalman_filter = KalmanFilter1D(len(self.laser_array), process_variance=0.1, measurement_variance=1.0)
 
         # values initialized by set_calibration()
         self.y_metric = None
@@ -98,8 +154,15 @@ class ImageProcessor(Component):
         strength = np.max(brightness, axis=0)
         position = np.argmax(brightness, axis=0)
 
+        # apply kalman filter to the position
+        position = self.beam_kalman_filter.update(position, active=(strength > self.config["threshold"]))
+
         # lookup the metric length of each beam
-        length = self.y_metric[position]
+        # length = self.y_metric[position]
+
+        # lookup the metric length of each beam (with linear interpoliation to allow float indices)
+        xs = np.arange(len(self.y_metric))
+        length = np.interp(position, xs, self.y_metric)
 
         # filter out invalid interception points
         length[strength < self.config["threshold"]] = np.nan
