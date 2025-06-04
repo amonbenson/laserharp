@@ -121,7 +121,7 @@ class ImageCalibrator(Component):
 
     def load(self) -> bool:
         d = json.loads(self.settings["calibration_data"])
-        if not d or True:
+        if not d:
             logging.warning("No calibration data available")
             return False
 

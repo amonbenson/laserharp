@@ -86,7 +86,7 @@ image_calibrator:
 
   preblur: 3 # gaussian blur kernel size
   threshold: 150 # minimum brightness to be considered
-  min_coverage: 0.2 # percentual number of blobs that must be captured for each beam
+  min_coverage: 0.3 # percentual number of blobs that must be captured for each beam
 
 # settings during normal operation
 image_processor:
