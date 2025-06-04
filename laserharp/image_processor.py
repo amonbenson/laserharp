@@ -136,8 +136,18 @@ class ImageProcessor(Component):
         self.y_metric = y_tan * self.camera.config["mount_distance"]
 
         # calculate the grid of beam interception points
+        # generate the x values by evaluating the polynomial at each y point
         self.beam_yv = np.round(y[:, np.newaxis]).astype(np.int32)
-        self.beam_xv = np.clip(np.round(calibration.x0[np.newaxis, :] + calibration.m[np.newaxis, :] * y[:, np.newaxis]).astype(np.int32), 0, self.camera.resolution[0] - 1)
+        self.beam_xv = np.clip(
+            np.round(
+                calibration.d[np.newaxis, :] * np.power(y[:, np.newaxis], 3)
+                + calibration.c[np.newaxis, :] * np.power(y[:, np.newaxis], 2)
+                + calibration.b[np.newaxis, :] * y[:, np.newaxis]
+                + calibration.a[np.newaxis, :]
+            ).astype(np.int32),
+            0,
+            self.camera.resolution[0] - 1,
+        )
 
     @property
     def is_calibrated(self):

@@ -44,31 +44,49 @@ class Calibration:
     yb: float
 
     # beam line parameters in pixels
-    x0: np.ndarray
-    m: np.ndarray
+    # x0: np.ndarray
+    # m: np.ndarray
+
+    # quadratic coefficients: x = a*y^2 + b*y + c
+    a: np.ndarray
+    b: np.ndarray
+    c: np.ndarray
+    d: np.ndarray
 
     def __post_init__(self):
         # type casting
         self.ya = np.float32(self.ya)
         self.yb = np.float32(self.yb)
-        self.x0 = np.array(self.x0, dtype=np.float32)
-        self.m = np.array(self.m, dtype=np.float32)
+        self.a = np.array(self.a, dtype=np.float32)
+        self.b = np.array(self.b, dtype=np.float32)
+        self.c = np.array(self.c, dtype=np.float32)
+        self.d = np.array(self.d, dtype=np.float32)
 
         # sanity checks
         assert self.ya < self.yb
-        assert len(self.x0) == len(self.m)
+        assert len(self.a) == len(self.b)
+        assert len(self.a) == len(self.c)
 
     def to_dict(self):
         return {
             "ya": float(self.ya),
             "yb": float(self.yb),
-            "x0": self.x0.tolist(),
-            "m": self.m.tolist(),
+            "a": self.a.tolist(),
+            "b": self.b.tolist(),
+            "c": self.c.tolist(),
+            "d": self.d.tolist(),
         }
 
     @staticmethod
     def from_dict(d):
-        return Calibration(ya=d["ya"], yb=d["yb"], x0=np.array(d["x0"]), m=np.array(d["m"]))
+        return Calibration(
+            ya=d["ya"],
+            yb=d["yb"],
+            a=np.array(d["a"]),
+            b=np.array(d["b"]),
+            c=np.array(d["c"]),
+            d=np.array(d["d"]),
+        )
 
 
 class ImageCalibrator(Component):
@@ -161,7 +179,7 @@ class ImageCalibrator(Component):
 
         return result
 
-    def _fit_line(self, img):
+    def _fit_poly(self, img):
         # apply gaussian blur
         ksize = self.config["preblur"]
         blurred = cv2.GaussianBlur(img, (ksize, ksize), 0)
@@ -176,10 +194,10 @@ class ImageCalibrator(Component):
 
         # check if the minimum coverage is met
         if np.sum(ws) / img.shape[0] < self.config["min_coverage"]:
-            return None, None
+            return [None] * 4
 
-        # fit a line to the points (swap x and y because we want to fit a vertical line)
-        return np.polyfit(y=xs, x=ys, deg=1, w=ws)
+        # fit a quadratic to the points (swap x and y because we want to fit a vertical poly line)
+        return np.polyfit(y=xs, x=ys, deg=3, w=ws)
 
     def calibrate(self, save_debug_images=False) -> Calibration:
         logging.info("Starting calibration")
@@ -200,8 +218,10 @@ class ImageCalibrator(Component):
         calibration = Calibration(
             ya=ya,
             yb=yb,
-            x0=-np.ones(len(self.laser_array), dtype=np.float32),
-            m=np.zeros(len(self.laser_array), dtype=np.float32),
+            a=np.zeros(len(self.laser_array), dtype=np.float32),
+            b=np.zeros(len(self.laser_array), dtype=np.float32),
+            c=np.zeros(len(self.laser_array), dtype=np.float32),
+            d=np.zeros(len(self.laser_array), dtype=np.float32),
         )
         self.state["calibration"] = calibration.to_dict()
 
@@ -247,22 +267,26 @@ class ImageCalibrator(Component):
                     m = p * 0.2
                     x0 = self.camera.resolution[0] * (0.5 + p * 0.8)
                 else:
-                    m, x0 = self._fit_line(beam_img)
+                    a, b, c, d = self._fit_poly(beam_img)
 
-                if m is None:
+                if a is None:
                     logging.warning("Beam too weak. Continuing...")
                     continue
 
-                if np.abs(m) > 0.8:
-                    logging.warning("Beam gradient to high. Continuing...")
-                    continue
+                # if np.abs(m) > 0.8:
+                #     logging.warning("Beam gradient to high. Continuing...")
+                #     continue
 
                 # save the calibration data
-                calibration.x0[i] = x0
-                calibration.m[i] = m
+                calibration.a[i] = a
+                calibration.b[i] = b
+                calibration.c[i] = c
+                calibration.d[i] = d
 
-                self.state["calibration"]["x0"][i] = x0
-                self.state["calibration"]["m"][i] = m
+                self.state["calibration"]["a"][i] = a
+                self.state["calibration"]["b"][i] = b
+                self.state["calibration"]["c"][i] = c
+                self.state["calibration"]["d"][i] = d
 
                 # visualize the result
                 if save_debug_images:
