@@ -107,6 +107,12 @@ orchestrator:
     flipped:
       type: bool
       default: false
+    modulation_enabled:
+      type: bool
+      default: true
+    blackout_enabled:
+      type: bool
+      default: false
 
     unplucked_beam_brightness:
       type: int

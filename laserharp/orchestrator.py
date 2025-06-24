@@ -35,6 +35,8 @@ class Orchestrator(Component):
         self._emulated_lookup_cache = -1 * np.ones(128, dtype=np.int8)
 
         watch(self.settings.get_child("flipped"), lambda change: self._on_flipped_changed(change.value))
+        watch(self.settings.get_child("blackout_enabled"), lambda change: self._on_blackout_changed(change.value))
+        watch(self.settings.get_child("unplucked_beam_brightness"), lambda change: self._on_unplucked_brightness_changed(change.value))
 
     def _update_lookup_tables(self):
         # reset tables
@@ -91,12 +93,26 @@ class Orchestrator(Component):
         # regenerate lookup tables
         self._update_lookup_tables()
 
+    def _on_blackout_changed(self, value: bool):
+        if value:
+            # turn off all lasers
+            self._laser_array.set_all(0, 1.0)
+        else:
+            # restore unplucked beam brightness
+            self._laser_array.set_all(self.settings["unplucked_beam_brightness"], 1.0)
+
+    def _on_unplucked_brightness_changed(self, value: int):
+        # set the unplucked beam brightness
+        if not self.settings["blackout_enabled"]:
+            # only update if blackout is not enabled
+            self._laser_array.set_all(value)
+
     def start(self):
         # initialize the lookup tables
         self._update_lookup_tables()
 
         # light all lasers
-        self._laser_array.set_all(127, 1.0)
+        self._laser_array.set_all(self.settings["unplucked_beam_brightness"], 1.0)
 
         # release all notes
         for note in range(128):
@@ -122,7 +138,8 @@ class Orchestrator(Component):
                         if index == -1:
                             return
 
-                        brightness = np.clip(velocity, self.settings["unplucked_beam_brightness"], 127)
+                        lower_ceiling = 0 if self.settings["blackout_enabled"] else self.settings["unplucked_beam_brightness"]
+                        brightness = np.clip(velocity, lower_ceiling, 127)
                         self._laser_array.set(index, brightness)
                     case 1:  # config channel
                         if velocity == 0:
@@ -137,6 +154,30 @@ class Orchestrator(Component):
                         elif 24 <= note < 34:
                             # set octave
                             self.settings["octave"] = note - 24
+                        elif note == 36:
+                            # disable flip
+                            self.settings["flipped"] = False
+                        elif note == 37:
+                            # enable flip
+                            self.settings["flipped"] = True
+                        elif note == 38:
+                            # disable modulation
+                            self.settings["modulation_enabled"] = False
+                        elif note == 39:
+                            # enable modulation
+                            self.settings["modulation_enabled"] = True
+                        elif note == 40:
+                            # disable blackout
+                            self.settings["blackout_enabled"] = False
+                        elif note == 41:
+                            # enable blackout
+                            self.settings["blackout_enabled"] = True
+                        elif note == 42:
+                            # set plucked beam brightness
+                            self.settings["plucked_beam_brightness"] = velocity
+                        elif note == 43:
+                            # set unplucked beam brightness
+                            self.settings["unplucked_beam_brightness"] = velocity
                         elif note == 127:
                             # reset all
                             self.settings["key"] = 0
@@ -205,6 +246,9 @@ class Orchestrator(Component):
             modulation = 0
 
         pitch_bend = int(np.clip(modulation * 8192, -8192, 8191))  # pitch bend range is -8192 to 8191
+        if not self.settings["modulation_enabled"] or abs(pitch_bend) < 64:
+            pitch_bend = 0
+
         if pitch_bend != self._previous_pitch_bend:
             self._din_midi.send(MidiEvent(0, "pitchwheel", pitch=pitch_bend))
             self._previous_pitch_bend = pitch_bend
