@@ -70,15 +70,21 @@ function onRedraw() {
 
   // draw the calibration lines
   if (calibration.value && result.value && mountDistance.value && sectionStarts.value) {
-    const n = calibration.value.m.length;
+    const n = calibration.value.a.length;
+    const { a, b, c } = calibration.value;
 
     context.lineCap = "round";
 
     for (let i = 0; i < n; i++) {
-      const x0 = calibration.value.x0[i];
       const y0 = 0;
-      const x1 = calibration.value.x0[i] + calibration.value.m[i] * CAMERA_HEIGHT;
-      const y1 = CAMERA_HEIGHT;
+      const y1 = CAMERA_HEIGHT - 1;
+      const x0 = a[i] * y0 * y0 + b[i] * y0 + c[i];
+      const x1 = a[i] * y1 * y1 + b[i] * y1 + c[i];
+
+      const ym = (y0 + y1) / 2;
+      const xm = a[i] * ym * ym + b[i] * ym + c[i];
+      const cpy = ym;
+      const cpx = 2 * xm - 0.5 * (x0 + x1);
 
       // draw the beam line
       context.strokeStyle = colors.rose[600];
@@ -87,30 +93,30 @@ function onRedraw() {
 
       context.beginPath();
       context.moveTo(x0, y0);
-      context.lineTo(x1, y1);
+      context.quadraticCurveTo(cpx, cpy, x1, y1);
       context.stroke();
 
       // draw a blob at the point of intersection
-      if (result.value.active[i]) {
-        const y = calculateScreenY(result.value.length[i], mountDistance.value, calibration.value.ya, calibration.value.yb);
-        const x = x0 + y * calibration.value.m[i];
+      // if (result.value.active[i]) {
+      //   const y = calculateScreenY(result.value.length[i], mountDistance.value, calibration.value.ya, calibration.value.yb);
+      //   const x = x0 + y * calibration.value.m[i];
 
-        const yMod = y + result.value.modulation[i] * 70;
-        const xMod = x0 + yMod * calibration.value.m[i];
+      //   const yMod = y + result.value.modulation[i] * 70;
+      //   const xMod = x0 + yMod * calibration.value.m[i];
 
-        context.fillStyle = colors.rose[600];
-        context.strokeStyle = colors.rose[600];
-        context.setLineDash([]);
+      //   context.fillStyle = colors.rose[600];
+      //   context.strokeStyle = colors.rose[600];
+      //   context.setLineDash([]);
 
-        context.beginPath();
-        context.beginPath();
-        context.arc(xMod, yMod, 5, 0, 2 * Math.PI);
-        context.stroke();
+      //   context.beginPath();
+      //   context.beginPath();
+      //   context.arc(xMod, yMod, 5, 0, 2 * Math.PI);
+      //   context.stroke();
 
-        context.beginPath();
-        context.arc(x, y, 5, 0, 2 * Math.PI);
-        context.fill();
-      }
+      //   context.beginPath();
+      //   context.arc(x, y, 5, 0, 2 * Math.PI);
+      //   context.fill();
+      // }
     }
 
     // draw the section lines

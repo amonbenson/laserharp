@@ -1,5 +1,5 @@
 app:
-  log_level: DEBUG # DEBUG, INFO, WARNING, ERROR
+  log_level: INFO # DEBUG, INFO, WARNING, ERROR
 
   save_debug_images: false # save camera visualization images when calibrating
   generate_debug_intersections: true # generate random intersections when the camera is disabled
@@ -7,8 +7,8 @@ app:
   send_standby: true # enable STM board standby mode when the application is stopped
 
 laser_array:
-  size: 15 # number of lasers
-  translation_table: [4, 5, 6, 7, 8, 9, 10, 11, 13, 14, 15, 16, 17, 18, 19] # mapping from note to laser index
+  size: 11 # number of lasers
+  translation_table: [6, 7, 8, 9, 10, 11, 13, 14, 15, 16, 17] # mapping from note to laser index
 
 ipc:
   # How to enable the primary UART:
@@ -45,8 +45,8 @@ din_midi:
 
 camera:
   # mechanical parameters
-  fov: [53.50, 41.41] # field of view in degrees
-  mount_angle: 15.0 # angle between camera center and vertical axis in degrees
+  fov: [130, 100]  # # field of view in degrees (for Raspi Camera v1:  [53.50, 41.41], for Raspi Camera v1 with Fisheye lens: [130, 100])
+  mount_angle: 20 # angle between camera center and vertical axis in degrees (15 degrees for Raspi Camera v1, should be changed to 20 degrees with Fisheye lens)
   mount_distance: 0.14338 # distance from camera to laser plane in meters
 
   # basic confguration
@@ -56,14 +56,25 @@ camera:
   rotation: 180 # configure any 90 degree rotation
 
   # exposure settings
-  shutter_speed: 50000 # in microseconds
-  iso: 200
+  # shutter_speed: 200000 # in microseconds
+  # iso: 1000
 
   # image settings
-  brightness: 50
-  contrast: 0
-  saturation: 0
-  sharpness: 0
+  # brightness: 50
+  # contrast: 0
+  # saturation: 0
+  # sharpness: 0
+
+  settings:
+    # exposure settings
+    shutter_speed:
+      type: int
+      range: [100, 20000] # in microseconds
+      default: 10000 # in microseconds
+    iso:
+      type: int
+      range: [100, 1600] # ISO range
+      default: 200 # ISO value
 
 # settings during the calibration process
 image_calibrator:
@@ -81,174 +92,56 @@ image_calibrator:
 image_processor:
   preblur: 1 # gaussian blur kernel size
 
-  threshold: 50 # minimum brightness to be considered a beam (0-255)
+  # threshold: 128 # minimum brightness to be considered a beam (0-255) (this is now a setting)
   length_min: 0.05 # minimum beam length in meters
-  length_max: 2.0 # maximum beam length in meters
+  length_max: 2 # maximum beam length in meters
 
   filter_cutoff: 6 # cutoff frequency in Hz
   filter_size: 3 # filter kernel size
 
+  modulation_delay: 0.2 # delay in seconds before the modulation starts (e. g. "vibrato")
   modulation_gain: 15 # vibrato factor before soft-clipping (e. g. "drive")
+
+  settings:
+    threshold:
+      type: int
+      range: [0, 255] # minimum brightness to be considered a beam
+      default: 128
 
 orchestrator:
   settings:
-    global_transpose:
-      type: int
-      range: [-96, 96]
-      default: 0
-    section_transpose:
-      type: int
-      range: [-96, 96]
-      default: 24
-
     flipped:
       type: bool
       default: false
-
-    section_start_0:
-      type: float
-      range: [0.0, 5.0]
-      default: 0.0
-    section_start_1:
-      type: float
-      range: [0.0, 5.0]
-      default: 0.4
-    section_start_2:
-      type: float
-      range: [0.0, 5.0]
-      default: 0.8
-
-    pedal_position_0:
-      type: int
-      range: [-1, 1]
-      default: 0
-    pedal_position_1:
-      type: int
-      range: [-1, 1]
-      default: 0
-    pedal_position_2:
-      type: int
-      range: [-1, 1]
-      default: 0
-    pedal_position_3:
-      type: int
-      range: [-1, 1]
-      default: 0
-    pedal_position_4:
-      type: int
-      range: [-1, 1]
-      default: 0
-    pedal_position_5:
-      type: int
-      range: [-1, 1]
-      default: 0
-    pedal_position_6:
-      type: int
-      range: [-1, 1]
-      default: 0
-
-    pedal_mute_0:
+    modulation_enabled:
       type: bool
-      default: false
-    pedal_mute_1:
-      type: bool
-      default: false
-    pedal_mute_2:
-      type: bool
-      default: false
-    pedal_mute_3:
-      type: bool
-      default: false
-    pedal_mute_4:
-      type: bool
-      default: false
-    pedal_mute_5:
-      type: bool
-      default: false
-    pedal_mute_6:
+      default: true
+    blackout_enabled:
       type: bool
       default: false
 
     unplucked_beam_brightness:
       type: int
       range: [0, 127]
-      default: 64
+      default: 48
     plucked_beam_brightness:
       type: int
       range: [0, 127]
       default: 127
-    muted_beam_brightness:
+
+    key:
       type: int
-      range: [0, 127]
-      default: 10
+      range: [0, 11]
+      default: 0
+    octave:
+      type: int
+      range: [0, 10]
+      default: 4
+    mode:
+      type: int
+      range: [0, 6]
+      default: 0
 
-    selected_scale:
-      type: str
-      default: "Custom"
-      client_writable: true
-
-  root_note: 60
-
-  scales:
-    - name: "Acoustic Scale (Lydian Dominant)"
-      notes: [0, 2, 4, 6, 7, 9, 10]
-    - name: "Altered Scale (Super Locrian)"
-      notes: [0, 1, 3, 4, 6, 8, 10]
-    - name: "Augmented Scale"
-      notes: [0, 3, 4, 7, 8, 11]
-    # - name: "Bebop Dominant"
-    #   notes: [0, 2, 4, 5, 7, 9, 10, 11]
-    - name: "Blues"
-      notes: [0, 3, 5, 6, 7, 10]
-    - name: "Dorian"
-      notes: [0, 2, 3, 5, 7, 9, 10]
-    - name: "Double Harmonic"
-      notes: [0, 1, 4, 5, 7, 8, 11]
-    - name: "Enigmatic"
-      notes: [0, 1, 4, 6, 8, 10, 11]
-    - name: "Flamenco"
-      notes: [0, 1, 4, 5, 7, 8, 11]
-    - name: "Half Diminished"
-      notes: [0, 2, 3, 5, 6, 8, 10]
-    - name: "Harmonic Major"
-      notes: [0, 2, 4, 5, 7, 8, 11]
-    - name: "Harmonic Minor"
-      notes: [0, 2, 3, 5, 7, 8, 11]
-    - name: "Hirajoshi"
-      notes: [0, 4, 6, 7, 11]
-    - name: "Hungarian Major"
-      notes: [0, 3, 4, 6, 7, 9, 10]
-    - name: "Hungarian Minor"
-      notes: [0, 2, 3, 6, 7, 8, 11]
-    - name: "In"
-      notes: [0, 1, 5, 7, 8]
-    - name: "Insen"
-      notes: [0, 1, 5, 7, 10]
-    - name: "Major (Ionian)"
-      notes: [0, 2, 4, 5, 7, 9, 11]
-    - name: "Istrian"
-      notes: [0, 1, 3, 4, 6, 7]
-    - name: "Iwato"
-      notes: [0, 1, 5, 6, 10]
-    - name: "Locrian"
-      notes: [0, 1, 3, 5, 6, 8, 10]
-    - name: "Locrian natural 6"
-      notes: [0, 1, 3, 5, 6, 9, 10]
-    - name: "Lydian Augmented"
-      notes: [0, 2, 4, 6, 8, 9, 11]
-    - name: "Lydian Diminished"
-      notes: [0, 2, 3, 6, 7, 9, 11]
-    - name: "Lydian"
-      notes: [0, 2, 4, 6, 7, 9, 11]
-    # - name: "Major Bebop"
-    #   notes: [0, 2, 4, 5, 7, 8, 9, 11]
-    - name: "Major Locrian"
-      notes: [0, 2, 4, 5, 6, 8, 10]
-    - name: "Major Pentatonic"
-      notes: [0, 2, 4, 7, 9]
-    - name: "Minor Pentatonic"
-      notes: [0, 3, 5, 7, 10]
- 
 hwbutton:
   settings:
     sequence_sxx:

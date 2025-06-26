@@ -14,7 +14,7 @@ from .laser_array import LaserArray
 from .camera import Camera
 from .image_calibrator import ImageCalibrator
 from .image_processor import ImageProcessor
-from .orchestrator import Orchtestrator
+from .orchestrator import Orchestrator
 from .hwbutton import HWButton
 from .component import Component
 from .settings import SettingsManager
@@ -38,7 +38,7 @@ class LaserHarpApp(Component):
         self.camera = Camera("camera", self._global_state)
         self.calibrator = ImageCalibrator("image_calibrator", self._global_state, self.laser_array, self.camera)
         self.processor = ImageProcessor("image_processor", self._global_state, self.laser_array, self.camera)
-        self.orchestrator = Orchtestrator("orchestrator", self._global_state, self.laser_array, self.din_midi)
+        self.orchestrator = Orchestrator("orchestrator", self._global_state, self.laser_array, self.din_midi)
         self.hwbutton = HWButton("hwbutton", self._global_state)
 
         # setup all processing threads
@@ -46,6 +46,7 @@ class LaserHarpApp(Component):
         self._calibrate_thread = threading.Thread(target=self._calibrate_thread_run, daemon=True)
         self._ipc_read_thread = threading.Thread(target=self._ipc_read_thread_run, daemon=True)
         self._din_midi_read_thread = threading.Thread(target=self._din_midi_read_thread_run, daemon=True)
+        # self._fast_process_thread = threading.Thread(target=self._fast_process_thread_run, daemon=True)
 
         self._calibration_request = False
 
@@ -101,6 +102,7 @@ class LaserHarpApp(Component):
         self._capture_thread.start()
         self._ipc_read_thread.start()
         self._din_midi_read_thread.start()
+        # self._fast_process_thread.start()
 
         # load the calibration
         logging.info("Loading calibration...")
@@ -126,6 +128,7 @@ class LaserHarpApp(Component):
         self._capture_thread.join(timeout=1)
         self._ipc_read_thread.join(timeout=1)
         self._din_midi_read_thread.join(timeout=1)
+        # self._fast_process_thread.join(timeout=1)
 
         # send a standby command to the STM board
         if self.config["send_standby"]:
@@ -166,7 +169,13 @@ class LaserHarpApp(Component):
             self._status_change(["calibrating"], prev_status)
 
     def _capture_thread_run(self):
+        t0 = time.time()
+
         while self.state["status"] != "stopping":
+            t1 = time.time()
+            dt = t1 - t0
+            t0 = t1
+
             # wait if we are currently starting up or calibrating
             if self.state["status"] in ("starting", "calibrating") or self._calibration_request:
                 time.sleep(0.1)
@@ -190,32 +199,7 @@ class LaserHarpApp(Component):
             result = self.processor.process(frame)
 
             # invoke the orchestrator
-            self.orchestrator.process(result)
-
-            # # set the laser brightness
-            # for i, active in enumerate(result.active):
-            #     note = self._laser_to_note(i)
-            #     note_on = active and not (self._prev_result and self._prev_result.active[i])
-            #     note_off = not active and (self._prev_result and self._prev_result.active[i])
-
-            #     if note_on:
-            #         self.din_midi.send(MidiEvent(0, "note_on", note=note, velocity=127))
-            #     elif note_off:
-            #         self.din_midi.send(MidiEvent(0, "note_off", note=note))
-
-            # # use the average modulation to send pitch bend
-            # num_active = sum(result.active)
-            # mod_sum = sum(result.modulation)
-            # mod_avg = mod_sum / num_active if num_active > 0 else 0
-            # pitch_bend = max(-8192, min(8191, int(mod_avg * 8192)))
-
-            # if pitch_bend != self._prev_pitch_bend:
-            #     self.din_midi.send(MidiEvent(0, "pitchwheel", pitch=pitch_bend))
-            # self._prev_pitch_bend = pitch_bend
-
-            # # self._midi_serial.flush()
-
-            # self._prev_result = result
+            self.orchestrator.process(result, dt)
 
     def _ipc_read_thread_run(self):
         while self.state["status"] != "stopping":

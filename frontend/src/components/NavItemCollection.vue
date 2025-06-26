@@ -6,8 +6,8 @@ const DEVELOPMENT = process.env.NODE_ENV === "development";
 
 <template>
   <div>
-    <NavItem to="/calibrate">
-      Calibrate
+    <NavItem to="/camera">
+      Camera
     </NavItem>
 
     <NavItem to="/settings">
