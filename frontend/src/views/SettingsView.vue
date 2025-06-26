@@ -10,6 +10,7 @@ const COMPONENTS = [
   "app",
   "camera",
   "image_calibrator",
+  "image_processor",
   "orchestrator",
   "hwbutton",
 ];

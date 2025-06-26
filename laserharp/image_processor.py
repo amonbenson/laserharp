@@ -160,7 +160,7 @@ class ImageProcessor(Component):
         position = np.argmax(brightness, axis=0)
 
         # apply kalman filter to the position
-        position = self.beam_kalman_filter.update(position, active=(strength > self.config["threshold"]))
+        position = self.beam_kalman_filter.update(position, active=(strength > self.settings["threshold"]))
 
         # lookup the metric length of each beam
         # length = self.y_metric[position]
@@ -170,7 +170,7 @@ class ImageProcessor(Component):
         length = np.interp(position, xs, self.y_metric)
 
         # filter out invalid interception points
-        length[strength < self.config["threshold"]] = np.nan
+        length[strength < self.settings["threshold"]] = np.nan
         length[length < self.config["length_min"]] = np.nan
         length[length > self.config["length_max"]] = np.nan
 

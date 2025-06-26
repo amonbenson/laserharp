@@ -32,6 +32,17 @@ const shutterSpeed = computed({
     }
   },
 });
+
+const threshold = computed({
+  get: () => laserharp.image_processor?.settings?.threshold ?? 0,
+  set: (value) => {
+    try {
+      api.updateSetting("image_processor", "threshold", value);
+    } catch (error) {
+      console.error(error);
+    }
+  },
+});
 </script>
 
 <template>
@@ -84,6 +95,22 @@ const shutterSpeed = computed({
         :min="laserharp.camera?.config?.settings?.shutter_speed?.range?.[0]"
         :max="laserharp.camera?.config?.settings?.shutter_speed?.range?.[1]"
         id="camera.shutterSpeed"
+        class="flex-grow w-full"
+      />
+    </div>
+
+    <div class="w-full flex flex-col md:flex-row justify-center items-center">
+      <label
+        class="flex-shrink-0 w-full md:w-1/2 truncate"
+        for="image_processor.threshold"
+      >
+        Threshold: {{ threshold }}
+      </label>
+      <SliderField
+        v-model="threshold"
+        :min="laserharp.image_processor?.config?.settings?.threshold?.range?.[0]"
+        :max="laserharp.image_processor?.config?.settings?.threshold?.range?.[1]"
+        id="image_processor.threshold"
         class="flex-grow w-full"
       />
     </div>

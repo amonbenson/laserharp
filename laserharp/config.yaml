@@ -92,7 +92,7 @@ image_calibrator:
 image_processor:
   preblur: 1 # gaussian blur kernel size
 
-  threshold: 128 # minimum brightness to be considered a beam (0-255)
+  # threshold: 128 # minimum brightness to be considered a beam (0-255) (this is now a setting)
   length_min: 0.05 # minimum beam length in meters
   length_max: 2 # maximum beam length in meters
 
@@ -101,6 +101,12 @@ image_processor:
 
   modulation_delay: 0.2 # delay in seconds before the modulation starts (e. g. "vibrato")
   modulation_gain: 15 # vibrato factor before soft-clipping (e. g. "drive")
+
+  settings:
+    threshold:
+      type: int
+      range: [0, 255] # minimum brightness to be considered a beam
+      default: 128
 
 orchestrator:
   settings:
